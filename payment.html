@@ -68,6 +68,30 @@
             margin-bottom: 25px;
         }
 
+        .order-details-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-blue);
+        }
+
+        .order-detail {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .order-detail-label {
+            font-size: 0.8em;
+            color: var(--medium-gray);
+            margin-bottom: 4px;
+        }
+
+        .order-detail-value {
+            font-weight: 600;
+            color: var(--dark-text);
+        }
+
         .summary-item {
             display: flex;
             justify-content: space-between;
@@ -262,8 +286,25 @@
 
         <div class="payment-body">
             <div class="order-summary">
-               <div class="order-summary">
-                    <h3 style="margin-bottom: 15px; color: var(--primary-blue);">Order Summary - Room <span id="roomNumberDisplay">101</span></h3>
+                <h3 style="margin-bottom: 15px; color: var(--primary-blue);">Order Summary</h3>
+                
+                <div class="order-details-header">
+                    <div class="order-detail">
+                        <span class="order-detail-label">Room Number</span>
+                        <span class="order-detail-value" id="roomNumberDisplay">-</span>
+                    </div>
+                    <div class="order-detail">
+                        <span class="order-detail-label">Confirmation</span>
+                        <span class="order-detail-value" id="confirmationNumberDisplay">-</span>
+                    </div>
+                    <div class="order-detail">
+                        <span class="order-detail-label">Order Time</span>
+                        <span class="order-detail-value" id="orderTimeDisplay">-</span>
+                    </div>
+                </div>
+                
+                <div id="orderItems">
+                    <!-- Order items will be populated by JavaScript -->
                 </div>
                 <div class="summary-total">
                     <span>Total Amount:</span>
@@ -318,7 +359,7 @@
                 <input type="text" id="payerName" placeholder="Enter the name you used for payment">
             </div>
 
-            <button class="submit-btn" onclick="submitPayment()" id="submitBtn">
+            <button class="submit-btn" onclick="submitPayment()" id="submitBtn" disabled>
                 <i class="fas fa-paper-plane"></i> Submit Payment Details
             </button>
         </div>
@@ -327,6 +368,7 @@
     <script>
         let selectedPaymentMethod = null;
         let orderData = {};
+        let telegramChatId = '';
 
         // Configuration
         const PAYMENT_WEBHOOK_URL = 'https://n8n-n64x.onrender.com/webhook/complete-order';
@@ -335,6 +377,9 @@
         function getOrderData() {
             const urlParams = new URLSearchParams(window.location.search);
             const confirmationNumber = urlParams.get('confirmation');
+            
+            // Get Telegram chat ID if available
+            telegramChatId = urlParams.get('telegram_chat_id') || '';
             
             if (!confirmationNumber) {
                 alert('No order confirmation found. Please place your order again.');
@@ -355,6 +400,7 @@
                 orderData = JSON.parse(orderDataStr);
                 console.log('Retrieved order data from storage:', orderData);
                 
+                // Update the display with room information
                 displayOrderSummary();
                 
             } catch (error) {
@@ -364,13 +410,31 @@
             }
         }
 
-        // Display order summary
+        // Display order summary with room information
         function displayOrderSummary() {
-            const container = document.getElementById('orderSummary');
+            const itemsContainer = document.getElementById('orderItems');
             const totalElement = document.getElementById('totalAmount');
+            const roomElement = document.getElementById('roomNumberDisplay');
+            const confirmationElement = document.getElementById('confirmationNumberDisplay');
+            const orderTimeElement = document.getElementById('orderTimeDisplay');
             
+            // Update room and confirmation details
+            if (orderData.room) {
+                roomElement.textContent = orderData.room;
+            }
+            
+            if (orderData.confirmation_number) {
+                confirmationElement.textContent = orderData.confirmation_number;
+            }
+            
+            if (orderData.timestamp) {
+                const orderDate = new Date(orderData.timestamp);
+                orderTimeElement.textContent = orderDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            }
+            
+            // Update order items
             if (orderData.items && Array.isArray(orderData.items)) {
-                container.innerHTML = orderData.items.map(item => `
+                itemsContainer.innerHTML = orderData.items.map(item => `
                     <div class="summary-item">
                         <span>${item.quantity}x ${item.name}</span>
                         <span>$${(item.price * item.quantity).toFixed(2)}</span>
@@ -428,7 +492,9 @@
                 payment_phone: selectedPaymentMethod === 'telebirr' ? '0975643221' : null,
                 payment_account: selectedPaymentMethod === 'cbe' ? '1000323242425' : null,
                 payer_name: payerName,
-                payment_timestamp: new Date().toISOString()
+                payment_timestamp: new Date().toISOString(),
+                // Include Telegram chat ID if available
+                telegram_chat_id: telegramChatId || orderData.telegram_chat_id || null
             };
 
             console.log('Complete order data with payment:', completeOrderData);
@@ -461,7 +527,8 @@
                     
                     // Redirect to confirmation page
                     setTimeout(() => {
-                        window.location.href = 'payment-success.html?order=' + encodeURIComponent(JSON.stringify(completeOrderData));
+                        window.location.href = 'payment-success.html?order=' + encodeURIComponent(JSON.stringify(completeOrderData)) + 
+                                               (telegramChatId ? '&telegram_chat_id=' + telegramChatId : '');
                     }, 2000);
                     
                 } else {
@@ -481,6 +548,12 @@
 
         // Show notification
         function showNotification(message, type = 'info') {
+            // Remove existing notification
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
             const notification = document.createElement('div');
             notification.className = `notification`;
             
