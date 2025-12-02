@@ -35,6 +35,7 @@
           padding: 15px;
           color: var(--dark-text);
           line-height: 1.6;
+          position: relative; /* Added for cart button positioning */
         }
 
         .container {
@@ -45,6 +46,79 @@
           box-shadow: 0 10px 30px rgba(0,0,0,0.08);
           overflow: hidden;
           border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        /* ===== FLOATING VIEW CART BUTTON ===== */
+        .floating-cart-btn {
+          position: fixed;
+          bottom: 25px;
+          right: 25px;
+          z-index: 999;
+          background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-light) 100%);
+          color: white;
+          border: none;
+          border-radius: 50px;
+          padding: 16px 24px;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 1em;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          box-shadow: 0 6px 20px rgba(26, 58, 95, 0.3);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          animation: floatIn 0.5s ease;
+          backdrop-filter: blur(10px);
+        }
+
+        @keyframes floatIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .floating-cart-btn:hover {
+          transform: translateY(-5px) scale(1.05);
+          box-shadow: 0 10px 30px rgba(26, 58, 95, 0.4);
+          background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-blue) 100%);
+        }
+
+        .floating-cart-btn:active {
+          transform: translateY(-2px) scale(1.02);
+        }
+
+        .cart-count-badge {
+          background: var(--accent-gold);
+          color: white;
+          border-radius: 50%;
+          width: 24px;
+          height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.8em;
+          font-weight: 800;
+          position: absolute;
+          top: -8px;
+          right: -8px;
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0% {
+            box-shadow: 0 0 0 0 rgba(247, 140, 18, 0.7);
+          }
+          70% {
+            box-shadow: 0 0 0 10px rgba(247, 140, 18, 0);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(247, 140, 18, 0);
+          }
         }
 
         /* ===== RESPONSIVE LANGUAGE SELECTOR ===== */
@@ -389,6 +463,7 @@
           background: white;
           padding: 30px;
           border-top: 3px solid var(--primary-blue);
+          scroll-margin-top: 20px; /* Added for smooth scrolling */
         }
 
         .cart-header {
@@ -940,6 +1015,20 @@
             min-height: 52px;
             padding: 14px;
           }
+
+          /* Floating cart button responsive */
+          .floating-cart-btn {
+            bottom: 20px;
+            right: 20px;
+            padding: 14px 20px;
+            font-size: 0.95em;
+          }
+
+          .cart-count-badge {
+            width: 22px;
+            height: 22px;
+            font-size: 0.75em;
+          }
         }
 
         @media (max-width: 480px) {
@@ -1002,10 +1091,42 @@
             min-height: 50px;
             font-size: 1em;
           }
+
+          /* Floating cart button responsive */
+          .floating-cart-btn {
+            bottom: 15px;
+            right: 15px;
+            padding: 12px 18px;
+            font-size: 0.9em;
+            gap: 8px;
+          }
+
+          .cart-count-badge {
+            width: 20px;
+            height: 20px;
+            font-size: 0.7em;
+            top: -6px;
+            right: -6px;
+          }
+
+          .floating-cart-btn span:not(.cart-count-badge) {
+            display: none; /* Hide text on very small screens, show only icon */
+          }
+
+          .floating-cart-btn i {
+            font-size: 1.2em;
+          }
         }
     </style>
 </head>
 <body>
+    <!-- Floating View Cart Button -->
+    <button class="floating-cart-btn" id="floatingCartBtn" onclick="scrollToCart()">
+        <i class="fas fa-shopping-cart"></i>
+        <span data-i18n="view_cart">View Cart</span>
+        <div class="cart-count-badge" id="cartCountBadge" style="display: none;">0</div>
+    </button>
+
     <div class="container">
         <!-- Language Selector -->
         <div class="language-selector">
@@ -1151,7 +1272,7 @@
         let currentLanguage = 'en';
         let telegramChatId = '';
 
-        // Translation dictionary
+        // Translation dictionary - ADDED "view_cart" translation
         const translations = {
             en: {
                 // Header
@@ -1172,6 +1293,7 @@
                 "cart_empty": "Your cart is empty",
                 "add_items": "Add some delicious items from our menu",
                 "total_amount": "Total Amount",
+                "view_cart": "View Cart", // ADDED
                 
                 // Order Form
                 "complete_order": "Complete Your Order",
@@ -1228,6 +1350,7 @@
                 "cart_empty": "ግዢዎችዎ ባዶ ነው",
                 "add_items": "ከመነሻችን ጣፋጭ ምግቦችን ያክሉ",
                 "total_amount": "ጠቅላላ ዋጋ",
+                "view_cart": "ግዢ ይመልከቱ", // ADDED
                 
                 // Order Form
                 "complete_order": "ትዕዛዝዎን ይጨርሱ",
@@ -1284,6 +1407,7 @@
                 "cart_empty": "Dhaabbataan Keessan Duwwaa Dha",
                 "add_items": "Menyuu Keenya Irraa Nyaata Mi'aawaa Dabaladhaa",
                 "total_amount": "Gatii Waliigalaa",
+                "view_cart": "Dhaabbata Ilaali", // ADDED
                 
                 // Order Form
                 "complete_order": "Dhaabbata Keessan Xumuri",
@@ -1399,6 +1523,53 @@
         function getTelegramChatId() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('telegram_chat_id') || '';
+        }
+
+        // NEW FUNCTION: Scroll to cart section
+        function scrollToCart() {
+            const cartSection = document.querySelector('.cart-section');
+            if (cartSection) {
+                cartSection.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // Add a visual highlight effect
+                cartSection.style.animation = 'none';
+                setTimeout(() => {
+                    cartSection.style.boxShadow = '0 0 0 3px var(--accent-gold)';
+                    setTimeout(() => {
+                        cartSection.style.boxShadow = '';
+                    }, 1000);
+                }, 10);
+            }
+        }
+
+        // NEW FUNCTION: Update cart count badge
+        function updateCartCountBadge() {
+            const badge = document.getElementById('cartCountBadge');
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            
+            if (totalItems > 0) {
+                badge.textContent = totalItems;
+                badge.style.display = 'flex';
+                
+                // Update floating button text
+                const floatingBtn = document.getElementById('floatingCartBtn');
+                const viewCartText = floatingBtn.querySelector('span:not(.cart-count-badge)');
+                if (viewCartText) {
+                    viewCartText.textContent = translations[currentLanguage]['view_cart'] + ` (${totalItems})`;
+                }
+            } else {
+                badge.style.display = 'none';
+                
+                // Reset floating button text
+                const floatingBtn = document.getElementById('floatingCartBtn');
+                const viewCartText = floatingBtn.querySelector('span:not(.cart-count-badge)');
+                if (viewCartText) {
+                    viewCartText.textContent = translations[currentLanguage]['view_cart'];
+                }
+            }
         }
 
         // Clean up old orders from localStorage
@@ -1537,12 +1708,14 @@
 
             quantityElement.textContent = '0';
             updateCartDisplay();
+            updateCartCountBadge(); // UPDATE: Added call to update badge
             showNotification(translateNotification('added_to_cart', 'success', {quantity: quantity, item: item.name}), 'success');
         }
 
         function removeFromCart(itemId) {
             cart = cart.filter(item => item.id != itemId);
             updateCartDisplay();
+            updateCartCountBadge(); // UPDATE: Added call to update badge
             showNotification(translateNotification('item_removed'), 'info');
         }
 
@@ -1552,6 +1725,7 @@
             if (confirm(translateNotification('cart_cleared'))) {
                 cart = [];
                 updateCartDisplay();
+                updateCartCountBadge(); // UPDATE: Added call to update badge
                 showNotification(translateNotification('cart_cleared'), 'info');
             }
         }
