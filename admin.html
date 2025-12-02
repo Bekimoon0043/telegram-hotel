@@ -767,12 +767,16 @@
 
                 console.log('Found order for notification:', order);
                 
-                // Add payment status and telegram chat ID to order data
+                // Create update data - only send what's needed
                 const updateData = {
-                    ...order, // Spread all order data including telegram_chat_id
+                    confirmation_number: order.confirmation_number || orderId,
                     payment_status: status,
+                    telegram_chat_id: order.telegram_chat_id || '',
+                    room_number: order.room_number || order.table_number || 'N/A',
                     updatedAt: new Date().toISOString()
                 };
+
+                console.log('Sending update data:', updateData);
 
                 // First update the payment status
                 const updateResponse = await fetch('https://n8n-n64x.onrender.com/webhook/update-order', {
@@ -788,43 +792,12 @@
                     throw new Error(`Update failed: ${errorText}`);
                 }
 
-                // Send user notification via Telegram Customer Notifications workflow
-                if (order.telegram_chat_id) {
-                    try {
-                        const notifyResponse = await fetch('https://n8n-n64x.onrender.com/webhook/notify-customer', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                orderId: orderId,
-                                telegramChatId: order.telegram_chat_id,
-                                type: `payment_${status}`,
-                                room: order.room_number || order.table_number || 'N/A'
-                            })
-                        });
-
-                        if (!notifyResponse.ok) {
-                            console.warn('User notification failed, but payment was updated');
-                        }
-                    } catch (notifyError) {
-                        console.warn('Failed to send user notification:', notifyError);
-                    }
-                }
-
                 alert(`Payment ${status} successfully! ${order.telegram_chat_id ? 'User notified.' : 'No Telegram user to notify.'}`);
                 
-                // If payment is verified, also confirm the order
-                if (status === 'verified') {
-                    setTimeout(() => {
-                        updateOrderStatus(orderId, 'confirmed');
-                    }, 1000);
-                } else {
-                    // Reload orders to show updated status
-                    setTimeout(() => {
-                        loadOrders();
-                    }, 1000);
-                }
+                // Reload orders to show updated status
+                setTimeout(() => {
+                    loadOrders();
+                }, 1000);
 
             } catch (error) {
                 console.error('Error verifying payment:', error);
