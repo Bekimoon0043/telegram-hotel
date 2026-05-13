@@ -626,12 +626,54 @@
         </div>
 
         <div id="menu-tab" class="tab-content">
-            <h2 style="margin-bottom: 20px; color: var(--primary-blue);"><i class="fas fa-utensils"></i> Menu Management</h2>
-            <div style="text-align: center; padding: 40px;">
-                <i class="fas fa-tools" style="font-size: 3em; color: #ccc; margin-bottom: 20px;"></i>
-                <h3 style="color: #666; margin-bottom: 10px;">Menu Management Coming Soon</h3>
-                <p style="color: #999;">Manage your menu items, prices, and availability</p>
-            </div>
+    <h2 style="margin-bottom: 20px; color: var(--primary-blue);"><i class="fas fa-utensils"></i> Add Menu Item</h2>
+    
+    <div id="addItemResult" style="display: none; padding: 15px; border-radius: 10px; margin-bottom: 20px;"></div>
+
+    <form id="addItemForm" style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 600px;">
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label for="itemName" style="font-weight: 600;">Item Name *</label>
+            <input type="text" id="itemName" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label for="itemDescription" style="font-weight: 600;">Description</label>
+            <textarea id="itemDescription" rows="3" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;"></textarea>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label for="itemPrice" style="font-weight: 600;">Price (USD) *</label>
+            <input type="number" step="0.01" min="0" id="itemPrice" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label for="itemCategory" style="font-weight: 600;">Category *</label>
+            <select id="itemCategory" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;" required>
+                <option value="">Select category</option>
+                <option value="food">Main Course</option>
+                <option value="drinks">Beverages</option>
+                <option value="appetizers">Appetizers</option>
+                <option value="desserts">Desserts</option>
+            </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label for="itemImageUrl" style="font-weight: 600;">Image URL</label>
+            <input type="url" id="itemImageUrl" placeholder="https://..." style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="itemAvailable" style="font-weight: 600;">Available</label>
+            <select id="itemAvailable" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                <option value="TRUE">Yes</option>
+                <option value="FALSE">No</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-accept" style="width: 100%;">
+            <i class="fas fa-plus-circle"></i> Add Item
+        </button>
+    </form>
         </div>
     </div>
 
@@ -1116,6 +1158,69 @@
             // Refresh every 30 seconds
             setInterval(loadOrders, 30000);
         });
+        // ======= ADD MENU ITEM LOGIC =======
+const ADD_MENU_ITEM_URL = 'https://n8n-n64x.onrender.com/webhook/add-menu-item';  // USE YOUR ACTUAL URL
+
+document.getElementById('addItemForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+
+    const itemData = {
+        name: document.getElementById('itemName').value.trim(),
+        description: document.getElementById('itemDescription').value.trim(),
+        price: parseFloat(document.getElementById('itemPrice').value),
+        category: document.getElementById('itemCategory').value,
+        imageurl: document.getElementById('itemImageUrl').value.trim(),
+        available: document.getElementById('itemAvailable').value
+    };
+
+    try {
+        const response = await fetch(ADD_MENU_ITEM_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(itemData)
+        });
+
+        const result = await response.json();
+
+        const resultDiv = document.getElementById('addItemResult');
+        resultDiv.style.display = 'block';
+
+        if (response.ok && result.success) {
+            resultDiv.style.background = '#d4edda';
+            resultDiv.style.color = '#155724';
+            resultDiv.style.border = '1px solid #c3e6cb';
+            resultDiv.innerHTML = `
+                <strong>✓ Item Added!</strong><br>
+                <small>ID: ${result.item ? result.item.id : ''}</small><br>
+                ${result.item.name} - $${result.item.price.toFixed(2)} (${result.item.category})
+            `;
+
+            // Reset form
+            document.getElementById('addItemForm').reset();
+            // Keep available as TRUE
+            document.getElementById('itemAvailable').value = 'TRUE';
+
+        } else {
+            throw new Error(result.error || 'Unknown error');
+        }
+
+    } catch (error) {
+        const resultDiv = document.getElementById('addItemResult');
+        resultDiv.style.display = 'block';
+        resultDiv.style.background = '#f8d7da';
+        resultDiv.style.color = '#721c24';
+        resultDiv.style.border = '1px solid #f5c6cb';
+        resultDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }
+});
     </script>
 </body>
 </html>
