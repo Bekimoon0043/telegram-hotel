@@ -11,434 +11,508 @@
     :root {
       --espresso:#120B07; --bark:#2A1810; --copper:#C8722A; --gold:#E8A44A;
       --cream:#F5ECD7; --cream-dim:#D9CDB8; --sand:#8C7B66; --card-bg:#1E120C;
-      --success:#3DAA6A; --error:#C0392B;
+      --success:#3DAA6A; --warning:#E67E22; --error:#C0392B;
     }
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:'DM Sans',sans-serif;background:var(--espresso);color:var(--cream);min-height:100vh;}
 
-    /* HEADER */
-    header{
-      background:rgba(18,11,7,.96);backdrop-filter:blur(12px);
-      border-bottom:1px solid rgba(200,114,42,.2);
-      padding:0 20px;height:60px;
-      display:flex;align-items:center;gap:14px;
+    /* ── HEADER ── */
+    .pay-header{
+      background:linear-gradient(160deg,var(--bark) 0%,#3a1d10 100%);
+      padding:32px 24px 28px;text-align:center;
+      position:relative;overflow:hidden;
     }
-    .back-btn{
-      background:transparent;border:none;color:var(--cream-dim);
-      font-size:1.1rem;cursor:pointer;padding:4px;
+    .pay-header::before{
+      content:'';position:absolute;inset:0;
+      background:radial-gradient(circle at 50% 0%,rgba(200,114,42,.2),transparent 70%);
     }
-    .back-btn:hover{color:var(--copper);}
-    .page-title{
+    .pay-icon{font-size:2.4rem;margin-bottom:10px;}
+    .pay-title{
       font-family:'Cormorant Garamond',serif;
-      font-size:1.2rem;font-weight:600;
+      font-size:1.8rem;font-weight:700;color:var(--cream);margin-bottom:4px;
     }
+    .pay-sub{font-size:.85rem;color:var(--cream-dim);font-weight:300;}
 
-    /* MAIN */
-    .page-wrap{max-width:500px;margin:0 auto;padding:24px 20px 100px;}
+    /* ── PAGE WRAP ── */
+    .page-wrap{max-width:500px;margin:0 auto;padding:20px 16px 48px;}
 
-    /* ORDER SUMMARY */
+    /* ── CARDS ── */
     .card{
       background:var(--card-bg);border:1px solid rgba(255,255,255,.07);
-      border-radius:16px;padding:20px;margin-bottom:16px;
+      border-radius:16px;padding:20px;margin-bottom:14px;
     }
     .card-head{
       font-family:'Cormorant Garamond',serif;
-      font-size:1.1rem;font-weight:600;color:var(--gold);
+      font-size:1.05rem;font-weight:600;color:var(--gold);
       margin-bottom:14px;display:flex;align-items:center;gap:8px;
     }
-    .summary-row{
-      display:flex;justify-content:space-between;align-items:center;
-      padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);
-      font-size:.88rem;
+
+    /* ── ORDER SUMMARY ── */
+    .summary-meta{
+      display:flex;gap:12px;margin-bottom:14px;
     }
-    .summary-row:last-child{border-bottom:none;}
-    .summary-label{color:var(--cream-dim);}
-    .summary-val{font-weight:600;}
+    .meta-chip{
+      flex:1;background:var(--espresso);border:1px solid rgba(200,114,42,.18);
+      border-radius:10px;padding:10px 12px;
+    }
+    .meta-label{font-size:.65rem;color:var(--sand);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;}
+    .meta-val{font-size:.9rem;font-weight:600;color:var(--cream);}
+    .sum-row{
+      display:flex;justify-content:space-between;
+      padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);
+      font-size:.85rem;
+    }
+    .sum-row:last-child{border:none;}
+    .sum-label{color:var(--cream-dim);}
+    .sum-val{font-weight:600;}
     .total-row{
+      display:flex;justify-content:space-between;align-items:center;
       margin-top:12px;padding-top:12px;
       border-top:1px solid rgba(200,114,42,.2);
-      display:flex;justify-content:space-between;align-items:center;
     }
-    .total-label{font-size:.85rem;color:var(--sand);}
-    .total-amount{
+    .total-lbl{font-size:.82rem;color:var(--sand);}
+    .total-amt{
       font-family:'Cormorant Garamond',serif;
-      font-size:1.8rem;font-weight:700;color:var(--gold);
+      font-size:1.6rem;font-weight:700;color:var(--gold);
     }
 
-    /* PAYMENT METHODS */
-    .method-grid{display:grid;gap:10px;}
-    .method-btn{
-      background:var(--bark);border:2px solid rgba(255,255,255,.08);
-      border-radius:14px;padding:16px 18px;
-      display:flex;align-items:center;gap:14px;
-      cursor:pointer;transition:all .25s ease;text-align:left;
+    /* ── PAYMENT METHODS ── */
+    .method-grid{display:flex;flex-direction:column;gap:10px;}
+    .method-card{
+      background:var(--espresso);
+      border:2px solid rgba(255,255,255,.07);
+      border-radius:14px;padding:16px;
+      cursor:pointer;transition:all .25s ease;
+      position:relative;
     }
-    .method-btn:hover{border-color:rgba(200,114,42,.5);background:#321e14;}
-    .method-btn.selected{border-color:var(--copper);background:#321e14;}
+    .method-card:hover{border-color:rgba(200,114,42,.4);}
+    .method-card.selected{
+      border-color:var(--copper);
+      background:rgba(200,114,42,.06);
+      box-shadow:0 0 0 3px rgba(200,114,42,.1);
+    }
+    .method-top{display:flex;align-items:center;gap:12px;}
     .method-icon{
-      width:42px;height:42px;border-radius:10px;
+      width:44px;height:44px;border-radius:10px;
+      background:linear-gradient(135deg,var(--bark),var(--card-bg));
+      border:1px solid rgba(200,114,42,.2);
       display:flex;align-items:center;justify-content:center;
-      font-size:1.3rem;flex-shrink:0;
+      font-size:1.2rem;color:var(--copper);flex-shrink:0;
     }
     .method-info{flex:1;}
-    .method-name{font-weight:600;font-size:.95rem;color:var(--cream);margin-bottom:2px;}
-    .method-desc{font-size:.78rem;color:var(--sand);}
-    .method-check{
-      width:22px;height:22px;border-radius:50%;
+    .method-name{font-size:.95rem;font-weight:600;color:var(--cream);}
+    .method-desc{font-size:.75rem;color:var(--sand);margin-top:2px;}
+    .method-radio{
+      width:20px;height:20px;border-radius:50%;
       border:2px solid rgba(255,255,255,.2);
+      transition:all .25s ease;flex-shrink:0;
       display:flex;align-items:center;justify-content:center;
-      font-size:.7rem;color:#fff;
-      flex-shrink:0;transition:all .2s;
     }
-    .method-btn.selected .method-check{background:var(--copper);border-color:var(--copper);}
+    .method-card.selected .method-radio{
+      border-color:var(--copper);background:var(--copper);
+    }
+    .method-card.selected .method-radio::after{
+      content:'';width:7px;height:7px;border-radius:50%;background:#fff;
+    }
 
-    /* PAYMENT FORM */
-    .payment-form{display:none;margin-top:16px;}
-    .payment-form.visible{display:block;}
-    .form-group{margin-bottom:14px;}
-    .form-label{
-      font-size:.75rem;font-weight:600;color:var(--sand);
-      letter-spacing:.08em;text-transform:uppercase;
-      display:block;margin-bottom:6px;
+    /* Transfer details (shown when selected) */
+    .method-details{
+      margin-top:14px;padding-top:14px;
+      border-top:1px solid rgba(255,255,255,.06);
+      display:none;
     }
-    .form-input{
-      width:100%;background:var(--espresso);
-      border:1px solid rgba(255,255,255,.1);border-radius:10px;
-      color:var(--cream);padding:11px 14px;
-      font-family:'DM Sans',sans-serif;font-size:.9rem;
-      transition:border-color .2s;
+    .method-card.selected .method-details{display:block;}
+    .account-row{
+      display:flex;align-items:center;justify-content:space-between;
+      background:var(--bark);border-radius:10px;padding:12px 14px;
+      margin-bottom:8px;
     }
-    .form-input:focus{outline:none;border-color:var(--copper);}
-    .form-input::placeholder{color:var(--sand);}
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .account-label{font-size:.7rem;color:var(--sand);margin-bottom:3px;letter-spacing:.08em;text-transform:uppercase;}
+    .account-number{
+      font-family:'Cormorant Garamond',serif;
+      font-size:1.1rem;font-weight:600;color:var(--gold);letter-spacing:.04em;
+    }
+    .copy-btn{
+      background:var(--copper);color:#fff;border:none;
+      border-radius:8px;padding:7px 12px;font-size:.78rem;
+      font-family:'DM Sans',sans-serif;font-weight:600;
+      cursor:pointer;display:flex;align-items:center;gap:5px;
+      transition:opacity .2s ease;flex-shrink:0;
+    }
+    .copy-btn:hover{opacity:.85;}
+    .copy-btn.copied{background:var(--success);}
+    .transfer-note{font-size:.78rem;color:var(--sand);line-height:1.5;}
 
-    /* INFO BOX */
-    .info-box{
-      background:rgba(200,114,42,.08);
-      border:1px solid rgba(200,114,42,.2);
+    /* Cash on delivery details */
+    .cod-info{
+      display:flex;align-items:flex-start;gap:10px;
+      background:rgba(61,170,106,.08);border:1px solid rgba(61,170,106,.2);
       border-radius:10px;padding:12px 14px;
-      font-size:.8rem;color:var(--cream-dim);
-      display:flex;gap:10px;align-items:flex-start;
     }
-    .info-box i{color:var(--copper);margin-top:2px;flex-shrink:0;}
+    .cod-info i{color:var(--success);margin-top:2px;flex-shrink:0;}
+    .cod-info p{font-size:.82rem;color:var(--cream-dim);line-height:1.5;}
 
-    /* STRIPE PLACEHOLDER */
-    .stripe-field{
-      background:var(--espresso);border:1px solid rgba(255,255,255,.1);
-      border-radius:10px;padding:13px 14px;
-      font-size:.85rem;color:var(--sand);
-      display:flex;align-items:center;gap:8px;margin-bottom:14px;
+    /* ── FORM ── */
+    .field{margin-bottom:14px;}
+    .field label{
+      display:block;font-size:.78rem;font-weight:600;
+      color:var(--sand);letter-spacing:.08em;text-transform:uppercase;
+      margin-bottom:8px;
     }
+    .field input{
+      width:100%;padding:14px 16px;
+      background:var(--bark);border:1px solid rgba(255,255,255,.1);
+      border-radius:12px;color:var(--cream);
+      font-family:'DM Sans',sans-serif;font-size:.95rem;
+      transition:border-color .2s ease;
+    }
+    .field input::placeholder{color:var(--sand);}
+    .field input:focus{outline:none;border-color:var(--copper);}
+    /* hide name field for cash */
+    .name-field.hide{display:none;}
 
-    /* SUBMIT */
-    .submit-area{
-      position:fixed;bottom:0;left:0;right:0;z-index:100;
-      background:linear-gradient(to top,var(--espresso) 60%,transparent);
-      padding:20px;max-width:500px;margin:0 auto;
-    }
+    /* ── SUBMIT ── */
     .submit-btn{
       width:100%;padding:16px;
       background:linear-gradient(135deg,var(--copper),var(--gold));
-      border:none;border-radius:14px;
-      color:#fff;font-family:'DM Sans',sans-serif;
-      font-size:1rem;font-weight:600;
-      cursor:pointer;transition:all .3s ease;
+      color:#fff;border:none;border-radius:14px;
+      font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;
+      cursor:pointer;transition:all .25s ease;
       display:flex;align-items:center;justify-content:center;gap:10px;
+      margin-top:4px;
     }
-    .submit-btn:hover{opacity:.9;transform:translateY(-1px);}
-    .submit-btn:disabled{background:var(--sand);cursor:not-allowed;transform:none;}
+    .submit-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(200,114,42,.35);}
+    .submit-btn:disabled{background:var(--bark);color:var(--sand);transform:none;box-shadow:none;cursor:not-allowed;}
 
-    /* Toast */
+    /* ── TOAST ── */
     .toast{
-      position:fixed;top:72px;left:50%;transform:translateX(-50%);
-      z-index:600;background:var(--card-bg);
-      border:1px solid rgba(200,114,42,.4);border-radius:10px;
-      padding:12px 20px;font-size:.88rem;font-weight:500;color:var(--cream);
+      position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+      background:var(--bark);border:1px solid rgba(200,114,42,.3);
+      border-radius:30px;padding:12px 20px;
+      font-size:.85rem;font-weight:500;color:var(--cream);
+      display:flex;align-items:center;gap:8px;
+      transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+      z-index:9999;white-space:nowrap;
       box-shadow:0 8px 24px rgba(0,0,0,.5);
-      display:flex;align-items:center;gap:10px;
-      animation:toastIn .3s ease;pointer-events:none;
     }
-    @keyframes toastIn{from{opacity:0;top:52px;}to{opacity:1;top:72px;}}
-    .toast.error .ti{color:var(--error);}
-    .toast.warning .ti{color:#E67E22;}
+    .toast.show{transform:translateX(-50%) translateY(0);}
+    .toast.success i{color:var(--success);}
+    .toast.error i{color:var(--error);}
+    .toast.info i{color:var(--copper);}
   </style>
 </head>
 <body>
 
-<header>
-  <button class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
-  <div class="page-title">Payment</div>
-</header>
+<!-- HEADER -->
+<div class="pay-header">
+  <div class="pay-icon">💳</div>
+  <div class="pay-title">Complete Your Order</div>
+  <div class="pay-sub">Choose how you'd like to pay</div>
+</div>
 
 <div class="page-wrap">
 
   <!-- ORDER SUMMARY -->
-  <div class="card" id="orderSummary">
-    <div class="card-head"><i class="fas fa-receipt" style="color:var(--copper)"></i>Order Summary</div>
-    <div id="itemsList"></div>
-    <div class="total-row">
-      <span class="total-label">Total Amount</span>
-      <span class="total-amount" id="totalAmt">$0.00</span>
-    </div>
-    <div style="margin-top:12px;font-size:.78rem;color:var(--sand);">
-      Confirmation: <span style="color:var(--gold);font-weight:600;" id="confDisplay">—</span>
-      &nbsp;·&nbsp; Table <span id="tableDisplay">—</span>
-    </div>
-  </div>
-
-  <!-- PAYMENT METHOD SELECTION -->
   <div class="card">
-    <div class="card-head"><i class="fas fa-credit-card" style="color:var(--copper)"></i>Choose Payment</div>
-    <div class="method-grid">
-      <button class="method-btn selected" onclick="selectMethod('cash', this)">
-        <div class="method-icon" style="background:rgba(61,170,106,.15);color:#3DAA6A;">
-          <i class="fas fa-money-bill-wave"></i>
-        </div>
-        <div class="method-info">
-          <div class="method-name">Cash</div>
-          <div class="method-desc">Pay when your order arrives</div>
-        </div>
-        <div class="method-check"><i class="fas fa-check"></i></div>
-      </button>
-
-      <button class="method-btn" onclick="selectMethod('card', this)">
-        <div class="method-icon" style="background:rgba(200,114,42,.15);color:var(--copper);">
-          <i class="fas fa-credit-card"></i>
-        </div>
-        <div class="method-info">
-          <div class="method-name">Credit / Debit Card</div>
-          <div class="method-desc">Visa, Mastercard, Amex</div>
-        </div>
-        <div class="method-check"><i class="fas fa-check"></i></div>
-      </button>
-
-      <button class="method-btn" onclick="selectMethod('mobile_money', this)">
-        <div class="method-icon" style="background:rgba(52,152,219,.15);color:#3498DB;">
-          <i class="fas fa-mobile-alt"></i>
-        </div>
-        <div class="method-info">
-          <div class="method-name">Mobile Money</div>
-          <div class="method-desc">M-Pesa, GCash, PayMaya</div>
-        </div>
-        <div class="method-check"><i class="fas fa-check"></i></div>
-      </button>
-
-      <button class="method-btn" onclick="selectMethod('paypal', this)">
-        <div class="method-icon" style="background:rgba(0,112,201,.15);color:#0070C9;">
-          <i class="fab fa-paypal"></i>
-        </div>
-        <div class="method-info">
-          <div class="method-name">PayPal / QR Pay</div>
-          <div class="method-desc">Scan or pay via PayPal</div>
-        </div>
-        <div class="method-check"><i class="fas fa-check"></i></div>
-      </button>
-    </div>
-
-    <!-- Dynamic payment form -->
-    <div class="payment-form" id="formCash">
-      <div class="info-box">
-        <i class="fas fa-info-circle"></i>
-        <span>Our staff will collect payment when your order is delivered. No action needed here.</span>
+    <div class="card-head"><i class="fas fa-receipt" style="color:var(--copper)"></i>Order Summary</div>
+    <div class="summary-meta">
+      <div class="meta-chip">
+        <div class="meta-label">Room / Table</div>
+        <div class="meta-val" id="roomDisplay">—</div>
+      </div>
+      <div class="meta-chip">
+        <div class="meta-label">Confirmation</div>
+        <div class="meta-val" id="confDisplay" style="font-size:.78rem;letter-spacing:.03em;">—</div>
+      </div>
+      <div class="meta-chip">
+        <div class="meta-label">Time</div>
+        <div class="meta-val" id="timeDisplay">—</div>
       </div>
     </div>
-
-    <div class="payment-form" id="formCard">
-      <div class="form-group">
-        <label class="form-label">Cardholder Name</label>
-        <input class="form-input" id="cardName" type="text" placeholder="Name on card">
-      </div>
-      <div class="form-group">
-        <div class="stripe-field"><i class="fas fa-lock" style="color:var(--copper)"></i>&nbsp; Card Number (4242 4242 4242 4242 for demo)</div>
-        <input class="form-input" id="cardNum" type="text" placeholder="1234 5678 9012 3456" maxlength="19" oninput="fmtCard(this)">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Expiry</label>
-          <input class="form-input" id="cardExp" type="text" placeholder="MM/YY" maxlength="5" oninput="fmtExp(this)">
-        </div>
-        <div class="form-group">
-          <label class="form-label">CVV</label>
-          <input class="form-input" id="cardCvv" type="text" placeholder="•••" maxlength="4">
-        </div>
-      </div>
-    </div>
-
-    <div class="payment-form" id="formMobile_money">
-      <div class="form-group">
-        <label class="form-label">Phone Number</label>
-        <input class="form-input" id="mobilePhone" type="tel" placeholder="+1 555 000 0000">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Account Name</label>
-        <input class="form-input" id="mobileName" type="text" placeholder="Name on account">
-      </div>
-      <div class="info-box">
-        <i class="fas fa-info-circle"></i>
-        <span>After submitting, admin will verify your mobile money transfer and confirm your order.</span>
-      </div>
-    </div>
-
-    <div class="payment-form" id="formPaypal">
-      <div class="form-group">
-        <label class="form-label">PayPal Email</label>
-        <input class="form-input" id="paypalEmail" type="email" placeholder="you@example.com">
-      </div>
-      <div class="info-box">
-        <i class="fas fa-info-circle"></i>
-        <span>Send payment to our PayPal and include your confirmation number as the note.</span>
-      </div>
+    <div id="orderItems"></div>
+    <div class="total-row">
+      <span class="total-lbl">Total to Pay</span>
+      <span class="total-amt" id="totalAmt">$0.00</span>
     </div>
   </div>
 
-</div><!-- /page-wrap -->
+  <!-- PAYMENT METHODS -->
+  <div class="card">
+    <div class="card-head"><i class="fas fa-wallet" style="color:var(--copper)"></i>Payment Method</div>
+    <div class="method-grid">
 
-<!-- FIXED SUBMIT -->
-<div class="submit-area">
-  <button class="submit-btn" id="submitBtn" onclick="submitPayment()">
-    <i class="fas fa-lock"></i> Confirm &amp; Submit Order
+      <!-- TELEBIRR -->
+      <div class="method-card" id="method-telebirr" onclick="selectMethod('telebirr')">
+        <div class="method-top">
+          <div class="method-icon"><i class="fas fa-mobile-alt"></i></div>
+          <div class="method-info">
+            <div class="method-name">Telebirr</div>
+            <div class="method-desc">Mobile money transfer</div>
+          </div>
+          <div class="method-radio"></div>
+        </div>
+        <div class="method-details">
+          <div class="account-row">
+            <div>
+              <div class="account-label">Send to number</div>
+              <div class="account-number">0975 643 221</div>
+            </div>
+            <button class="copy-btn" id="copy-telebirr" onclick="copyNum('0975643221','copy-telebirr',event)">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+          </div>
+          <p class="transfer-note">Send the exact amount and use your name as the reference. Screenshot your receipt before submitting.</p>
+        </div>
+      </div>
+
+      <!-- CBE BANK -->
+      <div class="method-card" id="method-cbe" onclick="selectMethod('cbe')">
+        <div class="method-top">
+          <div class="method-icon"><i class="fas fa-university"></i></div>
+          <div class="method-info">
+            <div class="method-name">CBE Bank Transfer</div>
+            <div class="method-desc">Commercial Bank of Ethiopia</div>
+          </div>
+          <div class="method-radio"></div>
+        </div>
+        <div class="method-details">
+          <div class="account-row">
+            <div>
+              <div class="account-label">Account number</div>
+              <div class="account-number">1000 3232 42425</div>
+            </div>
+            <button class="copy-btn" id="copy-cbe" onclick="copyNum('1000323242425','copy-cbe',event)">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+          </div>
+          <p class="transfer-note">Transfer the exact amount to this CBE account. Use your name as the transaction reference.</p>
+        </div>
+      </div>
+
+      <!-- CASH ON DELIVERY -->
+      <div class="method-card" id="method-cash" onclick="selectMethod('cash')">
+        <div class="method-top">
+          <div class="method-icon"><i class="fas fa-money-bill-wave"></i></div>
+          <div class="method-info">
+            <div class="method-name">Cash on Delivery</div>
+            <div class="method-desc">Pay when your order arrives</div>
+          </div>
+          <div class="method-radio"></div>
+        </div>
+        <div class="method-details">
+          <div class="cod-info">
+            <i class="fas fa-info-circle"></i>
+            <p>No payment needed now. Our staff will collect payment when your order is delivered to your room. Please have the exact amount ready: <strong id="codTotal" style="color:var(--gold)">$0.00</strong></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PAYER NAME (hidden for cash) -->
+  <div class="card name-field" id="nameCard">
+    <div class="card-head"><i class="fas fa-user" style="color:var(--copper)"></i>Your Name</div>
+    <div class="field">
+      <label for="payerName">Name used for transfer</label>
+      <input type="text" id="payerName" placeholder="e.g. Bekele Tadesse" autocomplete="name">
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <button class="submit-btn" id="submitBtn" onclick="submitPayment()" disabled>
+    <i class="fas fa-lock" id="submitIcon"></i>
+    <span id="submitLabel">Select a payment method</span>
   </button>
+
 </div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><i class="fas fa-info-circle"></i><span id="toastMsg"></span></div>
 
 <script>
 const API = 'https://n8n-n64x.onrender.com/webhook';
-let orderData    = null;
-let selectedMethod = 'cash';
+let orderData = null;
+let selectedMethod = null;
+let telegramChatId = '';
 
-/* ── LOAD ORDER ─────────────────────────────── */
-function loadOrder() {
-  // Try URL param first, then sessionStorage
-  const urlP  = new URLSearchParams(location.search);
-  const enc   = urlP.get('order');
-  const stored = sessionStorage.getItem('pending_order');
+/* ── INIT ── */
+function init() {
+  const urlP = new URLSearchParams(location.search);
+  const enc  = urlP.get('order');
+  telegramChatId = urlP.get('telegram_chat_id') || '';
 
   try {
-    orderData = enc ? JSON.parse(decodeURIComponent(enc)) : (stored ? JSON.parse(stored) : null);
+    if (enc) {
+      orderData = JSON.parse(decodeURIComponent(enc));
+    } else {
+      const stored = sessionStorage.getItem('pending_order');
+      orderData = stored ? JSON.parse(stored) : null;
+    }
   } catch(e) { orderData = null; }
 
-  if(!orderData) {
-    document.getElementById('orderSummary').innerHTML = '<div style="text-align:center;padding:24px;color:var(--sand)">No order data found. <a href="index.html" style="color:var(--copper)">Go back to menu</a></div>';
+  if (!orderData) {
+    showToast('error','No order data found — please order again.');
+    setTimeout(() => window.location.href = 'index.html', 3000);
     return;
   }
 
-  document.getElementById('confDisplay').textContent = orderData.confirmation_number || '—';
-  document.getElementById('tableDisplay').textContent = orderData.room || orderData.table || '—';
-  document.getElementById('totalAmt').textContent = `$${parseFloat(orderData.total||0).toFixed(2)}`;
-
-  const items = orderData.items || [];
-  document.getElementById('itemsList').innerHTML = items.map(i => `
-    <div class="summary-row">
-      <span class="summary-label">${esc(i.name)} × ${i.quantity}</span>
-      <span class="summary-val">$${(i.price * i.quantity).toFixed(2)}</span>
-    </div>`).join('') || '<div class="summary-row"><span class="summary-label">No items</span></div>';
-
-  // Show default cash form
-  showForm('cash');
-}
-
-/* ── METHOD SELECTION ───────────────────────── */
-function selectMethod(method, el) {
-  document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
-  selectedMethod = method;
-  showForm(method);
-}
-
-function showForm(method) {
-  document.querySelectorAll('.payment-form').forEach(f => f.classList.remove('visible'));
-  const f = document.getElementById(`form${cap(method)}`);
-  if(f) f.classList.add('visible');
-}
-
-/* ── SUBMIT ─────────────────────────────────── */
-async function submitPayment() {
-  if(!orderData) { showToast('error','No order data.'); return; }
-
-  const btn = document.getElementById('submitBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing…';
-
-  // Gather payment details
-  let paymentDetails = { method: selectedMethod };
-  if(selectedMethod === 'card') {
-    const num = document.getElementById('cardNum').value.replace(/\s/g,'');
-    const exp = document.getElementById('cardExp').value;
-    const cvv = document.getElementById('cardCvv').value;
-    if(!num || !exp || !cvv) {
-      showToast('warning','Please fill in all card details');
-      btn.disabled=false; btn.innerHTML='<i class="fas fa-lock"></i> Confirm &amp; Submit Order';
-      return;
-    }
-    paymentDetails = { ...paymentDetails, payer_name: document.getElementById('cardName').value, card_last4: num.slice(-4) };
-  } else if(selectedMethod === 'mobile_money') {
-    const phone = document.getElementById('mobilePhone').value;
-    if(!phone) {
-      showToast('warning','Please enter your phone number');
-      btn.disabled=false; btn.innerHTML='<i class="fas fa-lock"></i> Confirm &amp; Submit Order';
-      return;
-    }
-    paymentDetails = { ...paymentDetails, payment_phone: phone, payer_name: document.getElementById('mobileName').value };
-  } else if(selectedMethod === 'paypal') {
-    const email = document.getElementById('paypalEmail').value;
-    if(!email) {
-      showToast('warning','Please enter your PayPal email');
-      btn.disabled=false; btn.innerHTML='<i class="fas fa-lock"></i> Confirm &amp; Submit Order';
-      return;
-    }
-    paymentDetails = { ...paymentDetails, payment_account: email };
+  // Also try to get telegram_chat_id from order data itself
+  if (!telegramChatId && orderData.telegram_chat_id) {
+    telegramChatId = orderData.telegram_chat_id;
   }
 
-  const fullOrder = {
+  // Populate summary
+  document.getElementById('roomDisplay').textContent   = orderData.room || orderData.table || '—';
+  document.getElementById('confDisplay').textContent   = orderData.confirmation_number || '—';
+  const ts = orderData.timestamp ? new Date(orderData.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
+  document.getElementById('timeDisplay').textContent   = ts;
+
+  const items = orderData.items || [];
+  document.getElementById('orderItems').innerHTML = items.map(i => `
+    <div class="sum-row">
+      <span class="sum-label">${esc(i.name)} × ${i.quantity}</span>
+      <span class="sum-val">$${(i.price * i.quantity).toFixed(2)}</span>
+    </div>`).join('') || '<div class="sum-row"><span class="sum-label">—</span></div>';
+
+  const total = parseFloat(orderData.total || 0).toFixed(2);
+  document.getElementById('totalAmt').textContent  = `$${total}`;
+  document.getElementById('codTotal').textContent  = `$${total}`;
+}
+
+/* ── SELECT METHOD ── */
+function selectMethod(method) {
+  selectedMethod = method;
+
+  // Update card highlights
+  ['telebirr','cbe','cash'].forEach(m => {
+    document.getElementById(`method-${m}`).classList.toggle('selected', m === method);
+  });
+
+  // Show/hide name card
+  const nameCard = document.getElementById('nameCard');
+  if (method === 'cash') {
+    nameCard.classList.add('hide');
+    document.getElementById('payerName').value = '';
+  } else {
+    nameCard.classList.remove('hide');
+  }
+
+  // Update button
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = false;
+  const labels = {
+    telebirr: 'Confirm Telebirr Payment',
+    cbe:      'Confirm Bank Transfer',
+    cash:     'Place Order — Pay on Delivery'
+  };
+  document.getElementById('submitLabel').textContent = labels[method];
+  document.getElementById('submitIcon').className    = method === 'cash' ? 'fas fa-truck' : 'fas fa-paper-plane';
+}
+
+/* ── COPY ── */
+function copyNum(num, btnId, e) {
+  e.stopPropagation();
+  navigator.clipboard.writeText(num).then(() => {
+    const btn = document.getElementById(btnId);
+    btn.classList.add('copied');
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+    }, 2500);
+    showToast('success','Copied to clipboard!');
+  }).catch(() => showToast('error','Could not copy — please copy manually'));
+}
+
+/* ── SUBMIT ── */
+async function submitPayment() {
+  if (!selectedMethod) return;
+
+  const payerName = document.getElementById('payerName').value.trim();
+
+  if (selectedMethod !== 'cash' && !payerName) {
+    showToast('error','Please enter the name used for the transfer');
+    document.getElementById('payerName').focus();
+    return;
+  }
+
+  const btn   = document.getElementById('submitBtn');
+  btn.disabled = true;
+  document.getElementById('submitLabel').textContent = 'Submitting…';
+  document.getElementById('submitIcon').className    = 'fas fa-spinner fa-spin';
+
+  // Build method-specific fields
+  const methodMap = {
+    telebirr: { label: 'Telebirr', phone: '0975643221', account: null },
+    cbe:      { label: 'CBE',      phone: null,          account: '1000323242425' },
+    cash:     { label: 'cash',     phone: null,          account: null }
+  };
+  const m = methodMap[selectedMethod];
+
+  const completeOrder = {
     ...orderData,
-    payment_method: selectedMethod,
-    payment_status: selectedMethod === 'cash' ? 'cash_on_delivery' : 'pending',
+    payment_method:    m.label,
+    payment_phone:     m.phone,
+    payment_account:   m.account,
+    payer_name:        selectedMethod === 'cash' ? 'Cash on Delivery' : payerName,
+    payment_status:    selectedMethod === 'cash' ? 'cash_on_delivery' : 'pending',
     payment_timestamp: new Date().toISOString(),
-    ...paymentDetails
+    telegram_chat_id:  telegramChatId || orderData.telegram_chat_id || null
   };
 
   try {
-    // For non-cash: send to n8n update-order endpoint
-    if(selectedMethod !== 'cash') {
-      await fetch(`${API}/update-order`, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify(fullOrder)
-      });
+    const resp = await fetch(`${API}/complete-order`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(completeOrder)
+    });
+
+    if (!resp.ok) throw new Error(`Server error ${resp.status}`);
+
+    // Clean up storage
+    sessionStorage.removeItem('pending_order');
+    if (orderData.confirmation_number) {
+      localStorage.removeItem('pending_order_' + orderData.confirmation_number);
     }
-  } catch(e) { /* proceed regardless */ }
 
-  // Redirect to success
-  const enc = encodeURIComponent(JSON.stringify(fullOrder));
-  window.location.href = `payment-success.html?order=${enc}`;
+    showToast('success','Order submitted! Redirecting…');
+
+    setTimeout(() => {
+      const enc = encodeURIComponent(JSON.stringify(completeOrder));
+      window.location.href = `payment-success.html?order=${enc}`;
+    }, 1400);
+
+  } catch(err) {
+    console.error(err);
+    showToast('error','Submission failed: ' + err.message);
+    btn.disabled = false;
+    const labels = {
+      telebirr: 'Confirm Telebirr Payment',
+      cbe:      'Confirm Bank Transfer',
+      cash:     'Place Order — Pay on Delivery'
+    };
+    document.getElementById('submitLabel').textContent = labels[selectedMethod];
+    document.getElementById('submitIcon').className    = selectedMethod === 'cash' ? 'fas fa-truck' : 'fas fa-paper-plane';
+  }
 }
 
-/* ── FORMATTERS ─────────────────────────────── */
-function fmtCard(el) {
-  let v = el.value.replace(/\D/g,'').slice(0,16);
-  el.value = v.replace(/(.{4})/g,'$1 ').trim();
-}
-function fmtExp(el) {
-  let v = el.value.replace(/\D/g,'').slice(0,4);
-  if(v.length>=2) v = v.slice(0,2)+'/'+v.slice(2);
-  el.value = v;
-}
-function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1).replace(/_./,m=>m[1].toUpperCase()):s;}
-
-/* ── TOAST ──────────────────────────────────── */
-let toastT;
-function showToast(type,msg){
-  clearTimeout(toastT);
-  document.querySelectorAll('.toast').forEach(t=>t.remove());
-  const icons={error:'times-circle',warning:'exclamation-triangle'};
-  const t=document.createElement('div');
-  t.className=`toast ${type}`;
-  t.innerHTML=`<i class="fas fa-${icons[type]||'info-circle'} ti"></i><span>${msg}</span>`;
-  document.body.appendChild(t);
-  toastT=setTimeout(()=>t.remove(),3000);
+/* ── TOAST ── */
+let toastTimer;
+function showToast(type, msg) {
+  const t = document.getElementById('toast');
+  const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+  t.className = `toast ${type}`;
+  t.querySelector('i').className = `fas ${icon}`;
+  document.getElementById('toastMsg').textContent = msg;
+  clearTimeout(toastTimer);
+  t.classList.add('show');
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
 }
 
 function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 
-document.addEventListener('DOMContentLoaded', loadOrder);
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
