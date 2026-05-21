@@ -316,42 +316,61 @@ async function checkStatus() {
   icon.classList.remove('fa-spin');
 }
 
-/* ── APPLY STATUS ──────────────────────────── */
+/* ── APPLY STATUS (FIXED) ───────────────────── */
 function applyStatus(status, payStatus) {
-  const displayStatus = payStatus === 'cash_on_delivery' ? 'confirmed' : (payStatus === 'verified' ? 'verified' : status);
-  const effective = displayStatus || status || 'pending';
+  // Determine effective display status
+  let effective = status; // default: use order status
 
-  // Pill
+  if (payStatus === 'cash_on_delivery') {
+    effective = 'confirmed';
+  } else if (payStatus === 'verified' && status === 'pending') {
+    effective = 'verified';
+  } else if (status === 'rejected') {
+    effective = 'rejected';
+  } else if (status === 'pending') {
+    effective = 'pending';
+  }
+  // for status = 'confirmed', 'cooking', 'completed' – keep as is
+
+  // Pill label & style
   const pill = document.getElementById('statusPill');
   const statusLabels = {
-    pending:'Pending — Awaiting confirmation',
-    confirmed:'Confirmed — Kitchen notified',
-    cooking:'Cooking — Hang tight!',
-    completed:'Ready — Enjoy your meal! 🎉',
-    verified:'Payment Verified',
-    rejected:'Payment Rejected',
-    cash_on_delivery:'Confirmed — Pay on delivery'
+    pending:   'Pending — Awaiting confirmation',
+    confirmed: 'Confirmed — Kitchen notified',
+    cooking:   'Cooking — Hang tight!',
+    completed: 'Ready — Enjoy your meal! 🎉',
+    verified:  'Payment Verified',
+    rejected:  'Payment Rejected',
+    cash_on_delivery: 'Confirmed — Pay on delivery'
   };
   pill.className = `status-pill ${effective}`;
   document.getElementById('statusText').textContent = statusLabels[effective] || cap(effective);
 
-  // Stepper
-  const order = ['pending','confirmed','cooking','completed'];
-  const idx   = order.indexOf(effective.replace('verified','confirmed').replace('cash_on_delivery','confirmed'));
-  for(let i=0;i<4;i++){
+  // Update stepper (placed → confirmed → cooking → ready)
+  const order = ['pending', 'confirmed', 'cooking', 'completed'];
+  let idx = order.indexOf(effective);
+  if (effective === 'verified') idx = order.indexOf('confirmed');
+  if (effective === 'cash_on_delivery') idx = order.indexOf('confirmed');
+
+  for (let i = 0; i < 4; i++) {
     const dot = document.getElementById(`dot${i}`);
-    const line = i>0 ? document.getElementById(`line${i}`) : null;
-    if(i < idx)      { dot.className='step-dot done'; if(line)line.className='step-line done'; }
-    else if(i===idx) { dot.className='step-dot active'; }
-    else             { dot.className='step-dot pending'; }
+    const line = i > 0 ? document.getElementById(`line${i}`) : null;
+    if (i < idx) {
+      dot.className = 'step-dot done';
+      if (line) line.className = 'step-line done';
+    } else if (i === idx) {
+      dot.className = 'step-dot active';
+    } else {
+      dot.className = 'step-dot pending';
+    }
   }
 
-  // Header emoji
-  if(effective==='completed') {
+  // Header animation for special states
+  if (effective === 'completed') {
     document.getElementById('headerAnim').textContent = '🎉';
     document.getElementById('headerTitle').textContent = 'Order Ready!';
     document.getElementById('headerSub').textContent = 'Your food is ready. Enjoy your meal!';
-  } else if(effective==='rejected') {
+  } else if (effective === 'rejected') {
     document.getElementById('headerAnim').textContent = '❌';
     document.getElementById('headerTitle').textContent = 'Payment Issue';
     document.getElementById('headerSub').textContent = 'Please contact a staff member.';
