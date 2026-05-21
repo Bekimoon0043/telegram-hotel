@@ -613,7 +613,7 @@
     <div class="modal-title" id="modalTitle">Confirm Action</div>
     <div class="modal-sub" id="modalSub">Are you sure?</div>
     <div class="modal-actions">
-      <button class="m-btn cancel" onclick="closeModal()">Cancel</button>
+      <button class="m-btn cancel" id="cancelModalBtn">Cancel</button>
       <button class="m-btn confirm" id="modalConfirmBtn">Confirm</button>
     </div>
   </div>
@@ -750,27 +750,24 @@ async function updateOrder(confNum, newStatus) {
   const confirmed = await confirmModal(`${labels[newStatus]||newStatus} Order?`, `Order ${confNum} will be marked as "${newStatus}".`);
   if(!confirmed) return;
 
-  // Optimistic UI update so admin sees instant feedback
+  // Optimistic UI — update table instantly
   const idx = allOrders.findIndex(o => o.confirmation_number===confNum || o.id===confNum);
   if(idx > -1) { allOrders[idx] = {...allOrders[idx], status: newStatus}; renderOrders(); updateStats(); }
 
-  try {
-    const currentPayStatus = (order['payment_status '] || order.payment_status || 'pending').trim();
+  const currentPayStatus = (order['payment_status '] || order.payment_status || 'pending').toString().trim();
 
-    const resp = await fetch(`${API}/update-order`, {
+  try {
+    await fetch(`${API}/update-order`, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         confirmation_number: confNum,
         status: newStatus,
-        // Always send payment_status so n8n doesn't throw "no status provided"
         payment_status: currentPayStatus,
         telegram_chat_id: order.telegram_chat_id || '',
         room_number: order.room_number || order.table_number || '',
         updatedAt: new Date().toISOString()
       })
     });
-
-    // Notify customer via Telegram if they have chat ID
     if(order.telegram_chat_id && (newStatus==='confirmed'||newStatus==='completed')) {
       fetch(`${API}/notify-customer`, {
         method:'POST', headers:{'Content-Type':'application/json'},
@@ -782,14 +779,8 @@ async function updateOrder(confNum, newStatus) {
         })
       }).catch(()=>{});
     }
-
-    // Reload in background to sync with server
     setTimeout(loadOrders, 1500);
-  } catch(e) {
-    alert('Update failed: ' + e.message);
-    // Revert optimistic update on failure
-    loadOrders();
-  }
+  } catch(e) { alert('Update failed: '+e.message); loadOrders(); }
 }
 
 async function updatePayment(confNum, payStatus) {
@@ -801,15 +792,10 @@ async function updatePayment(confNum, payStatus) {
 
   const newOrderStatus = payStatus==='verified' ? 'confirmed' : order.status;
 
-  // Optimistic UI update
+  // Optimistic UI
   const idx = allOrders.findIndex(o => o.confirmation_number===confNum);
   if(idx > -1) {
-    allOrders[idx] = {
-      ...allOrders[idx],
-      'payment_status ': payStatus,
-      payment_status: payStatus,
-      status: newOrderStatus
-    };
+    allOrders[idx] = {...allOrders[idx], 'payment_status ': payStatus, payment_status: payStatus, status: newOrderStatus};
     renderOrders(); updateStats();
   }
 
@@ -826,10 +812,7 @@ async function updatePayment(confNum, payStatus) {
       })
     });
     setTimeout(loadOrders, 1500);
-  } catch(e) {
-    alert('Update failed: ' + e.message);
-    loadOrders();
-  }
+  } catch(e) { alert('Update failed: '+e.message); loadOrders(); }
 }
 
 /* ── QR CODES ────────────────────────────── */
@@ -977,12 +960,24 @@ function confirmModal(title, sub) {
     document.getElementById('modalTitle').textContent = title;
     document.getElementById('modalSub').textContent   = sub;
     document.getElementById('confirmModal').classList.add('open');
-    document.getElementById('modalConfirmBtn').onclick = () => { closeModal(); resolve(true); };
+    // Confirm button: resolve true, then close (order matters — resolve FIRST)
+    document.getElementById('modalConfirmBtn').onclick = () => {
+      modalResolve = null;
+      resolve(true);
+      document.getElementById('confirmModal').classList.remove('open');
+    };
+    // Cancel button: resolve false, then close
+    document.getElementById('cancelModalBtn').onclick = () => {
+      modalResolve = null;
+      resolve(false);
+      document.getElementById('confirmModal').classList.remove('open');
+    };
   });
 }
 function closeModal() {
-  document.getElementById('confirmModal').classList.remove('open');
+  // Only resolves false if modal is dismissed without a button (e.g. programmatically)
   if(modalResolve) { modalResolve(false); modalResolve = null; }
+  document.getElementById('confirmModal').classList.remove('open');
 }
 
 /* ── AUDIO / ALERTS ──────────────────────── */
