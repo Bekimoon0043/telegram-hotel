@@ -1031,13 +1031,21 @@ async function loadMenuItems() {
   document.getElementById('menuItemsGrid').innerHTML =
     '<div class="menu-empty"><i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Loading…</div>';
   try {
-    // NOTE: /menu only returns available=TRUE items (customer-facing endpoint).
-    // To also show hidden items in the admin, import the "menu_admin" n8n workflow
-    // which calls /menu-admin and returns ALL items regardless of availability.
+    // Always use the admin endpoint — it returns ALL items (available + hidden).
+    // Never fall back to /menu which is the customer endpoint and strips hidden items.
     const r = await fetch(`${API}/menu-admin`);
-    // Fall back to /menu if /menu-admin is not yet set up
-    const d = r.ok ? await r.json() : await (await fetch(`${API}/menu`)).json();
-    allMenuItems = d.menu || [];
+    if (!r.ok) throw new Error(`Server returned ${r.status}`);
+    const d = await r.json();
+
+    // Normalise availability: the menu-admin workflow returns a boolean,
+    // but guard against string values ("TRUE"/"FALSE") coming from older data.
+    allMenuItems = (d.menu || []).map(item => ({
+      ...item,
+      available: typeof item.available === 'boolean'
+        ? item.available
+        : String(item.available).toUpperCase() === 'TRUE'
+    }));
+
     renderMenuItems();
   } catch(e) {
     document.getElementById('menuItemsGrid').innerHTML =
