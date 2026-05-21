@@ -481,29 +481,12 @@
       <span class="drawer-total-amount" id="drawerTotal">$0.00</span>
     </div>
     <button class="order-btn" id="orderBtn" onclick="placeOrder()">
-      <i class="fas fa-check-circle"></i> Place Order
+      <i class="fas fa-credit-card"></i> Choose Payment &amp; Order
     </button>
   </div>
 </div>
 
-<!-- CONFIRMATION MODAL -->
-<div class="modal-overlay" id="confirmModal">
-  <div class="modal-box">
-    <div class="modal-icon">🎉</div>
-    <div class="modal-title">Order Placed!</div>
-    <div class="modal-sub">Your order is confirmed and on its way to the kitchen.</div>
-    <div class="modal-conf">
-      <div class="conf-label">Confirmation Number</div>
-      <div class="conf-code" id="confCode">—</div>
-    </div>
-    <div class="modal-sub" id="confSub" style="margin-bottom:20px;font-size:.82rem;color:var(--sand);">
-      You'll be redirected to payment in a moment.
-    </div>
-    <button class="modal-btn" onclick="goToPayment()">
-      <i class="fas fa-credit-card"></i>&nbsp; Proceed to Payment
-    </button>
-  </div>
-</div>
+<!-- Confirmation modal removed: users go directly to payment.html after clicking Place Order -->
 
 <script>
 const API   = 'https://n8n-n64x.onrender.com/webhook';
@@ -678,11 +661,11 @@ function closeCart() {
 }
 
 /* ── ORDER PLACEMENT ───────────────────────── */
-async function placeOrder() {
+// NOTE: The order is NOT sent to n8n here.
+// It is saved locally and sent to n8n only after the user
+// selects a payment method and submits in payment.html.
+function placeOrder() {
   if(!cart.length) { showToast('warning','Your cart is empty'); return; }
-  const btn = document.getElementById('orderBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending order…';
 
   const confNum = genConfNum();
   const orderData = {
@@ -699,32 +682,16 @@ async function placeOrder() {
     telegram_chat_id: tgChatId || null
   };
 
-  try {
-    await fetch(`${API}/complete-order`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(orderData)
-    });
-  } catch(e) { /* continue even if n8n is cold-starting */ }
-
-  // Store for payment page
+  // Save locally only — sent to n8n after payment is chosen
   sessionStorage.setItem('pending_order', JSON.stringify(orderData));
   pendingOrder = orderData;
 
-  // Show confirmation
   closeCart();
-  document.getElementById('confCode').textContent = confNum;
-  document.getElementById('confirmModal').classList.add('open');
-
-  btn.disabled = false;
-  btn.innerHTML = '<i class="fas fa-check-circle"></i> Place Order';
   cart = [];
   updateCartUI();
-}
 
-function goToPayment() {
-  if(!pendingOrder) return;
-  const enc = encodeURIComponent(JSON.stringify(pendingOrder));
+  // Go directly to payment page
+  const enc = encodeURIComponent(JSON.stringify(orderData));
   window.location.href = `payment.html?order=${enc}`;
 }
 
