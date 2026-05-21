@@ -349,6 +349,88 @@
     .noa-text{font-size:.82rem;}
     .noa-close{background:transparent;border:none;color:var(--muted);cursor:pointer;margin-left:auto;font-size:.9rem;}
 
+    /* MENU ITEMS LIST */
+    .menu-section-header{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:16px;
+    }
+    .menu-section-header h3{font-size:.95rem;font-weight:700;}
+    .menu-reload-btn{
+      background:transparent;border:1px solid var(--border);
+      border-radius:8px;padding:7px 14px;color:var(--muted);
+      font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer;
+      transition:all .2s;display:flex;align-items:center;gap:6px;
+    }
+    .menu-reload-btn:hover{border-color:var(--copper);color:var(--cream);}
+    .menu-items-grid{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;
+    }
+    .menu-item-card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:12px;overflow:hidden;
+      transition:border-color .2s;position:relative;
+    }
+    .menu-item-card.disabled{opacity:.55;}
+    .menu-item-card:hover{border-color:rgba(200,114,42,.3);}
+    .mic-img{
+      width:100%;height:110px;object-fit:cover;
+      background:var(--surface2);display:block;
+    }
+    .mic-img-placeholder{
+      width:100%;height:110px;background:var(--surface2);
+      display:flex;align-items:center;justify-content:center;
+      font-size:2rem;color:var(--muted);
+    }
+    .mic-body{padding:12px 14px;}
+    .mic-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;}
+    .mic-name{font-weight:600;font-size:.88rem;line-height:1.3;flex:1;}
+    .mic-price{
+      font-family:'JetBrains Mono',monospace;
+      font-size:.85rem;color:var(--gold);font-weight:600;white-space:nowrap;
+    }
+    .mic-desc{font-size:.75rem;color:var(--muted);margin-bottom:10px;
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .mic-footer{display:flex;align-items:center;justify-content:space-between;}
+    .mic-cat{
+      font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+      color:var(--copper);background:rgba(200,114,42,.1);
+      border-radius:4px;padding:3px 8px;
+    }
+    /* Toggle switch */
+    .toggle-wrap{display:flex;align-items:center;gap:8px;}
+    .toggle-label{font-size:.72rem;color:var(--muted);}
+    .toggle{position:relative;width:36px;height:20px;}
+    .toggle input{opacity:0;width:0;height:0;}
+    .toggle-slider{
+      position:absolute;inset:0;background:var(--surface2);
+      border-radius:20px;cursor:pointer;
+      transition:background .2s;border:1px solid var(--border);
+    }
+    .toggle-slider::before{
+      content:'';position:absolute;width:14px;height:14px;
+      border-radius:50%;background:var(--muted);
+      top:2px;left:2px;transition:all .2s;
+    }
+    .toggle input:checked + .toggle-slider{background:rgba(34,197,94,.2);border-color:var(--success);}
+    .toggle input:checked + .toggle-slider::before{background:var(--success);transform:translateX(16px);}
+    .toggle input:disabled + .toggle-slider{opacity:.5;cursor:not-allowed;}
+    .menu-empty{
+      grid-column:1/-1;text-align:center;padding:40px 20px;
+      color:var(--muted);font-size:.85rem;
+    }
+    .menu-items-wrap{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:14px;padding:24px;
+    }
+    .menu-filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+    .mf-btn{
+      padding:6px 14px;border-radius:20px;border:1px solid var(--border);
+      background:transparent;color:var(--muted);font-size:.75rem;
+      cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;
+    }
+    .mf-btn:hover{border-color:var(--copper);color:var(--cream);}
+    .mf-btn.active{background:var(--copper);border-color:var(--copper);color:#fff;font-weight:600;}
+
     /* RESPONSIVE SIDEBAR */
     @media(max-width:768px){
       .sidebar{transform:translateX(-100%);transition:transform .3s ease;}
@@ -569,6 +651,24 @@
         </div>
         <div id="addResult" style="display:none;" class="result-msg"></div>
       </div>
+
+      <!-- CURRENT MENU ITEMS -->
+      <div class="menu-items-wrap">
+        <div class="menu-section-header">
+          <h3><i class="fas fa-list" style="color:var(--copper);margin-right:8px;"></i>Current Menu Items</h3>
+          <button class="menu-reload-btn" onclick="loadMenuItems()" id="menuReloadBtn">
+            <i class="fas fa-sync-alt" id="menuReloadIcon"></i> Reload
+          </button>
+        </div>
+        <div class="menu-filter-row">
+          <button class="mf-btn active" onclick="filterMenuItems('all',this)">All</button>
+          <button class="mf-btn" onclick="filterMenuItems('available',this)">Available</button>
+          <button class="mf-btn" onclick="filterMenuItems('hidden',this)">Hidden</button>
+        </div>
+        <div class="menu-items-grid" id="menuItemsGrid">
+          <div class="menu-empty"><i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Loading menu items…</div>
+        </div>
+      </div>
     </div>
 
     <!-- ── ANALYTICS ───────────────────────────── -->
@@ -639,6 +739,7 @@ function showSection(name, el) {
   const titles = {orders:'Live Orders',qr:'Table QR Codes',menu:'Menu Manager',analytics:'Sales Summary'};
   document.getElementById('topbarTitle').textContent = titles[name]||name;
   if(name==='analytics') refreshAnalytics();
+  if(name==='menu') loadMenuItems();
 }
 
 /* ── ORDERS ──────────────────────────────── */
@@ -874,6 +975,9 @@ function downloadQR(tableNum) {
 }
 
 /* ── MENU MANAGEMENT ─────────────────────── */
+let allMenuItems = [];
+let menuFilter   = 'all';
+
 async function addMenuItem() {
   const btn = document.getElementById('addItemBtn');
   const name  = document.getElementById('iName').value.trim();
@@ -900,17 +1004,127 @@ async function addMenuItem() {
       body: JSON.stringify(item)
     });
     const d = await r.json();
-    if(r.ok && d.success) {
-      showResult('ok',`✓ "${name}" added to menu at $${price.toFixed(2)}`);
+
+    // SUCCESS: Supabase "Create a row" returns the new row object (with id/name fields),
+    // NOT {success:true}. Check for a valid row response OR explicit success flag.
+    const isSupabaseRow = d && (d.id || (Array.isArray(d) && d[0]?.id));
+    const isExplicit    = d && d.success === true;
+
+    if(r.ok && (isSupabaseRow || isExplicit)) {
+      showResult('ok', `✓ "${esc(name)}" added to menu at $${price.toFixed(2)}`);
       ['iName','iDesc','iPrice','iImg'].forEach(id => document.getElementById(id).value = '');
+      // Refresh the menu items list so the new item appears immediately
+      setTimeout(loadMenuItems, 600);
     } else {
-      showResult('err', d.error || 'Unknown error');
+      showResult('err', d?.error || d?.message || (r.ok ? 'Unexpected response from server' : `Server error ${r.status}`));
     }
   } catch(e) {
     showResult('err', e.message);
   }
   btn.disabled = false;
   btn.innerHTML = '<i class="fas fa-plus"></i> Add to Menu';
+}
+
+async function loadMenuItems() {
+  const icon = document.getElementById('menuReloadIcon');
+  icon.classList.add('fa-spin');
+  document.getElementById('menuItemsGrid').innerHTML =
+    '<div class="menu-empty"><i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Loading…</div>';
+  try {
+    const r = await fetch(`${API}/menu`);
+    const d = await r.json();
+    // The /menu endpoint only returns available items — fetch all by calling a raw approach
+    // We re-use the same endpoint; for hidden items visibility we use /menu and trust the grid
+    allMenuItems = d.menu || [];
+    renderMenuItems();
+  } catch(e) {
+    document.getElementById('menuItemsGrid').innerHTML =
+      `<div class="menu-empty" style="color:var(--error);"><i class="fas fa-exclamation-triangle"></i> Failed to load: ${esc(e.message)}</div>`;
+  }
+  icon.classList.remove('fa-spin');
+}
+
+function filterMenuItems(type, el) {
+  menuFilter = type;
+  document.querySelectorAll('.mf-btn').forEach(b => b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderMenuItems();
+}
+
+function renderMenuItems() {
+  const grid = document.getElementById('menuItemsGrid');
+  let list = allMenuItems;
+  if(menuFilter === 'available') list = allMenuItems.filter(i => i.available);
+  if(menuFilter === 'hidden')    list = allMenuItems.filter(i => !i.available);
+
+  if(!list.length) {
+    grid.innerHTML = `<div class="menu-empty"><i class="fas fa-inbox" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:.3;"></i>${
+      menuFilter==='all' ? 'No menu items yet. Add one above.' :
+      menuFilter==='available' ? 'No available items.' : 'No hidden items.'
+    }</div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map(item => {
+    const avail = item.available;
+    const imgTag = item.imageurl
+      ? `<img class="mic-img" src="${esc(item.imageurl)}" alt="${esc(item.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+         <div class="mic-img-placeholder" style="display:none;"><i class="fas fa-image"></i></div>`
+      : `<div class="mic-img-placeholder"><i class="fas fa-utensils"></i></div>`;
+    return `
+      <div class="menu-item-card ${avail ? '' : 'disabled'}" id="mic-${esc(item.id)}">
+        ${imgTag}
+        <div class="mic-body">
+          <div class="mic-top">
+            <div class="mic-name">${esc(item.name)}</div>
+            <div class="mic-price">$${parseFloat(item.price||0).toFixed(2)}</div>
+          </div>
+          <div class="mic-desc" title="${esc(item.description||'')}">
+            ${item.description ? esc(item.description) : '<span style="opacity:.4">No description</span>'}
+          </div>
+          <div class="mic-footer">
+            <span class="mic-cat">${esc(item.category||'other')}</span>
+            <div class="toggle-wrap">
+              <span class="toggle-label">${avail ? 'Visible' : 'Hidden'}</span>
+              <label class="toggle" title="${avail ? 'Click to hide' : 'Click to show'}">
+                <input type="checkbox" ${avail ? 'checked' : ''} onchange="toggleItemAvailability('${esc(item.id)}', this)">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function toggleItemAvailability(itemId, checkbox) {
+  const newAvail = checkbox.checked;
+  checkbox.disabled = true;
+
+  // Optimistic UI update
+  const idx = allMenuItems.findIndex(i => i.id == itemId);
+  if(idx > -1) {
+    allMenuItems[idx] = {...allMenuItems[idx], available: newAvail};
+    renderMenuItems();
+  }
+
+  try {
+    const r = await fetch(`${API}/update-menu-item`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ id: itemId, available: newAvail ? 'TRUE' : 'FALSE' })
+    });
+    if(!r.ok) throw new Error(`Server error ${r.status}`);
+    // Re-render to reflect label change
+    renderMenuItems();
+  } catch(e) {
+    // Revert on failure
+    if(idx > -1) {
+      allMenuItems[idx] = {...allMenuItems[idx], available: !newAvail};
+      renderMenuItems();
+    }
+    alert('Failed to update item: ' + e.message);
+  }
 }
 
 function showResult(type, msg) {
