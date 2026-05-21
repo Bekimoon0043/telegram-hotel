@@ -1003,20 +1003,20 @@ async function addMenuItem() {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify(item)
     });
-    const d = await r.json();
+    // Read body only to extract error message if request failed
+    let d = null;
+    try { d = await r.json(); } catch(e) { /* body may not be JSON on error */ }
 
-    // SUCCESS: Supabase "Create a row" returns the new row object (with id/name fields),
-    // NOT {success:true}. Check for a valid row response OR explicit success flag.
-    const isSupabaseRow = d && (d.id || (Array.isArray(d) && d[0]?.id));
-    const isExplicit    = d && d.success === true;
-
-    if(r.ok && (isSupabaseRow || isExplicit)) {
+    // SUCCESS: HTTP 200 means Supabase created the row — no need to inspect body shape.
+    // (Supabase node can return the row as an object, array, or n8n-wrapped envelope;
+    //  checking r.ok is the only reliable signal across all n8n/Supabase versions.)
+    if(r.ok) {
       showResult('ok', `✓ "${esc(name)}" added to menu at $${price.toFixed(2)}`);
       ['iName','iDesc','iPrice','iImg'].forEach(id => document.getElementById(id).value = '');
       // Refresh the menu items list so the new item appears immediately
       setTimeout(loadMenuItems, 600);
     } else {
-      showResult('err', d?.error || d?.message || (r.ok ? 'Unexpected response from server' : `Server error ${r.status}`));
+      showResult('err', d?.error || d?.message || `Server error ${r.status}`);
     }
   } catch(e) {
     showResult('err', e.message);
@@ -1031,10 +1031,12 @@ async function loadMenuItems() {
   document.getElementById('menuItemsGrid').innerHTML =
     '<div class="menu-empty"><i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Loading…</div>';
   try {
-    const r = await fetch(`${API}/menu`);
-    const d = await r.json();
-    // The /menu endpoint only returns available items — fetch all by calling a raw approach
-    // We re-use the same endpoint; for hidden items visibility we use /menu and trust the grid
+    // NOTE: /menu only returns available=TRUE items (customer-facing endpoint).
+    // To also show hidden items in the admin, import the "menu_admin" n8n workflow
+    // which calls /menu-admin and returns ALL items regardless of availability.
+    const r = await fetch(`${API}/menu-admin`);
+    // Fall back to /menu if /menu-admin is not yet set up
+    const d = r.ok ? await r.json() : await (await fetch(`${API}/menu`)).json();
     allMenuItems = d.menu || [];
     renderMenuItems();
   } catch(e) {
