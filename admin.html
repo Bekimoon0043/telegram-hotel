@@ -728,9 +728,179 @@
 const API = 'https://n8n-n64x.onrender.com/webhook';
 const SITE = 'https://bekimoon0043.github.io/telegram-hotel';
 
-let allOrders = [], filteredStatus = 'all', audioEnabled = true, prevOrderCount = 0, pollInterval;
-let allMenuItems = [], menuFilter = 'all';
-let currentEditItem = null;
+// ============================================
+// 🔥 GITHUB UPLOAD SETUP 🔥
+// ============================================
+// IMPORTANT: You must set these values in your GitHub repository settings:
+// Go to: https://github.com/settings/tokens -> Generate new token (classic)
+// Select "repo" scope, then copy the token.
+// Then go to your repository: Settings -> Secrets and variables -> Actions -> New repository secret
+// Name: GITHUB_TOKEN, Value: your-token
+// For local development, create a .env file or enter them below:
+const GITHUB_TOKEN = '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';  // ⚠️ WARNING: Never hardcode tokens in production!
+const GITHUB_OWNER = 'bekimoon0043';  // Your GitHub username
+const GITHUB_REPO = 'telegram-hotel';   // Your repository name
+const GITHUB_BRANCH = 'main';
+const GITHUB_PATH = 'images/menu/'; // Folder to store images
+
+// ============================================
+// 🔥 IMAGE UPLOAD TO GITHUB (100% RELIABLE) 🔥
+// ============================================
+async function uploadToGitHub(file) {
+    // Check if token is configured
+    if (!GITHUB_TOKEN) {
+        throw new Error('GitHub token not configured. Please set your GITHUB_TOKEN in the script.');
+    }
+    
+    // Convert file to base64
+    const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const result = reader.result;
+            // Remove data:image/...;base64, prefix
+            const base64String = result.split(',')[1];
+            resolve(base64String);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+    
+    // Generate unique filename
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 8);
+    const filename = `${timestamp}_${random}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    const filePath = `${GITHUB_PATH}${filename}`;
+    
+    // Create or update file on GitHub
+    const response = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${GITHUB_TOKEN}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github.v3+json'
+        },
+        body: JSON.stringify({
+            message: `Upload image ${filename}`,
+            content: base64,
+            branch: GITHUB_BRANCH
+        })
+    });
+    
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || `Upload failed: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    // Return the raw GitHub URL (or use jsDelivr CDN for faster loading)
+    const rawUrl = data.content.download_url;
+    return rawUrl;
+}
+
+// Upload using jsDelivr CDN (even faster)
+async function uploadToGitHubWithCDN(file) {
+    const rawUrl = await uploadToGitHub(file);
+    // Convert to jsDelivr CDN URL for faster global delivery
+    const cdnUrl = rawUrl.replace('raw.githubusercontent.com', 'cdn.jsdelivr.net/gh');
+    return cdnUrl;
+}
+
+// ============================================
+// 🔥 ALTERNATIVE: FILE.IO (NO SETUP REQUIRED) 🔥
+// ============================================
+// If you don't want to set up GitHub token, use File.io instead
+// File.io stores files for 7 days only (good for testing)
+async function uploadToFileIO(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    // File.io public API (no token required, CORS enabled)
+    const response = await fetch('https://file.io/', {
+        method: 'POST',
+        body: formData,
+        mode: 'cors'
+    });
+    
+    if (!response.ok) {
+        throw new Error(`Upload failed: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    if (!data.success) {
+        throw new Error(data.message || 'Upload failed');
+    }
+    
+    return data.link;
+}
+
+// ============================================
+// 🔥 CHOOSE YOUR UPLOAD METHOD 🔥
+// ============================================
+// Option 1: GitHub (recommended) - requires token setup
+// Option 2: File.io (no setup) - files expire after 7 days
+const USE_GITHUB = true;  // Set to true if you configured GitHub token, false for File.io
+
+async function uploadImage(file) {
+    if (USE_GITHUB) {
+        return await uploadToGitHubWithCDN(file);
+    } else {
+        return await uploadToFileIO(file);
+    }
+}
+
+// ============================================
+// IMAGE UPLOAD HANDLERS
+// ============================================
+async function uploadAddImage() {
+    const fileInput = document.getElementById('iImgFile');
+    const file = fileInput.files[0];
+    if (!file) return;
+    
+    const label = fileInput.closest('.file-label');
+    const originalText = label.innerHTML;
+    label.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+    
+    try {
+        const url = await uploadImage(file);
+        document.getElementById('iImg').value = url;
+        const preview = document.getElementById('addImgPreview');
+        preview.src = url;
+        preview.style.display = 'block';
+        showToast('Image uploaded successfully!', 'success');
+    } catch (err) {
+        console.error(err);
+        showToast('Upload failed: ' + err.message, 'error');
+    } finally {
+        label.innerHTML = originalText;
+        fileInput.value = '';
+    }
+}
+
+async function uploadEditImage() {
+    const fileInput = document.getElementById('editImgFile');
+    const file = fileInput.files[0];
+    if (!file) return;
+    
+    const uploadRow = fileInput.closest('.img-upload-row');
+    const uploadLabel = uploadRow.querySelector('.file-label');
+    const originalText = uploadLabel.innerHTML;
+    uploadLabel.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+    
+    try {
+        const url = await uploadImage(file);
+        document.getElementById('editImageUrl').value = url;
+        const preview = document.getElementById('editImgPreview');
+        preview.src = url;
+        preview.style.display = 'block';
+        showToast('Image updated successfully!', 'success');
+    } catch (err) {
+        console.error(err);
+        showToast('Upload failed: ' + err.message, 'error');
+    } finally {
+        uploadLabel.innerHTML = originalText;
+        fileInput.value = '';
+    }
+}
 
 // ── NAVIGATION ─────────────────────────────────────────
 function showSection(name, el) {
@@ -741,76 +911,6 @@ function showSection(name, el) {
   document.getElementById('topbarTitle').textContent = titles[name]||name;
   if(name==='analytics') refreshAnalytics();
   if(name==='menu') loadMenuItems();
-}
-
-// ── IMAGE UPLOAD (Catbox.moe - reliable, CORS-friendly) ─
-async function uploadToCatbox(file) {
-  const formData = new FormData();
-  formData.append('reqtype', 'fileupload');
-  formData.append('fileToUpload', file);
-  
-  const response = await fetch('https://catbox.moe/user/api.php', {
-    method: 'POST',
-    body: formData,
-    mode: 'cors'
-  });
-  
-  if (!response.ok) {
-    throw new Error(`Upload failed (HTTP ${response.status})`);
-  }
-  
-  const url = await response.text();
-  if (!url.startsWith('http')) {
-    throw new Error('Invalid response from Catbox');
-  }
-  return url.trim();
-}
-
-async function uploadAddImage() {
-  const fileInput = document.getElementById('iImgFile');
-  const file = fileInput.files[0];
-  if (!file) return;
-  const label = fileInput.closest('.file-label');
-  const originalText = label.innerHTML;
-  label.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-  try {
-    const url = await uploadToCatbox(file);
-    document.getElementById('iImg').value = url;
-    const preview = document.getElementById('addImgPreview');
-    preview.src = url;
-    preview.style.display = 'block';
-    showToast('Image uploaded! URL saved.', 'success');
-  } catch (err) {
-    console.error(err);
-    showToast('Upload failed: ' + err.message, 'error');
-  } finally {
-    label.innerHTML = originalText;
-    fileInput.value = '';
-  }
-}
-
-async function uploadEditImage() {
-  const fileInput = document.getElementById('editImgFile');
-  const file = fileInput.files[0];
-  if (!file) return;
-  const uploadRow = fileInput.closest('.img-upload-row');
-  const uploadLabel = uploadRow.querySelector('.file-label');
-  const originalText = uploadLabel.innerHTML;
-  uploadLabel.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-  try {
-    const url = await uploadToCatbox(file);
-    document.getElementById('editImageUrl').value = url;
-    const preview = document.getElementById('editImgPreview');
-    preview.src = url;
-    preview.style.display = 'block';
-    showToast('Image updated!', 'success');
-  } catch (err) {
-    console.error(err);
-    showToast('Upload failed: ' + err.message, 'error');
-  } finally {
-    uploadLabel.innerHTML = originalText;
-    fileInput.value = '';
-  }
 }
 
 // ── ORDERS LOGIC (unchanged) ───────────────────────────
@@ -853,7 +953,7 @@ function filterOrders(status, el) {
 }
 function renderOrders() {
   const list = filteredStatus==='all' ? allOrders : allOrders.filter(o => o.status === filteredStatus);
-  if(!list.length) { document.getElementById('ordersBody').innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-text">No orders ${filteredStatus==='all'?'yet':'with this status'}.</div></div></td></tr>`; return; }
+  if(!list.length) { document.getElementById('ordersBody').innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-text">No orders ${filteredStatus==='all'?'yet':'with this status'}.</div></div></tr></tr>`; return; }
   document.getElementById('ordersBody').innerHTML = list.map(o => {
     const conf = o.confirmation_number || o.id || '—', table = o.room_number || o.table_number || '?', name = o.customer_name || o.customerName || 'Guest';
     const items = o.order_items || '—', total = `$${parseFloat(o.total_amount||o.total||0).toFixed(2)}`, status = o.status || 'pending';
@@ -1048,6 +1148,11 @@ document.addEventListener('click', function(e) {
   const btn = e.target.closest('[data-id]');
   if(btn) { const id = btn.dataset.id; if(btn.dataset.action) updateOrder(id, btn.dataset.action); if(btn.dataset.pay) updatePayment(id, btn.dataset.pay); }
 });
+
+let allOrders = [], filteredStatus = 'all', audioEnabled = true, prevOrderCount = 0, pollInterval;
+let allMenuItems = [], menuFilter = 'all';
+let currentEditItem = null;
+
 document.addEventListener('DOMContentLoaded', () => {
   loadOrders(); pollInterval = setInterval(loadOrders, 30000);
   document.getElementById('qrBase').value = location.origin+location.pathname.replace('admin.html','') || SITE;
