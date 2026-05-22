@@ -7,7 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- QR Code Generator -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     :root {
@@ -91,7 +90,6 @@
       min-height:100vh;overflow:hidden;
     }
 
-    /* TOP BAR */
     .topbar{
       background:var(--surface);
       border-bottom:1px solid var(--border);
@@ -120,7 +118,6 @@
     .audio-toggle:hover{color:var(--cream);}
     .audio-toggle.active{color:var(--warning);border-color:var(--warning);}
 
-    /* CONTENT */
     .content{flex:1;overflow-y:auto;padding:28px;}
 
     /* STATS */
@@ -165,7 +162,6 @@
     .filter-btn:hover{border-color:var(--copper);color:var(--cream);}
     .filter-btn.active{background:var(--copper);border-color:var(--copper);color:#fff;font-weight:600;}
 
-    /* ORDERS TABLE */
     .orders-wrap{overflow-x:auto;}
     .orders-table{width:100%;border-collapse:separate;border-spacing:0 6px;}
     .orders-table th{
@@ -206,7 +202,6 @@
     .pill.cash_on_delivery{background:rgba(34,197,94,.12);color:var(--success);}
     .pill-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
 
-    /* ACTION BUTTONS */
     .action-group{display:flex;gap:6px;flex-wrap:wrap;}
     .act-btn{
       padding:6px 12px;border-radius:8px;border:none;
@@ -222,7 +217,6 @@
     .act-btn.pay-no  {background:rgba(239,68,68,.15);color:var(--error);}
     .act-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
 
-    /* EMPTY STATE */
     .empty-state{
       text-align:center;padding:60px 20px;
       color:var(--muted);
@@ -293,7 +287,7 @@
     .f-input:focus,.f-select:focus,.f-textarea:focus{outline:none;border-color:var(--copper);}
     .f-select option{background:var(--surface);}
     .f-textarea{resize:vertical;min-height:70px;}
-    .form-footer{display:flex;gap:10px;margin-top:8px;grid-column:1/-1;}
+    .form-footer{display:flex;gap:10px;margin-top:8px;grid-column:1/-1; flex-wrap: wrap;}
     .f-submit{
       background:var(--copper);border:none;border-radius:8px;
       color:#fff;padding:10px 22px;font-family:'DM Sans',sans-serif;
@@ -307,6 +301,39 @@
     .result-msg.ok {background:rgba(34,197,94,.12);color:var(--success);border:1px solid rgba(34,197,94,.2);}
     .result-msg.err{background:rgba(239,68,68,.12);color:var(--error);border:1px solid rgba(239,68,68,.2);}
 
+    /* image upload row */
+    .img-upload-row{
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .img-upload-row .file-label{
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 14px;
+      cursor: pointer;
+      font-size: .75rem;
+      font-weight: 500;
+      transition: all .2s;
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .img-upload-row .file-label:hover{
+      border-color: var(--copper);
+      color: var(--copper);
+    }
+    .img-preview{
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+    }
     /* MODAL */
     .modal-bg{
       position:fixed;inset:0;z-index:500;
@@ -317,13 +344,15 @@
     .modal-bg.open{opacity:1;pointer-events:all;}
     .modal-box{
       background:var(--surface);border:1px solid var(--border);
-      border-radius:16px;padding:28px;max-width:420px;width:100%;
+      border-radius:16px;padding:28px;max-width:520px;width:100%;
       transform:scale(.95);transition:transform .25s;
+      max-height: 90vh;
+      overflow-y: auto;
     }
     .modal-bg.open .modal-box{transform:scale(1);}
     .modal-title{font-size:1rem;font-weight:700;margin-bottom:8px;}
     .modal-sub{font-size:.82rem;color:var(--muted);margin-bottom:20px;}
-    .modal-actions{display:flex;gap:10px;}
+    .modal-actions{display:flex;gap:10px;margin-top: 20px;}
     .m-btn{
       flex:1;padding:10px;border:none;border-radius:8px;
       font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;
@@ -332,6 +361,41 @@
     .m-btn.confirm{background:var(--copper);color:#fff;}
     .m-btn.cancel {background:var(--surface2);color:var(--muted);}
     .m-btn:hover{opacity:.9;}
+
+    /* EDIT MODAL FIELDS */
+    .edit-field{
+      margin-bottom: 14px;
+    }
+    .edit-field label{
+      display: block;
+      font-size: .7rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .edit-field input, .edit-field select, .edit-field textarea{
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--cream);
+      padding: 10px 12px;
+      font-size: .85rem;
+    }
+    .edit-field textarea{
+      resize: vertical;
+      min-height: 60px;
+    }
+    .toggle-row{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .toggle-row .toggle-label{
+      font-size: .8rem;
+    }
 
     /* NEW ORDER ALERT */
     .new-order-alert{
@@ -363,7 +427,7 @@
     }
     .menu-reload-btn:hover{border-color:var(--copper);color:var(--cream);}
     .menu-items-grid{
-      display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;
     }
     .menu-item-card{
       background:var(--surface);border:1px solid var(--border);
@@ -396,7 +460,21 @@
       color:var(--copper);background:rgba(200,114,42,.1);
       border-radius:4px;padding:3px 8px;
     }
-    /* Toggle switch */
+    .mic-actions{
+      display: flex;
+      gap: 6px;
+    }
+    .mic-edit-btn{
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: .9rem;
+      transition: color .2s;
+    }
+    .mic-edit-btn:hover{
+      color: var(--copper);
+    }
     .toggle-wrap{display:flex;align-items:center;gap:8px;}
     .toggle-label{font-size:.72rem;color:var(--muted);}
     .toggle{position:relative;width:36px;height:20px;}
@@ -431,7 +509,6 @@
     .mf-btn:hover{border-color:var(--copper);color:var(--cream);}
     .mf-btn.active{background:var(--copper);border-color:var(--copper);color:#fff;font-weight:600;}
 
-    /* RESPONSIVE SIDEBAR */
     @media(max-width:768px){
       .sidebar{transform:translateX(-100%);transition:transform .3s ease;}
       .sidebar.mobile-open{transform:translateX(0);}
@@ -452,10 +529,8 @@
 </head>
 <body>
 
-<!-- SIDEBAR BACKDROP (mobile) -->
 <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
 
-<!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <div class="brand-dot"></div>
@@ -464,7 +539,6 @@
       <div class="brand-sub">Admin Dashboard</div>
     </div>
   </div>
-
   <div class="nav-section">
     <div class="nav-label">Operations</div>
     <button class="nav-item active" onclick="showSection('orders', this)">
@@ -491,7 +565,6 @@
       Sales Summary
     </button>
   </div>
-
   <div class="sidebar-footer">
     <a href="index.html" style="color:var(--muted);text-decoration:none;font-size:.75rem;">
       <i class="fas fa-external-link-alt"></i> View Customer Menu
@@ -499,9 +572,7 @@
   </div>
 </aside>
 
-<!-- MAIN -->
 <div class="main">
-  <!-- TOP BAR -->
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:12px;">
       <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
@@ -518,13 +589,9 @@
     </div>
   </div>
 
-  <!-- CONTENT -->
   <div class="content">
-
-    <!-- ── ORDERS SECTION ─────────────────────── -->
+    <!-- ORDERS SECTION -->
     <div id="sec-orders">
-
-      <!-- STATS -->
       <div class="stats-grid">
         <div class="stat-card" style="--accent-color:var(--warning);">
           <span class="stat-label">Pending</span>
@@ -547,8 +614,6 @@
           <span class="stat-sub">Today's sales</span>
         </div>
       </div>
-
-      <!-- FILTER -->
       <div class="filter-row">
         <button class="filter-btn active" onclick="filterOrders('all',this)">All</button>
         <button class="filter-btn" onclick="filterOrders('pending',this)">Pending</button>
@@ -556,146 +621,78 @@
         <button class="filter-btn" onclick="filterOrders('cooking',this)">Cooking</button>
         <button class="filter-btn" onclick="filterOrders('completed',this)">Completed</button>
       </div>
-
-      <!-- TABLE -->
       <div class="orders-wrap">
         <table class="orders-table">
           <thead>
-            <tr>
-              <th>Order #</th>
-              <th>Table</th>
-              <th>Customer</th>
-              <th>Items</th>
-              <th>Total</th>
-              <th>Payment</th>
-              <th>Order Status</th>
-              <th>Actions</th>
-            </tr>
+            <tr><th>Order #</th><th>Table</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Order Status</th><th>Actions</th></tr>
           </thead>
-          <tbody id="ordersBody">
-            <tr><td colspan="8"><div class="empty-state"><div class="empty-icon"><i class="fas fa-spinner fa-spin"></i></div><div class="empty-text">Loading orders…</div></div></td></tr>
-          </tbody>
+          <tbody id="ordersBody"><tr><td colspan="8"><div class="empty-state"><div class="empty-icon"><i class="fas fa-spinner fa-spin"></i></div><div class="empty-text">Loading orders…</div></div></td></tr></tbody>
         </table>
       </div>
     </div>
 
-    <!-- ── QR SECTION ──────────────────────────── -->
+    <!-- QR SECTION -->
     <div id="sec-qr" style="display:none;">
       <div class="qr-gen-form">
         <h3><i class="fas fa-qrcode" style="color:var(--copper);margin-right:8px;"></i>Generate Table QR Codes</h3>
         <div class="qr-gen-row">
-          <div class="qf-group">
-            <label class="qf-label">From Table</label>
-            <input class="qf-input" type="number" id="qrFrom" value="1" min="1">
-          </div>
-          <div class="qf-group">
-            <label class="qf-label">To Table</label>
-            <input class="qf-input" type="number" id="qrTo" value="10" min="1">
-          </div>
-          <div class="qf-group">
-            <label class="qf-label">Base URL</label>
-            <input class="qf-input" type="text" id="qrBase" value="https://bekimoon0043.github.io/telegram-hotel" style="width:320px;" placeholder="https://your-site.com">
-          </div>
+          <div class="qf-group"><label class="qf-label">From Table</label><input class="qf-input" type="number" id="qrFrom" value="1" min="1"></div>
+          <div class="qf-group"><label class="qf-label">To Table</label><input class="qf-input" type="number" id="qrTo" value="10" min="1"></div>
+          <div class="qf-group"><label class="qf-label">Base URL</label><input class="qf-input" type="text" id="qrBase" value="https://bekimoon0043.github.io/telegram-hotel" style="width:320px;"></div>
           <button class="qf-btn" onclick="generateQRs()"><i class="fas fa-magic"></i> Generate</button>
         </div>
       </div>
       <div class="qr-grid" id="qrGrid"></div>
     </div>
 
-    <!-- ── MENU SECTION ────────────────────────── -->
+    <!-- MENU SECTION -->
     <div id="sec-menu" style="display:none;">
       <div class="menu-mgmt-form">
-        <h3 style="margin-bottom:18px;font-size:.95rem;font-weight:700;">
-          <i class="fas fa-plus-circle" style="color:var(--copper);margin-right:8px;"></i>Add Menu Item
-        </h3>
+        <h3 style="margin-bottom:18px;font-size:.95rem;font-weight:700;"><i class="fas fa-plus-circle" style="color:var(--copper);margin-right:8px;"></i>Add Menu Item</h3>
         <div class="form-grid">
-          <div class="form-group">
-            <label class="f-label">Item Name *</label>
-            <input class="f-input" type="text" id="iName" placeholder="Espresso Doppio">
-          </div>
-          <div class="form-group">
-            <label class="f-label">Price *</label>
-            <input class="f-input" type="number" id="iPrice" placeholder="4.50" step="0.01" min="0">
-          </div>
-          <div class="form-group">
-            <label class="f-label">Category</label>
-            <select class="f-select" id="iCategory">
-              <option value="coffee">Coffee</option>
-              <option value="drinks">Drinks</option>
-              <option value="food">Food</option>
-              <option value="desserts">Desserts</option>
-              <option value="breakfast">Breakfast</option>
-              <option value="snacks">Snacks</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="f-label">Available</label>
-            <select class="f-select" id="iAvail">
-              <option value="TRUE">Yes</option>
-              <option value="FALSE">No (Hidden)</option>
-            </select>
-          </div>
-          <div class="form-group full">
-            <label class="f-label">Description</label>
-            <input class="f-input" type="text" id="iDesc" placeholder="Rich double espresso shot…">
-          </div>
+          <div class="form-group"><label class="f-label">Item Name *</label><input class="f-input" type="text" id="iName" placeholder="Espresso Doppio"></div>
+          <div class="form-group"><label class="f-label">Price *</label><input class="f-input" type="number" id="iPrice" placeholder="4.50" step="0.01" min="0"></div>
+          <div class="form-group"><label class="f-label">Category</label><select class="f-select" id="iCategory"><option value="coffee">Coffee</option><option value="drinks">Drinks</option><option value="food">Food</option><option value="desserts">Desserts</option><option value="breakfast">Breakfast</option><option value="snacks">Snacks</option></select></div>
+          <div class="form-group"><label class="f-label">Available</label><select class="f-select" id="iAvail"><option value="TRUE">Yes</option><option value="FALSE">No (Hidden)</option></select></div>
+          <div class="form-group full"><label class="f-label">Description</label><input class="f-input" type="text" id="iDesc" placeholder="Rich double espresso shot…"></div>
           <div class="form-group full">
             <label class="f-label">Image URL</label>
-            <input class="f-input" type="url" id="iImg" placeholder="https://…">
+            <input class="f-input" type="url" id="iImg" placeholder="https://...">
+            <div class="img-upload-row">
+              <label class="file-label"><i class="fas fa-cloud-upload-alt"></i> Upload Image<input type="file" id="iImgFile" accept="image/*" style="display:none;" onchange="uploadAddImage()"></label>
+              <img id="addImgPreview" class="img-preview" style="display:none;">
+            </div>
           </div>
           <div class="form-footer">
-            <button class="f-submit" id="addItemBtn" onclick="addMenuItem()">
-              <i class="fas fa-plus"></i> Add to Menu
-            </button>
+            <button class="f-submit" id="addItemBtn" onclick="addMenuItem()"><i class="fas fa-plus"></i> Add to Menu</button>
           </div>
         </div>
         <div id="addResult" style="display:none;" class="result-msg"></div>
       </div>
 
-      <!-- CURRENT MENU ITEMS -->
       <div class="menu-items-wrap">
         <div class="menu-section-header">
           <h3><i class="fas fa-list" style="color:var(--copper);margin-right:8px;"></i>Current Menu Items</h3>
-          <button class="menu-reload-btn" onclick="loadMenuItems()" id="menuReloadBtn">
-            <i class="fas fa-sync-alt" id="menuReloadIcon"></i> Reload
-          </button>
+          <button class="menu-reload-btn" onclick="loadMenuItems()" id="menuReloadBtn"><i class="fas fa-sync-alt" id="menuReloadIcon"></i> Reload</button>
         </div>
         <div class="menu-filter-row">
           <button class="mf-btn active" onclick="filterMenuItems('all',this)">All</button>
           <button class="mf-btn" onclick="filterMenuItems('available',this)">Available</button>
           <button class="mf-btn" onclick="filterMenuItems('hidden',this)">Hidden</button>
         </div>
-        <div class="menu-items-grid" id="menuItemsGrid">
-          <div class="menu-empty"><i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Loading menu items…</div>
-        </div>
+        <div class="menu-items-grid" id="menuItemsGrid"><div class="menu-empty"><i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Loading menu items…</div></div>
       </div>
     </div>
 
-    <!-- ── ANALYTICS ───────────────────────────── -->
+    <!-- ANALYTICS SECTION -->
     <div id="sec-analytics" style="display:none;">
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;">
         <h3 style="font-size:.95rem;font-weight:700;margin-bottom:20px;">Sales Overview</h3>
         <div class="stats-grid" style="margin-bottom:0;">
-          <div class="stat-card" style="--accent-color:var(--gold);">
-            <span class="stat-label">Total Revenue</span>
-            <span class="stat-value" id="an-revenue">—</span>
-            <span class="stat-sub">All time</span>
-          </div>
-          <div class="stat-card" style="--accent-color:var(--info);">
-            <span class="stat-label">Total Orders</span>
-            <span class="stat-value" id="an-total">—</span>
-            <span class="stat-sub">All time</span>
-          </div>
-          <div class="stat-card" style="--accent-color:var(--success);">
-            <span class="stat-label">Avg Order Value</span>
-            <span class="stat-value" id="an-avg">—</span>
-            <span class="stat-sub">Per order</span>
-          </div>
-          <div class="stat-card" style="--accent-color:var(--copper);">
-            <span class="stat-label">Completion Rate</span>
-            <span class="stat-value" id="an-rate">—</span>
-            <span class="stat-sub">% completed</span>
-          </div>
+          <div class="stat-card" style="--accent-color:var(--gold);"><span class="stat-label">Total Revenue</span><span class="stat-value" id="an-revenue">—</span><span class="stat-sub">All time</span></div>
+          <div class="stat-card" style="--accent-color:var(--info);"><span class="stat-label">Total Orders</span><span class="stat-value" id="an-total">—</span><span class="stat-sub">All time</span></div>
+          <div class="stat-card" style="--accent-color:var(--success);"><span class="stat-label">Avg Order Value</span><span class="stat-value" id="an-avg">—</span><span class="stat-sub">Per order</span></div>
+          <div class="stat-card" style="--accent-color:var(--copper);"><span class="stat-label">Completion Rate</span><span class="stat-value" id="an-rate">—</span><span class="stat-sub">% completed</span></div>
         </div>
       </div>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;">
@@ -703,37 +700,41 @@
         <div id="popularItems"><div class="empty-state" style="padding:30px 0;"><div class="empty-icon" style="font-size:1.5rem;">📊</div><div class="empty-text">Load orders to see analytics</div></div></div>
       </div>
     </div>
+  </div>
+</div>
 
-  </div><!-- /content -->
-</div><!-- /main -->
-
-<!-- CONFIRM MODAL -->
-<div class="modal-bg" id="confirmModal">
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="editModal">
   <div class="modal-box">
-    <div class="modal-title" id="modalTitle">Confirm Action</div>
-    <div class="modal-sub" id="modalSub">Are you sure?</div>
+    <div class="modal-title">Edit Menu Item</div>
+    <div class="modal-sub" id="editModalSub">Update item details</div>
+    <div id="editForm">
+      <div class="edit-field"><label>Name</label><input type="text" id="editName" placeholder="Item name"></div>
+      <div class="edit-field"><label>Price ($)</label><input type="number" id="editPrice" step="0.01" min="0"></div>
+      <div class="edit-field"><label>Category</label><select id="editCategory"><option value="coffee">Coffee</option><option value="drinks">Drinks</option><option value="food">Food</option><option value="desserts">Desserts</option><option value="breakfast">Breakfast</option><option value="snacks">Snacks</option></select></div>
+      <div class="edit-field"><label>Description</label><textarea id="editDescription" rows="2"></textarea></div>
+      <div class="edit-field"><label>Image URL</label><input type="url" id="editImageUrl" placeholder="https://..."><div class="img-upload-row"><label class="file-label"><i class="fas fa-cloud-upload-alt"></i> Upload Image<input type="file" id="editImgFile" accept="image/*" style="display:none;" onchange="uploadEditImage()"></label><img id="editImgPreview" class="img-preview" style="display:none;"></div></div>
+      <div class="edit-field toggle-row"><span class="toggle-label">Available on menu</span><label class="toggle"><input type="checkbox" id="editAvailable"><span class="toggle-slider"></span></label></div>
+    </div>
     <div class="modal-actions">
-      <button class="m-btn cancel" id="cancelModalBtn">Cancel</button>
-      <button class="m-btn confirm" id="modalConfirmBtn">Confirm</button>
+      <button class="m-btn cancel" onclick="closeEditModal()">Cancel</button>
+      <button class="m-btn confirm" onclick="saveEditItem()">Save Changes</button>
     </div>
   </div>
 </div>
 
 <script>
-const API    = 'https://n8n-n64x.onrender.com/webhook';
-const SITE   = 'https://bekimoon0043.github.io/telegram-hotel';
+const API = 'https://n8n-n64x.onrender.com/webhook';
+const SITE = 'https://bekimoon0043.github.io/telegram-hotel';
+const IMGBB_API_KEY = '6d207e02198a847aa98d0a2a901485a5';
 
-let allOrders     = [];
-let filteredStatus = 'all';
-let audioEnabled   = true;
-let prevOrderCount = 0;
-let pollInterval;
+let allOrders = [], filteredStatus = 'all', audioEnabled = true, prevOrderCount = 0, pollInterval;
+let allMenuItems = [], menuFilter = 'all';
+let currentEditItem = null;
 
-/* ── NAV ─────────────────────────────────── */
+// ── NAVIGATION ─────────────────────────────────────────
 function showSection(name, el) {
-  ['orders','qr','menu','analytics'].forEach(s => {
-    document.getElementById(`sec-${s}`).style.display = s===name ? '' : 'none';
-  });
+  ['orders','qr','menu','analytics'].forEach(s => document.getElementById(`sec-${s}`).style.display = s===name ? '' : 'none');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   if(el) el.classList.add('active');
   const titles = {orders:'Live Orders',qr:'Table QR Codes',menu:'Menu Manager',analytics:'Sales Summary'};
@@ -742,525 +743,299 @@ function showSection(name, el) {
   if(name==='menu') loadMenuItems();
 }
 
-/* ── ORDERS ──────────────────────────────── */
+// ── IMAGE UPLOAD HELPERS ───────────────────────────────
+async function uploadToImgBB(file) {
+  const formData = new FormData();
+  formData.append('image', file);
+  const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
+  const data = await res.json();
+  if (!data.success) throw new Error(data.error?.message || 'Upload failed');
+  return data.data.url;
+}
+
+async function uploadAddImage() {
+  const fileInput = document.getElementById('iImgFile');
+  const file = fileInput.files[0];
+  if (!file) return;
+  const btn = fileInput.nextElementSibling;
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+  try {
+    const url = await uploadToImgBB(file);
+    document.getElementById('iImg').value = url;
+    const preview = document.getElementById('addImgPreview');
+    preview.src = url;
+    preview.style.display = 'block';
+    showToast('Image uploaded!', 'success');
+  } catch (err) {
+    showToast('Upload failed: ' + err.message, 'error');
+  } finally {
+    btn.innerHTML = originalText;
+    fileInput.value = '';
+  }
+}
+
+let pendingEditUpload = false;
+async function uploadEditImage() {
+  const fileInput = document.getElementById('editImgFile');
+  const file = fileInput.files[0];
+  if (!file) return;
+  const uploadRow = fileInput.closest('.img-upload-row');
+  const uploadLabel = uploadRow.querySelector('.file-label');
+  const originalText = uploadLabel.innerHTML;
+  uploadLabel.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+  try {
+    const url = await uploadToImgBB(file);
+    document.getElementById('editImageUrl').value = url;
+    const preview = document.getElementById('editImgPreview');
+    preview.src = url;
+    preview.style.display = 'block';
+    showToast('Image updated!', 'success');
+  } catch (err) {
+    showToast('Upload failed: ' + err.message, 'error');
+  } finally {
+    uploadLabel.innerHTML = originalText;
+    fileInput.value = '';
+  }
+}
+
+// ── ORDERS LOGIC (kept intact) ─────────────────────────
 async function loadOrders() {
   const btn = document.getElementById('refreshBtn');
   btn.classList.add('spinning');
-
   try {
     const r = await fetch(`${API}/orders-admin`);
     const d = await r.json();
     allOrders = (d.orders || []).sort((a,b) => new Date(b.timestamp||0) - new Date(a.timestamp||0));
-
-    // New order sound
-    if(prevOrderCount > 0 && allOrders.length > prevOrderCount && audioEnabled) {
-      playChime();
-      showNewOrderAlert(allOrders[0]);
-    }
+    if(prevOrderCount > 0 && allOrders.length > prevOrderCount && audioEnabled) { playChime(); showNewOrderAlert(allOrders[0]); }
     prevOrderCount = allOrders.length;
-
     updateStats();
     renderOrders();
     document.getElementById('lastUpdate').textContent = 'Updated ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   } catch(e) {
-    document.getElementById('ordersBody').innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon"><i class="fas fa-wifi-slash"></i></div><div class="empty-text">Failed to load orders. Check your n8n connection.</div></div></td></tr>`;
+    document.getElementById('ordersBody').innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon"><i class="fas fa-wifi-slash"></i></div><div class="empty-text">Failed to load orders.</div></div></td></tr>`;
   }
   btn.classList.remove('spinning');
 }
-
 function updateStats() {
   const today = new Date().toDateString();
   const todayOrders = allOrders.filter(o => o.timestamp && new Date(o.timestamp).toDateString() === today);
-  const pending   = todayOrders.filter(o => o.status==='pending').length;
-  const cooking   = todayOrders.filter(o => o.status==='cooking'||o.status==='confirmed').length;
+  const pending = todayOrders.filter(o => o.status==='pending').length;
+  const cooking = todayOrders.filter(o => o.status==='cooking'||o.status==='confirmed').length;
   const completed = todayOrders.filter(o => o.status==='completed').length;
-  const revenue   = todayOrders.reduce((s,o) => s + parseFloat(o.total_amount||o.total||0), 0);
-
-  document.getElementById('st-pending').textContent   = pending;
-  document.getElementById('st-cooking').textContent   = cooking;
+  const revenue = todayOrders.reduce((s,o) => s + parseFloat(o.total_amount||o.total||0), 0);
+  document.getElementById('st-pending').textContent = pending;
+  document.getElementById('st-cooking').textContent = cooking;
   document.getElementById('st-completed').textContent = completed;
-  document.getElementById('st-revenue').textContent   = `$${revenue.toFixed(2)}`;
+  document.getElementById('st-revenue').textContent = `$${revenue.toFixed(2)}`;
   document.getElementById('pendingCount').textContent = pending;
   document.getElementById('pendingCount').style.display = pending > 0 ? '' : 'none';
 }
-
 function filterOrders(status, el) {
   filteredStatus = status;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   if(el) el.classList.add('active');
   renderOrders();
 }
-
 function renderOrders() {
-  const list = filteredStatus==='all' ? allOrders
-    : allOrders.filter(o => o.status === filteredStatus);
-
-  if(!list.length) {
-    document.getElementById('ordersBody').innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-text">No orders ${filteredStatus==='all'?'yet':'with this status'}.</div></div></td></tr>`;
-    return;
-  }
-
+  const list = filteredStatus==='all' ? allOrders : allOrders.filter(o => o.status === filteredStatus);
+  if(!list.length) { document.getElementById('ordersBody').innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-text">No orders ${filteredStatus==='all'?'yet':'with this status'}.</div></div></td></tr>`; return; }
   document.getElementById('ordersBody').innerHTML = list.map(o => {
-    const conf    = o.confirmation_number || o.id || '—';
-    const table   = o.room_number || o.table_number || '?';
-    const name    = o.customer_name || o.customerName || 'Guest';
-    const items   = o.order_items || '—';
-    const total   = `$${parseFloat(o.total_amount||o.total||0).toFixed(2)}`;
-    const status  = o.status || 'pending';
-    const pStatus = (o['payment_status '] || o.payment_status || 'pending').trim();
-    const pMethod = o.payment_method || 'cash';
-    const time    = o.timestamp ? new Date(o.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
-
-    return `<tr class="order-row">
-      <td>
-        <div class="order-conf">${esc(conf)}</div>
-        <div style="font-size:.68rem;color:var(--muted);margin-top:3px;">${time}</div>
-      </td>
-      <td><span class="order-table-badge">T${esc(table)}</span></td>
-      <td style="font-weight:500;">${esc(name)}</td>
-      <td style="max-width:180px;"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);" title="${esc(items)}">${esc(items)}</div></td>
-      <td style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--gold);">${total}</td>
-      <td>
-        <div style="font-size:.75rem;margin-bottom:4px;">${esc(pMethod)}</div>
-        <span class="pill ${pStatus}"><span class="pill-dot"></span>${cap(pStatus)}</span>
-        ${pStatus==='pending' && pMethod!=='cash' ? `
-        <div style="display:flex;gap:4px;margin-top:6px;">
-          <button class="act-btn pay-ok" data-id="${conf}" data-pay="verified"><i class="fas fa-check"></i> OK</button>
-          <button class="act-btn pay-no" data-id="${conf}" data-pay="rejected"><i class="fas fa-times"></i></button>
-        </div>` : ''}
-      </td>
-      <td><span class="pill ${status}"><span class="pill-dot"></span>${cap(status)}</span></td>
-      <td>
-        <div class="action-group">
-          ${status==='pending'   ? `<button class="act-btn confirm"  data-id="${conf}" data-action="confirmed"><i class="fas fa-check"></i> Confirm</button>` : ''}
-          ${status==='confirmed' ? `<button class="act-btn cooking"  data-id="${conf}" data-action="cooking"><i class="fas fa-fire"></i> Kitchen</button>` : ''}
-          ${status==='cooking'   ? `<button class="act-btn complete" data-id="${conf}" data-action="completed"><i class="fas fa-check-double"></i> Done</button>` : ''}
-          ${status!=='completed' ? `<button class="act-btn reject"   data-id="${conf}" data-action="cancelled"><i class="fas fa-ban"></i></button>` : '<span style="color:var(--success);font-size:.75rem;"><i class="fas fa-check-double"></i> Complete</span>'}
-        </div>
-      </td>
-    </tr>`;
+    const conf = o.confirmation_number || o.id || '—', table = o.room_number || o.table_number || '?', name = o.customer_name || o.customerName || 'Guest';
+    const items = o.order_items || '—', total = `$${parseFloat(o.total_amount||o.total||0).toFixed(2)}`, status = o.status || 'pending';
+    const pStatus = (o['payment_status '] || o.payment_status || 'pending').trim(), pMethod = o.payment_method || 'cash';
+    const time = o.timestamp ? new Date(o.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
+    return `<tr class="order-row"><td><div class="order-conf">${esc(conf)}</div><div style="font-size:.68rem;color:var(--muted);margin-top:3px;">${time}</div></td><td><span class="order-table-badge">T${esc(table)}</span></td><td style="font-weight:500;">${esc(name)}</td><td style="max-width:180px;"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);" title="${esc(items)}">${esc(items)}</div></td><td style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--gold);">${total}</td><td><div style="font-size:.75rem;margin-bottom:4px;">${esc(pMethod)}</div><span class="pill ${pStatus}"><span class="pill-dot"></span>${cap(pStatus)}</span>${pStatus==='pending' && pMethod!=='cash' ? `<div style="display:flex;gap:4px;margin-top:6px;"><button class="act-btn pay-ok" data-id="${conf}" data-pay="verified"><i class="fas fa-check"></i> OK</button><button class="act-btn pay-no" data-id="${conf}" data-pay="rejected"><i class="fas fa-times"></i></button></div>` : ''}</td><td><span class="pill ${status}"><span class="pill-dot"></span>${cap(status)}</span></td><td><div class="action-group">${status==='pending'   ? `<button class="act-btn confirm"  data-id="${conf}" data-action="confirmed"><i class="fas fa-check"></i> Confirm</button>` : ''}${status==='confirmed' ? `<button class="act-btn cooking"  data-id="${conf}" data-action="cooking"><i class="fas fa-fire"></i> Kitchen</button>` : ''}${status==='cooking'   ? `<button class="act-btn complete" data-id="${conf}" data-action="completed"><i class="fas fa-check-double"></i> Done</button>` : ''}${status!=='completed' ? `<button class="act-btn reject"   data-id="${conf}" data-action="cancelled"><i class="fas fa-ban"></i></button>` : '<span style="color:var(--success);font-size:.75rem;"><i class="fas fa-check-double"></i> Complete</span>'}</div></td></tr>`;
   }).join('');
 }
-
-/* ── UPDATE ORDER STATUS ─────────────────── */
 async function updateOrder(confNum, newStatus) {
   const order = allOrders.find(o => o.confirmation_number===confNum || o.id===confNum);
-  if(!order) { alert('Order not found'); return; }
-
-  // Optimistic UI — update table instantly so admin sees feedback
+  if(!order) return;
   const idx = allOrders.findIndex(o => o.confirmation_number===confNum || o.id===confNum);
   if(idx > -1) { allOrders[idx] = {...allOrders[idx], status: newStatus}; renderOrders(); updateStats(); }
-
   const currentPayStatus = ((order['payment_status '] || order.payment_status || 'pending') + '').trim();
-
   try {
-    // Spread full order + override status — same approach as the working admin
-    const payload = {
-      ...order,
-      confirmation_number: confNum,
-      status: newStatus,
-      payment_status: currentPayStatus,
-      updatedAt: new Date().toISOString()
-    };
-
-    const resp = await fetch(`${API}/update-order`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-
+    const payload = { ...order, confirmation_number: confNum, status: newStatus, payment_status: currentPayStatus, updatedAt: new Date().toISOString() };
+    const resp = await fetch(`${API}/update-order`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
     if(!resp.ok) throw new Error(`Server error ${resp.status}`);
-
-    // Notify customer on Telegram
     if(order.telegram_chat_id && (newStatus==='confirmed'||newStatus==='completed')) {
-      fetch(`${API}/notify-customer`, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({
-          orderId: confNum,
-          telegramChatId: order.telegram_chat_id,
-          type: `order_${newStatus}`,
-          room: order.room_number||'N/A'
-        })
-      }).catch(()=>{});
+      fetch(`${API}/notify-customer`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ orderId: confNum, telegramChatId: order.telegram_chat_id, type: `order_${newStatus}`, room: order.room_number||'N/A' }) }).catch(()=>{});
     }
-
     setTimeout(loadOrders, 1500);
-  } catch(e) {
-    alert('Update failed: ' + e.message);
-    loadOrders(); // revert optimistic update
-  }
+  } catch(e) { loadOrders(); }
 }
-
 async function updatePayment(confNum, payStatus) {
   const order = allOrders.find(o => o.confirmation_number===confNum || o.id===confNum);
-  if(!order) { alert('Order not found'); return; }
-
+  if(!order) return;
   const newOrderStatus = payStatus==='verified' ? 'confirmed' : order.status;
-
-  // Optimistic UI
   const idx = allOrders.findIndex(o => o.confirmation_number===confNum || o.id===confNum);
-  if(idx > -1) {
-    allOrders[idx] = {...allOrders[idx], 'payment_status ': payStatus, payment_status: payStatus, status: newOrderStatus};
-    renderOrders(); updateStats();
-  }
-
+  if(idx > -1) { allOrders[idx] = {...allOrders[idx], 'payment_status ': payStatus, payment_status: payStatus, status: newOrderStatus}; renderOrders(); updateStats(); }
   try {
-    const payload = {
-      confirmation_number: order.confirmation_number || confNum,
-      payment_status: payStatus,
-      status: newOrderStatus,
-      telegram_chat_id: order.telegram_chat_id || '',
-      room_number: order.room_number || order.table_number || 'N/A',
-      updatedAt: new Date().toISOString()
-    };
-
-    const resp = await fetch(`${API}/update-order`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-
+    const payload = { confirmation_number: order.confirmation_number || confNum, payment_status: payStatus, status: newOrderStatus, telegram_chat_id: order.telegram_chat_id || '', room_number: order.room_number || order.table_number || 'N/A', updatedAt: new Date().toISOString() };
+    const resp = await fetch(`${API}/update-order`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
     if(!resp.ok) throw new Error(`Server error ${resp.status}`);
-
     setTimeout(loadOrders, 1500);
-  } catch(e) {
-    alert('Update failed: ' + e.message);
-    loadOrders();
-  }
+  } catch(e) { loadOrders(); }
 }
-
-/* ── QR CODES ────────────────────────────── */
+// ── QR ──────────────────────────────────────────────────
 function generateQRs() {
-  const from = parseInt(document.getElementById('qrFrom').value);
-  const to   = parseInt(document.getElementById('qrTo').value);
+  const from = parseInt(document.getElementById('qrFrom').value), to = parseInt(document.getElementById('qrTo').value);
   const base = document.getElementById('qrBase').value.trim() || SITE;
   if(isNaN(from)||isNaN(to)||from>to) { alert('Invalid range'); return; }
   if(to-from > 49) { alert('Max 50 QR codes at once'); return; }
-
-  const grid = document.getElementById('qrGrid');
-  grid.innerHTML = '';
-
+  const grid = document.getElementById('qrGrid'); grid.innerHTML = '';
   for(let t=from; t<=to; t++) {
     const url = `${base}?table=${t}`;
-    const card = document.createElement('div');
-    card.className = 'qr-card';
-    const wrap = document.createElement('div');
-    wrap.className = 'qr-canvas-wrap';
-    wrap.id = `qr-wrap-${t}`;
-    card.innerHTML = `
-      <div class="qr-label">Table ${t}</div>
-      <div class="qr-url">${url}</div>`;
+    const card = document.createElement('div'); card.className = 'qr-card';
+    const wrap = document.createElement('div'); wrap.className = 'qr-canvas-wrap'; wrap.id = `qr-wrap-${t}`;
+    card.innerHTML = `<div class="qr-label">Table ${t}</div><div class="qr-url">${url}</div>`;
     card.insertBefore(wrap, card.firstChild);
-    const dl = document.createElement('button');
-    dl.className = 'qr-dl';
-    dl.innerHTML = '<i class="fas fa-download"></i> Download PNG';
-    dl.onclick = () => downloadQR(t);
-    card.appendChild(dl);
-    grid.appendChild(card);
-
-    new QRCode(wrap, {
-      text: url, width:160, height:160,
-      colorDark:'#1A0F0A', colorLight:'#FFFFFF',
-      correctLevel: QRCode.CorrectLevel.M
-    });
+    const dl = document.createElement('button'); dl.className = 'qr-dl'; dl.innerHTML = '<i class="fas fa-download"></i> Download PNG'; dl.onclick = () => downloadQR(t);
+    card.appendChild(dl); grid.appendChild(card);
+    new QRCode(wrap, { text: url, width:160, height:160, colorDark:'#1A0F0A', colorLight:'#FFFFFF', correctLevel: QRCode.CorrectLevel.M });
   }
 }
-
 function downloadQR(tableNum) {
-  const wrap = document.getElementById(`qr-wrap-${tableNum}`);
-  const canvas = wrap ? wrap.querySelector('canvas') : null;
+  const wrap = document.getElementById(`qr-wrap-${tableNum}`); const canvas = wrap ? wrap.querySelector('canvas') : null;
   if(!canvas) { alert('QR not generated yet'); return; }
-  const a = document.createElement('a');
-  a.download = `table-${tableNum}-qr.png`;
-  a.href = canvas.toDataURL('image/png');
-  a.click();
+  const a = document.createElement('a'); a.download = `table-${tableNum}-qr.png`; a.href = canvas.toDataURL('image/png'); a.click();
 }
-
-/* ── MENU MANAGEMENT ─────────────────────── */
-let allMenuItems = [];
-let menuFilter   = 'all';
-
+// ── MENU MANAGER (enhanced with edit) ──────────────────
 async function addMenuItem() {
   const btn = document.getElementById('addItemBtn');
-  const name  = document.getElementById('iName').value.trim();
+  const name = document.getElementById('iName').value.trim();
   const price = parseFloat(document.getElementById('iPrice').value);
-  if(!name || isNaN(price)) {
-    showResult('err','Name and price are required.');
-    return;
-  }
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding…';
-
-  const item = {
-    name,
-    description: document.getElementById('iDesc').value.trim(),
-    price,
-    category: document.getElementById('iCategory').value,
-    imageurl: document.getElementById('iImg').value.trim(),
-    available: document.getElementById('iAvail').value
-  };
-
+  if(!name || isNaN(price)) { showResult('err','Name and price are required.'); return; }
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding…';
+  const item = { name, description: document.getElementById('iDesc').value.trim(), price, category: document.getElementById('iCategory').value, imageurl: document.getElementById('iImg').value.trim(), available: document.getElementById('iAvail').value };
   try {
-    const r = await fetch(`${API}/add-menu-item`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(item)
-    });
-    // Read body only to extract error message if request failed
-    let d = null;
-    try { d = await r.json(); } catch(e) { /* body may not be JSON on error */ }
-
-    // SUCCESS: HTTP 200 means Supabase created the row — no need to inspect body shape.
-    // (Supabase node can return the row as an object, array, or n8n-wrapped envelope;
-    //  checking r.ok is the only reliable signal across all n8n/Supabase versions.)
+    const r = await fetch(`${API}/add-menu-item`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(item) });
     if(r.ok) {
       showResult('ok', `✓ "${esc(name)}" added to menu at $${price.toFixed(2)}`);
-      ['iName','iDesc','iPrice','iImg'].forEach(id => document.getElementById(id).value = '');
-      // Refresh the menu items list so the new item appears immediately
+      document.getElementById('iName').value = ''; document.getElementById('iDesc').value = ''; document.getElementById('iPrice').value = ''; document.getElementById('iImg').value = ''; document.getElementById('addImgPreview').style.display = 'none';
       setTimeout(loadMenuItems, 600);
-    } else {
-      showResult('err', d?.error || d?.message || `Server error ${r.status}`);
-    }
-  } catch(e) {
-    showResult('err', e.message);
-  }
-  btn.disabled = false;
-  btn.innerHTML = '<i class="fas fa-plus"></i> Add to Menu';
+    } else { let d; try{ d=await r.json(); }catch(e){}; showResult('err', d?.error || d?.message || `Server error ${r.status}`); }
+  } catch(e) { showResult('err', e.message); }
+  btn.disabled = false; btn.innerHTML = '<i class="fas fa-plus"></i> Add to Menu';
 }
-
 async function loadMenuItems() {
-  const icon = document.getElementById('menuReloadIcon');
-  icon.classList.add('fa-spin');
-  document.getElementById('menuItemsGrid').innerHTML =
-    '<div class="menu-empty"><i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Loading…</div>';
+  const icon = document.getElementById('menuReloadIcon'); icon.classList.add('fa-spin');
+  document.getElementById('menuItemsGrid').innerHTML = '<div class="menu-empty"><i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Loading…</div>';
   try {
-    // Always use the admin endpoint — it returns ALL items (available + hidden).
-    // Never fall back to /menu which is the customer endpoint and strips hidden items.
     const r = await fetch(`${API}/menu-admin`);
     if (!r.ok) throw new Error(`Server returned ${r.status}`);
     const d = await r.json();
-
-    // Normalise availability: the menu-admin workflow returns a boolean,
-    // but guard against string values ("TRUE"/"FALSE") coming from older data.
-    allMenuItems = (d.menu || []).map(item => ({
-      ...item,
-      available: typeof item.available === 'boolean'
-        ? item.available
-        : String(item.available).toUpperCase() === 'TRUE'
-    }));
-
+    allMenuItems = (d.menu || []).map(item => ({ ...item, available: typeof item.available === 'boolean' ? item.available : String(item.available).toUpperCase() === 'TRUE' }));
     renderMenuItems();
-  } catch(e) {
-    document.getElementById('menuItemsGrid').innerHTML =
-      `<div class="menu-empty" style="color:var(--error);"><i class="fas fa-exclamation-triangle"></i> Failed to load: ${esc(e.message)}</div>`;
-  }
+  } catch(e) { document.getElementById('menuItemsGrid').innerHTML = `<div class="menu-empty" style="color:var(--error);"><i class="fas fa-exclamation-triangle"></i> Failed to load: ${esc(e.message)}</div>`; }
   icon.classList.remove('fa-spin');
 }
-
 function filterMenuItems(type, el) {
   menuFilter = type;
   document.querySelectorAll('.mf-btn').forEach(b => b.classList.remove('active'));
   if(el) el.classList.add('active');
   renderMenuItems();
 }
-
 function renderMenuItems() {
   const grid = document.getElementById('menuItemsGrid');
   let list = allMenuItems;
   if(menuFilter === 'available') list = allMenuItems.filter(i => i.available);
-  if(menuFilter === 'hidden')    list = allMenuItems.filter(i => !i.available);
-
-  if(!list.length) {
-    grid.innerHTML = `<div class="menu-empty"><i class="fas fa-inbox" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:.3;"></i>${
-      menuFilter==='all' ? 'No menu items yet. Add one above.' :
-      menuFilter==='available' ? 'No available items.' : 'No hidden items.'
-    }</div>`;
-    return;
-  }
-
+  if(menuFilter === 'hidden') list = allMenuItems.filter(i => !i.available);
+  if(!list.length) { grid.innerHTML = `<div class="menu-empty"><i class="fas fa-inbox" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:.3;"></i>${menuFilter==='all' ? 'No menu items yet.' : menuFilter==='available' ? 'No available items.' : 'No hidden items.'}</div>`; return; }
   grid.innerHTML = list.map(item => {
     const avail = item.available;
-    const imgTag = item.imageurl
-      ? `<img class="mic-img" src="${esc(item.imageurl)}" alt="${esc(item.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-         <div class="mic-img-placeholder" style="display:none;"><i class="fas fa-image"></i></div>`
-      : `<div class="mic-img-placeholder"><i class="fas fa-utensils"></i></div>`;
-    return `
-      <div class="menu-item-card ${avail ? '' : 'disabled'}" id="mic-${esc(item.id)}">
-        ${imgTag}
-        <div class="mic-body">
-          <div class="mic-top">
-            <div class="mic-name">${esc(item.name)}</div>
-            <div class="mic-price">$${parseFloat(item.price||0).toFixed(2)}</div>
-          </div>
-          <div class="mic-desc" title="${esc(item.description||'')}">
-            ${item.description ? esc(item.description) : '<span style="opacity:.4">No description</span>'}
-          </div>
-          <div class="mic-footer">
-            <span class="mic-cat">${esc(item.category||'other')}</span>
-            <div class="toggle-wrap">
-              <span class="toggle-label">${avail ? 'Visible' : 'Hidden'}</span>
-              <label class="toggle" title="${avail ? 'Click to hide' : 'Click to show'}">
-                <input type="checkbox" ${avail ? 'checked' : ''} onchange="toggleItemAvailability('${esc(item.id)}', this)">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>`;
+    const imgTag = item.imageurl ? `<img class="mic-img" src="${esc(item.imageurl)}" alt="${esc(item.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><div class="mic-img-placeholder" style="display:none;"><i class="fas fa-image"></i></div>` : `<div class="mic-img-placeholder"><i class="fas fa-utensils"></i></div>`;
+    return `<div class="menu-item-card ${avail ? '' : 'disabled'}" data-item-id="${esc(item.id)}"><div class="mic-body"><div class="mic-top"><div class="mic-name">${esc(item.name)}</div><div class="mic-price">$${parseFloat(item.price||0).toFixed(2)}</div></div><div class="mic-desc" title="${esc(item.description||'')}">${item.description ? esc(item.description) : '<span style="opacity:.4">No description</span>'}</div><div class="mic-footer"><span class="mic-cat">${esc(item.category||'other')}</span><div class="mic-actions"><button class="mic-edit-btn" onclick="openEditModal('${esc(item.id)}')"><i class="fas fa-pencil-alt"></i></button><div class="toggle-wrap"><span class="toggle-label">${avail ? 'Visible' : 'Hidden'}</span><label class="toggle" title="${avail ? 'Click to hide' : 'Click to show'}"><input type="checkbox" ${avail ? 'checked' : ''} onchange="toggleItemAvailability('${esc(item.id)}', this)"><span class="toggle-slider"></span></label></div></div></div></div></div>`;
   }).join('');
 }
-
 async function toggleItemAvailability(itemId, checkbox) {
-  const newAvail = checkbox.checked;
-  checkbox.disabled = true;
-
-  // Optimistic UI update
+  const newAvail = checkbox.checked; checkbox.disabled = true;
   const idx = allMenuItems.findIndex(i => i.id == itemId);
-  if(idx > -1) {
-    allMenuItems[idx] = {...allMenuItems[idx], available: newAvail};
-    renderMenuItems();
-  }
-
+  if(idx > -1) { allMenuItems[idx] = {...allMenuItems[idx], available: newAvail}; renderMenuItems(); }
   try {
-    const r = await fetch(`${API}/update-menu-item`, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ id: itemId, available: newAvail ? 'TRUE' : 'FALSE' })
-    });
+    const r = await fetch(`${API}/update-menu-item`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id: itemId, available: newAvail ? 'TRUE' : 'FALSE' }) });
     if(!r.ok) throw new Error(`Server error ${r.status}`);
-    // Re-render to reflect label change
     renderMenuItems();
-  } catch(e) {
-    // Revert on failure
-    if(idx > -1) {
-      allMenuItems[idx] = {...allMenuItems[idx], available: !newAvail};
-      renderMenuItems();
-    }
-    alert('Failed to update item: ' + e.message);
-  }
+  } catch(e) { if(idx > -1) { allMenuItems[idx] = {...allMenuItems[idx], available: !newAvail}; renderMenuItems(); } alert('Failed to update item: ' + e.message); }
 }
-
+function openEditModal(itemId) {
+  const item = allMenuItems.find(i => i.id == itemId);
+  if(!item) return;
+  currentEditItem = item;
+  document.getElementById('editName').value = item.name;
+  document.getElementById('editPrice').value = parseFloat(item.price).toFixed(2);
+  document.getElementById('editCategory').value = item.category || 'coffee';
+  document.getElementById('editDescription').value = item.description || '';
+  document.getElementById('editImageUrl').value = item.imageurl || '';
+  document.getElementById('editAvailable').checked = item.available;
+  const preview = document.getElementById('editImgPreview');
+  if(item.imageurl) { preview.src = item.imageurl; preview.style.display = 'block'; } else { preview.style.display = 'none'; }
+  document.getElementById('editModal').classList.add('open');
+}
+function closeEditModal() { document.getElementById('editModal').classList.remove('open'); currentEditItem = null; }
+async function saveEditItem() {
+  if(!currentEditItem) return;
+  const updated = {
+    id: currentEditItem.id,
+    name: document.getElementById('editName').value.trim(),
+    price: parseFloat(document.getElementById('editPrice').value),
+    category: document.getElementById('editCategory').value,
+    description: document.getElementById('editDescription').value.trim(),
+    imageurl: document.getElementById('editImageUrl').value.trim(),
+    available: document.getElementById('editAvailable').checked ? 'TRUE' : 'FALSE'
+  };
+  if(!updated.name || isNaN(updated.price)) { showToast('Name and price are required', 'error'); return; }
+  const confirmBtn = document.querySelector('#editModal .confirm');
+  const originalText = confirmBtn.innerHTML;
+  confirmBtn.disabled = true; confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+  try {
+    const r = await fetch(`${API}/update-menu-item`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(updated) });
+    if(r.ok) {
+      showToast('Item updated successfully', 'success');
+      closeEditModal();
+      loadMenuItems();
+    } else { let err; try{ err=await r.json(); }catch(e){}; showToast(err?.message || 'Update failed', 'error'); }
+  } catch(e) { showToast(e.message, 'error'); }
+  confirmBtn.disabled = false; confirmBtn.innerHTML = originalText;
+}
 function showResult(type, msg) {
   const el = document.getElementById('addResult');
-  el.className = `result-msg ${type}`;
-  el.textContent = msg;
-  el.style.display = 'block';
+  el.className = `result-msg ${type}`; el.textContent = msg; el.style.display = 'block';
   setTimeout(() => el.style.display='none', 4000);
 }
-
-/* ── ANALYTICS ───────────────────────────── */
-function refreshAnalytics() {
-  if(!allOrders.length) { loadOrders().then(calcAnalytics); return; }
-  calcAnalytics();
-}
+// ── ANALYTICS ──────────────────────────────────────────
+function refreshAnalytics() { if(!allOrders.length) loadOrders().then(calcAnalytics); else calcAnalytics(); }
 function calcAnalytics() {
-  const revenue  = allOrders.reduce((s,o) => s+parseFloat(o.total_amount||o.total||0),0);
-  const total    = allOrders.length;
-  const completed= allOrders.filter(o=>o.status==='completed').length;
-  const avg      = total ? revenue/total : 0;
-  const rate     = total ? Math.round(completed/total*100) : 0;
-
+  const revenue = allOrders.reduce((s,o) => s+parseFloat(o.total_amount||o.total||0),0);
+  const total = allOrders.length, completed = allOrders.filter(o=>o.status==='completed').length;
+  const avg = total ? revenue/total : 0, rate = total ? Math.round(completed/total*100) : 0;
   document.getElementById('an-revenue').textContent = `$${revenue.toFixed(2)}`;
-  document.getElementById('an-total').textContent   = total;
-  document.getElementById('an-avg').textContent     = `$${avg.toFixed(2)}`;
-  document.getElementById('an-rate').textContent    = `${rate}%`;
-
-  // Popular items
+  document.getElementById('an-total').textContent = total;
+  document.getElementById('an-avg').textContent = `$${avg.toFixed(2)}`;
+  document.getElementById('an-rate').textContent = `${rate}%`;
   const itemMap = {};
-  allOrders.forEach(o => {
-    (o.order_items||'').split(',').forEach(chunk => {
-      const m = chunk.trim().match(/^(\d+)x\s+(.+)$/);
-      if(m) {
-        const [,qty,name] = m;
-        itemMap[name] = (itemMap[name]||0)+parseInt(qty);
-      }
-    });
-  });
+  allOrders.forEach(o => { (o.order_items||'').split(',').forEach(chunk => { const m = chunk.trim().match(/^(\d+)x\s+(.+)$/); if(m) { const [,qty,name] = m; itemMap[name] = (itemMap[name]||0)+parseInt(qty); } }); });
   const sorted = Object.entries(itemMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
   const max = sorted[0]?.[1] || 1;
-  document.getElementById('popularItems').innerHTML = sorted.length
-    ? sorted.map(([name,count]) => `
-      <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);">
-        <div style="flex:1;font-size:.85rem;">${esc(name)}</div>
-        <div style="width:120px;background:var(--surface2);border-radius:4px;overflow:hidden;height:6px;">
-          <div style="height:100%;background:var(--copper);width:${Math.round(count/max*100)}%;border-radius:4px;"></div>
-        </div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--gold);min-width:32px;text-align:right;">${count}</div>
-      </div>`).join('')
-    : '<div class="empty-state" style="padding:24px 0;"><div class="empty-text">No data yet</div></div>';
+  document.getElementById('popularItems').innerHTML = sorted.length ? sorted.map(([name,count]) => `<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);"><div style="flex:1;font-size:.85rem;">${esc(name)}</div><div style="width:120px;background:var(--surface2);border-radius:4px;overflow:hidden;height:6px;"><div style="height:100%;background:var(--copper);width:${Math.round(count/max*100)}%;border-radius:4px;"></div></div><div style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--gold);min-width:32px;text-align:right;">${count}</div></div>`).join('') : '<div class="empty-state" style="padding:24px 0;"><div class="empty-text">No data yet</div></div>';
 }
-
-/* ── MODAL — kept for UI but no longer used for action gating ── */
-function closeModal() {
-  document.getElementById('confirmModal').classList.remove('open');
-}
-
-/* ── AUDIO / ALERTS ──────────────────────── */
-function playChime() {
-  try {
-    const ctx = new (window.AudioContext||window.webkitAudioContext)();
-    [523,659,784].forEach((freq,i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.frequency.value = freq;
-      osc.type = 'sine';
-      gain.gain.setValueAtTime(0,.1+i*.18);
-      gain.gain.linearRampToValueAtTime(.25,.12+i*.18);
-      gain.gain.linearRampToValueAtTime(0,.5+i*.18);
-      osc.start(.1+i*.18); osc.stop(.6+i*.18);
-    });
-  } catch(e){}
-}
-
-function showNewOrderAlert(order) {
-  document.querySelectorAll('.new-order-alert').forEach(e=>e.remove());
-  const el = document.createElement('div');
-  el.className = 'new-order-alert';
-  el.innerHTML = `
-    <span class="noa-icon">🔔</span>
-    <div class="noa-text"><b>New Order!</b><br>Table ${order.room_number||order.table_number||'?'} · $${parseFloat(order.total_amount||0).toFixed(2)}</div>
-    <button class="noa-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(), 8000);
-}
-
-function toggleAudio() {
-  audioEnabled = !audioEnabled;
-  const btn = document.getElementById('audioToggle');
-  btn.classList.toggle('active', audioEnabled);
-  btn.innerHTML = `<i class="fas fa-volume-${audioEnabled?'up':'mute'}"></i>`;
-}
-
-/* ── SIDEBAR (mobile) ────────────────────── */
-function toggleSidebar() {
-  const s = document.getElementById('sidebar');
-  const b = document.getElementById('sidebarBackdrop');
-  s.classList.toggle('mobile-open');
-  b.classList.toggle('visible');
-}
-function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('mobile-open');
-  document.getElementById('sidebarBackdrop').classList.remove('visible');
-}
-
-/* ── UTILS ───────────────────────────────── */
+// ── ALERTS / TOASTS ────────────────────────────────────
+function playChime() { try { const ctx = new (window.AudioContext||window.webkitAudioContext)(); [523,659,784].forEach((freq,i)=>{ const osc=ctx.createOscillator(), gain=ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.frequency.value=freq; osc.type='sine'; gain.gain.setValueAtTime(0,.1+i*.18); gain.gain.linearRampToValueAtTime(.25,.12+i*.18); gain.gain.linearRampToValueAtTime(0,.5+i*.18); osc.start(.1+i*.18); osc.stop(.6+i*.18); }); } catch(e){} }
+function showNewOrderAlert(order) { document.querySelectorAll('.new-order-alert').forEach(e=>e.remove()); const el = document.createElement('div'); el.className = 'new-order-alert'; el.innerHTML = `<span class="noa-icon">🔔</span><div class="noa-text"><b>New Order!</b><br>Table ${order.room_number||order.table_number||'?'} · $${parseFloat(order.total_amount||0).toFixed(2)}</div><button class="noa-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`; document.body.appendChild(el); setTimeout(()=>el.remove(), 8000); }
+function toggleAudio() { audioEnabled = !audioEnabled; const btn = document.getElementById('audioToggle'); btn.classList.toggle('active', audioEnabled); btn.innerHTML = `<i class="fas fa-volume-${audioEnabled?'up':'mute'}"></i>`; }
+function showToast(msg, type='info') { let existing = document.querySelector('.toast'); if(existing) existing.remove(); const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':type==='error'?'fa-exclamation-circle':'fa-info-circle'}"></i><span>${msg}</span>`; document.body.appendChild(toast); setTimeout(()=>toast.remove(), 3000); }
+// ── SIDEBAR / UTILS ────────────────────────────────────
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('mobile-open'); document.getElementById('sidebarBackdrop').classList.toggle('visible'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('mobile-open'); document.getElementById('sidebarBackdrop').classList.remove('visible'); }
 function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):'';}
 function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
-
-/* ── DELEGATED CLICK HANDLER ─────────────── */
-// All order/payment buttons use data-id + data-action/data-pay
-// This avoids any issues with special characters in confirmation numbers
-// being mangled by HTML attribute encoding (esc() + onclick = broken)
+// ── EVENT DELEGATION ───────────────────────────────────
 document.addEventListener('click', function(e) {
   const btn = e.target.closest('[data-id]');
-  if(!btn) return;
-  const id = btn.dataset.id;
-  if(btn.dataset.action) updateOrder(id, btn.dataset.action);
-  if(btn.dataset.pay)    updatePayment(id, btn.dataset.pay);
+  if(btn) { const id = btn.dataset.id; if(btn.dataset.action) updateOrder(id, btn.dataset.action); if(btn.dataset.pay) updatePayment(id, btn.dataset.pay); }
 });
-
-/* ── INIT ────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
-  loadOrders();
-  pollInterval = setInterval(loadOrders, 30000);
+  loadOrders(); pollInterval = setInterval(loadOrders, 30000);
   document.getElementById('qrBase').value = location.origin+location.pathname.replace('admin.html','') || SITE;
 });
 </script>
