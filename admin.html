@@ -729,25 +729,22 @@ const API = 'https://n8n-n64x.onrender.com/webhook';
 const SITE = 'https://bekimoon0043.github.io/telegram-hotel';
 
 // ============================================
-// 🔥 GITHUB UPLOAD SETUP 🔥
+// 🔥 GITHUB UPLOAD CONFIGURATION 🔥
 // ============================================
-// IMPORTANT: You must set these values in your GitHub repository settings:
-// Go to: https://github.com/settings/tokens -> Generate new token (classic)
-// Select "repo" scope, then copy the token.
-// Then go to your repository: Settings -> Secrets and variables -> Actions -> New repository secret
-// Name: GITHUB_TOKEN, Value: your-token
-// For local development, create a .env file or enter them below:
-const GITHUB_TOKEN = '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';  // ⚠️ WARNING: Never hardcode tokens in production!
-const GITHUB_OWNER = 'bekimoon0043';  // Your GitHub username
-const GITHUB_REPO = 'telegram-hotel';   // Your repository name
+// ⚠️ IMPORTANT: Replace the empty string with your actual GitHub token
+// Generate a token at: GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
+// Required scope: "repo"
+const GITHUB_TOKEN = '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';  // ⚠️ REPLACE with your actual token
+
+const GITHUB_OWNER = 'bekimoon0043';
+const GITHUB_REPO = 'telegram-hotel';
 const GITHUB_BRANCH = 'main';
-const GITHUB_PATH = 'images/menu/'; // Folder to store images
+const GITHUB_PATH = 'images/menu/';
 
 // ============================================
 // 🔥 IMAGE UPLOAD TO GITHUB (100% RELIABLE) 🔥
 // ============================================
 async function uploadToGitHub(file) {
-    // Check if token is configured
     if (!GITHUB_TOKEN) {
         throw new Error('GitHub token not configured. Please set your GITHUB_TOKEN in the script.');
     }
@@ -757,7 +754,6 @@ async function uploadToGitHub(file) {
         const reader = new FileReader();
         reader.onload = () => {
             const result = reader.result;
-            // Remove data:image/...;base64, prefix
             const base64String = result.split(',')[1];
             resolve(base64String);
         };
@@ -771,6 +767,18 @@ async function uploadToGitHub(file) {
     const filename = `${timestamp}_${random}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
     const filePath = `${GITHUB_PATH}${filename}`;
     
+    // Check if file already exists
+    let sha = null;
+    try {
+        const checkResp = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`, {
+            headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` }
+        });
+        if (checkResp.ok) {
+            const existing = await checkResp.json();
+            sha = existing.sha;
+        }
+    } catch (e) { /* file doesn't exist, continue */ }
+    
     // Create or update file on GitHub
     const response = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`, {
         method: 'PUT',
@@ -782,7 +790,8 @@ async function uploadToGitHub(file) {
         body: JSON.stringify({
             message: `Upload image ${filename}`,
             content: base64,
-            branch: GITHUB_BRANCH
+            branch: GITHUB_BRANCH,
+            sha: sha
         })
     });
     
@@ -792,60 +801,10 @@ async function uploadToGitHub(file) {
     }
     
     const data = await response.json();
-    // Return the raw GitHub URL (or use jsDelivr CDN for faster loading)
+    // Return jsDelivr CDN URL for fast global delivery
     const rawUrl = data.content.download_url;
-    return rawUrl;
-}
-
-// Upload using jsDelivr CDN (even faster)
-async function uploadToGitHubWithCDN(file) {
-    const rawUrl = await uploadToGitHub(file);
-    // Convert to jsDelivr CDN URL for faster global delivery
     const cdnUrl = rawUrl.replace('raw.githubusercontent.com', 'cdn.jsdelivr.net/gh');
     return cdnUrl;
-}
-
-// ============================================
-// 🔥 ALTERNATIVE: FILE.IO (NO SETUP REQUIRED) 🔥
-// ============================================
-// If you don't want to set up GitHub token, use File.io instead
-// File.io stores files for 7 days only (good for testing)
-async function uploadToFileIO(file) {
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    // File.io public API (no token required, CORS enabled)
-    const response = await fetch('https://file.io/', {
-        method: 'POST',
-        body: formData,
-        mode: 'cors'
-    });
-    
-    if (!response.ok) {
-        throw new Error(`Upload failed: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    if (!data.success) {
-        throw new Error(data.message || 'Upload failed');
-    }
-    
-    return data.link;
-}
-
-// ============================================
-// 🔥 CHOOSE YOUR UPLOAD METHOD 🔥
-// ============================================
-// Option 1: GitHub (recommended) - requires token setup
-// Option 2: File.io (no setup) - files expire after 7 days
-const USE_GITHUB = true;  // Set to true if you configured GitHub token, false for File.io
-
-async function uploadImage(file) {
-    if (USE_GITHUB) {
-        return await uploadToGitHubWithCDN(file);
-    } else {
-        return await uploadToFileIO(file);
-    }
 }
 
 // ============================================
@@ -861,7 +820,7 @@ async function uploadAddImage() {
     label.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
     
     try {
-        const url = await uploadImage(file);
+        const url = await uploadToGitHub(file);
         document.getElementById('iImg').value = url;
         const preview = document.getElementById('addImgPreview');
         preview.src = url;
@@ -887,7 +846,7 @@ async function uploadEditImage() {
     uploadLabel.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
     
     try {
-        const url = await uploadImage(file);
+        const url = await uploadToGitHub(file);
         document.getElementById('editImageUrl').value = url;
         const preview = document.getElementById('editImgPreview');
         preview.src = url;
@@ -953,7 +912,7 @@ function filterOrders(status, el) {
 }
 function renderOrders() {
   const list = filteredStatus==='all' ? allOrders : allOrders.filter(o => o.status === filteredStatus);
-  if(!list.length) { document.getElementById('ordersBody').innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-text">No orders ${filteredStatus==='all'?'yet':'with this status'}.</div></div></tr></tr>`; return; }
+  if(!list.length) { document.getElementById('ordersBody').innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-text">No orders ${filteredStatus==='all'?'yet':'with this status'}.</div></div></table></tr>`; return; }
   document.getElementById('ordersBody').innerHTML = list.map(o => {
     const conf = o.confirmation_number || o.id || '—', table = o.room_number || o.table_number || '?', name = o.customer_name || o.customerName || 'Guest';
     const items = o.order_items || '—', total = `$${parseFloat(o.total_amount||o.total||0).toFixed(2)}`, status = o.status || 'pending';
