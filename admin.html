@@ -743,21 +743,27 @@ function showSection(name, el) {
   if(name==='menu') loadMenuItems();
 }
 
-// ── IMAGE UPLOAD (FreeImage.Host - no API key) ─────────
-async function uploadToFreeImage(file) {
+// ── IMAGE UPLOAD (Catbox.moe - reliable, CORS-friendly) ─
+async function uploadToCatbox(file) {
   const formData = new FormData();
-  formData.append('source', file);
-  formData.append('type', 'file');
-  // FreeImage.Host public upload endpoint (no authentication)
-  const response = await fetch('https://freeimage.host/api/1/upload', {
+  formData.append('reqtype', 'fileupload');
+  formData.append('fileToUpload', file);
+  
+  const response = await fetch('https://catbox.moe/user/api.php', {
     method: 'POST',
-    body: formData
+    body: formData,
+    mode: 'cors'
   });
-  const data = await response.json();
-  if (!data.image || !data.image.url) {
-    throw new Error(data.error?.message || 'Upload failed');
+  
+  if (!response.ok) {
+    throw new Error(`Upload failed (HTTP ${response.status})`);
   }
-  return data.image.url; // direct image URL
+  
+  const url = await response.text();
+  if (!url.startsWith('http')) {
+    throw new Error('Invalid response from Catbox');
+  }
+  return url.trim();
 }
 
 async function uploadAddImage() {
@@ -768,13 +774,14 @@ async function uploadAddImage() {
   const originalText = label.innerHTML;
   label.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
   try {
-    const url = await uploadToFreeImage(file);
+    const url = await uploadToCatbox(file);
     document.getElementById('iImg').value = url;
     const preview = document.getElementById('addImgPreview');
     preview.src = url;
     preview.style.display = 'block';
     showToast('Image uploaded! URL saved.', 'success');
   } catch (err) {
+    console.error(err);
     showToast('Upload failed: ' + err.message, 'error');
   } finally {
     label.innerHTML = originalText;
@@ -791,13 +798,14 @@ async function uploadEditImage() {
   const originalText = uploadLabel.innerHTML;
   uploadLabel.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
   try {
-    const url = await uploadToFreeImage(file);
+    const url = await uploadToCatbox(file);
     document.getElementById('editImageUrl').value = url;
     const preview = document.getElementById('editImgPreview');
     preview.src = url;
     preview.style.display = 'block';
     showToast('Image updated!', 'success');
   } catch (err) {
+    console.error(err);
     showToast('Upload failed: ' + err.message, 'error');
   } finally {
     uploadLabel.innerHTML = originalText;
