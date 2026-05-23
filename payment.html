@@ -171,6 +171,64 @@
     /* hide name field for cash */
     .name-field.hide{display:none;}
 
+    /* ── SCREENSHOT UPLOAD ── */
+    .upload-zone{
+      border:2px dashed rgba(200,114,42,.35);
+      border-radius:14px;padding:28px 20px;
+      text-align:center;cursor:pointer;
+      transition:all .25s ease;
+      background:rgba(200,114,42,.04);
+      position:relative;
+    }
+    .upload-zone:hover,.upload-zone.drag-over{
+      border-color:var(--copper);
+      background:rgba(200,114,42,.09);
+    }
+    .upload-zone input[type=file]{
+      position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
+    }
+    .upload-icon{
+      font-size:2rem;color:var(--copper);margin-bottom:10px;
+      transition:transform .2s;
+    }
+    .upload-zone:hover .upload-icon{transform:translateY(-3px);}
+    .upload-title{font-size:.9rem;font-weight:600;color:var(--cream);margin-bottom:4px;}
+    .upload-hint{font-size:.75rem;color:var(--sand);}
+
+    /* Preview state */
+    .upload-preview{
+      display:none;
+      border:2px solid rgba(61,170,106,.35);
+      border-radius:14px;overflow:hidden;
+      position:relative;background:var(--espresso);
+    }
+    .upload-preview.show{display:block;}
+    .preview-img{
+      width:100%;max-height:220px;object-fit:contain;
+      display:block;background:#000;
+    }
+    .preview-bar{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 14px;background:rgba(61,170,106,.08);
+      border-top:1px solid rgba(61,170,106,.2);
+    }
+    .preview-info{flex:1;}
+    .preview-name{font-size:.8rem;font-weight:600;color:var(--cream);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
+    .preview-size{font-size:.7rem;color:var(--sand);}
+    .preview-ok{color:var(--success);font-size:.8rem;display:flex;align-items:center;gap:5px;font-weight:600;}
+    .remove-btn{
+      background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);
+      color:var(--error);border-radius:8px;padding:6px 12px;
+      font-size:.75rem;font-family:'DM Sans',sans-serif;font-weight:600;
+      cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;
+    }
+    .remove-btn:hover{background:rgba(192,57,43,.3);}
+    .upload-required{
+      font-size:.72rem;color:var(--copper);margin-top:8px;
+      display:flex;align-items:center;gap:5px;
+    }
+
     /* ── SUBMIT ── */
     .submit-btn{
       width:100%;padding:16px;
@@ -310,11 +368,42 @@
     </div>
   </div>
 
+  <!-- SCREENSHOT UPLOAD (hidden for cash) -->
+  <div class="card name-field" id="screenshotCard">
+    <div class="card-head"><i class="fas fa-camera" style="color:var(--copper)"></i>Payment Screenshot</div>
+
+    <!-- Drop zone -->
+    <div class="upload-zone" id="uploadZone"
+         ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+      <input type="file" id="screenshotInput" accept="image/*" onchange="handleFileSelect(this.files[0])">
+      <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+      <div class="upload-title">Upload your payment receipt</div>
+      <div class="upload-hint">Tap to choose or drag &amp; drop · JPG, PNG, WEBP · max 10 MB</div>
+    </div>
+
+    <!-- Preview -->
+    <div class="upload-preview" id="uploadPreview">
+      <img class="preview-img" id="previewImg" alt="Payment screenshot">
+      <div class="preview-bar">
+        <div class="preview-info">
+          <div class="preview-name" id="previewName">screenshot.jpg</div>
+          <div class="preview-size" id="previewSize">—</div>
+        </div>
+        <div class="preview-ok"><i class="fas fa-check-circle"></i> Ready</div>
+        <button class="remove-btn" onclick="removeScreenshot()"><i class="fas fa-trash-alt"></i> Remove</button>
+      </div>
+    </div>
+
+    <div class="upload-required" id="uploadRequired" style="display:none;">
+      <i class="fas fa-exclamation-circle"></i> Screenshot required for this payment method
+    </div>
+  </div>
+
   <!-- PAYER NAME (hidden for cash) -->
   <div class="card name-field" id="nameCard">
     <div class="card-head"><i class="fas fa-user" style="color:var(--copper)"></i>Your Name</div>
     <div class="field">
-      <label for="payerName">Name used for transfer</label>
+      <label for="payerName">Name used for the transfer</label>
       <input type="text" id="payerName" placeholder="e.g. Bekele Tadesse" autocomplete="name">
     </div>
   </div>
@@ -335,6 +424,9 @@ const API = 'https://n8n-n64x.onrender.com/webhook';
 let orderData = null;
 let selectedMethod = null;
 let telegramChatId = '';
+let screenshotFile = null;   // File object
+let screenshotB64  = null;   // base64 string (no data-URL prefix)
+let screenshotMime = 'image/jpeg';
 
 /* ── INIT ── */
 function init() {
@@ -357,16 +449,14 @@ function init() {
     return;
   }
 
-  // Also try to get telegram_chat_id from order data itself
   if (!telegramChatId && orderData.telegram_chat_id) {
     telegramChatId = orderData.telegram_chat_id;
   }
 
-  // Populate summary
-  document.getElementById('roomDisplay').textContent   = orderData.room || orderData.table || '—';
-  document.getElementById('confDisplay').textContent   = orderData.confirmation_number || '—';
+  document.getElementById('roomDisplay').textContent = orderData.room || orderData.table || '—';
+  document.getElementById('confDisplay').textContent = orderData.confirmation_number || '—';
   const ts = orderData.timestamp ? new Date(orderData.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
-  document.getElementById('timeDisplay').textContent   = ts;
+  document.getElementById('timeDisplay').textContent = ts;
 
   const items = orderData.items || [];
   document.getElementById('orderItems').innerHTML = items.map(i => `
@@ -376,29 +466,26 @@ function init() {
     </div>`).join('') || '<div class="sum-row"><span class="sum-label">—</span></div>';
 
   const total = parseFloat(orderData.total || 0).toFixed(2);
-  document.getElementById('totalAmt').textContent  = `$${total}`;
-  document.getElementById('codTotal').textContent  = `$${total}`;
+  document.getElementById('totalAmt').textContent = `$${total}`;
+  document.getElementById('codTotal').textContent = `$${total}`;
 }
 
 /* ── SELECT METHOD ── */
 function selectMethod(method) {
   selectedMethod = method;
 
-  // Update card highlights
   ['telebirr','cbe','cash'].forEach(m => {
     document.getElementById(`method-${m}`).classList.toggle('selected', m === method);
   });
 
-  // Show/hide name card
-  const nameCard = document.getElementById('nameCard');
-  if (method === 'cash') {
-    nameCard.classList.add('hide');
+  const isCash = method === 'cash';
+  document.getElementById('nameCard').classList.toggle('hide', isCash);
+  document.getElementById('screenshotCard').classList.toggle('hide', isCash);
+  if (isCash) {
     document.getElementById('payerName').value = '';
-  } else {
-    nameCard.classList.remove('hide');
+    removeScreenshot();
   }
 
-  // Update button
   const btn = document.getElementById('submitBtn');
   btn.disabled = false;
   const labels = {
@@ -407,7 +494,69 @@ function selectMethod(method) {
     cash:     'Place Order — Pay on Delivery'
   };
   document.getElementById('submitLabel').textContent = labels[method];
-  document.getElementById('submitIcon').className    = method === 'cash' ? 'fas fa-truck' : 'fas fa-paper-plane';
+  document.getElementById('submitIcon').className    = isCash ? 'fas fa-truck' : 'fas fa-paper-plane';
+}
+
+/* ── SCREENSHOT UPLOAD ── */
+function handleDragOver(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.add('drag-over');
+}
+function handleDragLeave(e) {
+  document.getElementById('uploadZone').classList.remove('drag-over');
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag-over');
+  const file = e.dataTransfer.files?.[0];
+  if (file) handleFileSelect(file);
+}
+
+function handleFileSelect(file) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showToast('error', 'Please upload an image file (JPG, PNG, WEBP)');
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('error', 'File too large — maximum 10 MB');
+    return;
+  }
+
+  screenshotFile = file;
+  screenshotMime = file.type;
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    // Store pure base64 (strip "data:image/...;base64," prefix)
+    screenshotB64 = dataUrl.split(',')[1];
+
+    // Show preview
+    document.getElementById('previewImg').src = dataUrl;
+    document.getElementById('previewName').textContent = file.name;
+    document.getElementById('previewSize').textContent = formatBytes(file.size);
+    document.getElementById('uploadZone').style.display = 'none';
+    document.getElementById('uploadPreview').classList.add('show');
+    document.getElementById('uploadRequired').style.display = 'none';
+    showToast('success', 'Screenshot ready to send!');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeScreenshot() {
+  screenshotFile = null;
+  screenshotB64  = null;
+  document.getElementById('screenshotInput').value = '';
+  document.getElementById('previewImg').src = '';
+  document.getElementById('uploadPreview').classList.remove('show');
+  document.getElementById('uploadZone').style.display = '';
+}
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/(1024*1024)).toFixed(1) + ' MB';
 }
 
 /* ── COPY ── */
@@ -431,22 +580,30 @@ async function submitPayment() {
 
   const payerName = document.getElementById('payerName').value.trim();
 
-  if (selectedMethod !== 'cash' && !payerName) {
-    showToast('error','Please enter the name used for the transfer');
-    document.getElementById('payerName').focus();
-    return;
+  if (selectedMethod !== 'cash') {
+    if (!payerName) {
+      showToast('error','Please enter the name used for the transfer');
+      document.getElementById('payerName').focus();
+      return;
+    }
+    if (!screenshotB64) {
+      document.getElementById('uploadRequired').style.display = 'flex';
+      document.getElementById('uploadZone').style.borderColor = 'var(--error)';
+      showToast('error','Please upload your payment screenshot');
+      document.getElementById('uploadZone').scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
   }
 
-  const btn   = document.getElementById('submitBtn');
+  const btn = document.getElementById('submitBtn');
   btn.disabled = true;
   document.getElementById('submitLabel').textContent = 'Submitting…';
   document.getElementById('submitIcon').className    = 'fas fa-spinner fa-spin';
 
-  // Build method-specific fields
   const methodMap = {
-    telebirr: { label: 'Telebirr', phone: '0975643221', account: null },
-    cbe:      { label: 'CBE',      phone: null,          account: '1000323242425' },
-    cash:     { label: 'cash',     phone: null,          account: null }
+    telebirr: { label: 'Telebirr', phone: '0975643221',   account: null },
+    cbe:      { label: 'CBE',      phone: null,            account: '1000323242425' },
+    cash:     { label: 'cash',     phone: null,            account: null }
   };
   const m = methodMap[selectedMethod];
 
@@ -462,6 +619,33 @@ async function submitPayment() {
   };
 
   try {
+    // 1️⃣ Send screenshot + info to Telegram (non-cash only)
+    if (selectedMethod !== 'cash' && screenshotB64) {
+      document.getElementById('submitLabel').textContent = 'Sending receipt to admin…';
+      try {
+        await fetch(`${API}/payment-screenshot`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            screenshot:    screenshotB64,
+            mimeType:      screenshotMime,
+            payerName,
+            paymentMethod: m.label,
+            orderId:       completeOrder.confirmation_number,
+            room:          completeOrder.room || completeOrder.table || 'N/A',
+            total:         completeOrder.total || '0.00',
+            customerName:  completeOrder.customerName || 'Guest',
+            timestamp:     completeOrder.payment_timestamp
+          })
+        });
+      } catch(e) {
+        console.warn('Screenshot send failed (non-critical):', e.message);
+        // Don't block the order if screenshot delivery fails
+      }
+    }
+
+    // 2️⃣ Submit the full order
+    document.getElementById('submitLabel').textContent = 'Placing order…';
     const resp = await fetch(`${API}/complete-order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -470,14 +654,12 @@ async function submitPayment() {
 
     if (!resp.ok) throw new Error(`Server error ${resp.status}`);
 
-    // Clean up storage
     sessionStorage.removeItem('pending_order');
     if (orderData.confirmation_number) {
       localStorage.removeItem('pending_order_' + orderData.confirmation_number);
     }
 
     showToast('success','Order submitted! Redirecting…');
-
     setTimeout(() => {
       const enc = encodeURIComponent(JSON.stringify(completeOrder));
       window.location.href = `payment-success.html?order=${enc}`;
@@ -510,9 +692,10 @@ function showToast(type, msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function esc(s){return String(s||'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));}
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
+
 </body>
 </html>
