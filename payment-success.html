@@ -162,7 +162,7 @@
   <div class="conf-title" id="headerTitle">Order Confirmed!</div>
   <div class="conf-sub" id="headerSub">Your order has been received by the kitchen.</div>
   <div class="conf-code-wrap">
-    <div class="code-label">Confirmation Number</div>
+    <div class="code-label" id="confLabel">Confirmation Number</div>
     <div class="code-value" id="confCode">—</div>
   </div>
 </div>
@@ -183,34 +183,34 @@
     <div class="stepper" id="stepper">
       <div class="step">
         <div class="step-dot done" id="dot0"><i class="fas fa-check"></i></div>
-        <div class="step-label">Placed</div>
+        <div class="step-label" id="stepLabel0">Order Placed</div>
       </div>
       <div class="step-line" id="line1"></div>
       <div class="step">
         <div class="step-dot pending" id="dot1"><i class="fas fa-clock"></i></div>
-        <div class="step-label">Confirmed</div>
+        <div class="step-label" id="stepLabel1">Confirmed</div>
       </div>
       <div class="step-line" id="line2"></div>
       <div class="step">
         <div class="step-dot pending" id="dot2"><i class="fas fa-fire"></i></div>
-        <div class="step-label">Cooking</div>
+        <div class="step-label" id="stepLabel2">Cooking</div>
       </div>
       <div class="step-line" id="line3"></div>
       <div class="step">
         <div class="step-dot pending" id="dot3"><i class="fas fa-check-double"></i></div>
-        <div class="step-label">Ready</div>
+        <div class="step-label" id="stepLabel3">Ready</div>
       </div>
     </div>
 
     <div class="refresh-note">
       <span class="refresh-dot"></span>
-      Auto-refreshing every 30 seconds
+      <span id="autoRefreshTxt">Auto-refreshing every 30 seconds</span>
     </div>
   </div>
 
   <!-- ORDER ITEMS -->
   <div class="card">
-    <div class="card-head"><i class="fas fa-utensils" style="color:var(--copper)"></i>Your Items</div>
+    <div class="card-head"><i class="fas fa-utensils" style="color:var(--copper)"></i><span id="summaryTitle">Your Items</span></div>
     <div id="orderItems"></div>
     <div class="total-row">
       <span class="total-lbl">Total</span>
@@ -220,7 +220,7 @@
 
   <!-- PAYMENT INFO -->
   <div class="card" id="paymentCard">
-    <div class="card-head"><i class="fas fa-receipt" style="color:var(--copper)"></i>Payment</div>
+    <div class="card-head"><i class="fas fa-receipt" style="color:var(--copper)"></i><span id="paymentTitle">Payment</span></div>
     <div class="payment-detail" id="paymentDetail">
       <i class="fas fa-spinner fa-spin"></i> Loading…
     </div>
@@ -229,10 +229,10 @@
   <!-- ACTIONS -->
   <div class="btn-row">
     <button class="btn btn-primary" onclick="window.location.href='index.html'+tableParam()">
-      <i class="fas fa-plus"></i> Order More
+      <i class="fas fa-plus"></i> <span id="newOrderBtnTxt">Order More</span>
     </button>
     <button class="btn btn-secondary" onclick="checkStatus()">
-      <i class="fas fa-sync-alt" id="refreshIcon"></i> Refresh Status
+      <i class="fas fa-sync-alt" id="refreshIcon"></i> <span id="refreshBtnTxt">Refresh Status</span>
     </button>
   </div>
 
@@ -244,8 +244,83 @@ let orderData     = null;
 let pollInterval  = null;
 let lastStatus    = null;
 
+/* ── LANGUAGE ── */
+const LANG_SUCCESS = {
+  en: {
+    headerTitle:   'Order Placed!',
+    headerSub:     'Your order has been received by the kitchen.',
+    confLabel:     'Confirmation Number',
+    autoRefresh:   'Auto-refreshing every 30 seconds',
+    refreshBtn:    'Refresh Status',
+    newOrderBtn:   'New Order',
+    summaryTitle:  'Order Summary',
+    paymentTitle:  'Payment',
+    statusLabels: {
+      pending:          'Pending — Awaiting confirmation',
+      confirmed:        'Confirmed — Kitchen notified',
+      cooking:          'Cooking — Hang tight!',
+      completed:        'Ready — Enjoy your meal! 🎉',
+      verified:         'Payment Verified',
+      rejected:         'Payment Rejected',
+      cash_on_delivery: 'Confirmed — Pay on delivery'
+    },
+    completedTitle: 'Order Ready!',
+    completedSub:   'Your food is ready. Enjoy your meal!',
+    rejectedTitle:  'Payment Issue',
+    rejectedSub:    'Please contact a staff member.',
+    stepLabels:     ['Order Placed', 'Confirmed', 'Cooking', 'Ready'],
+    pLabels:        {cash:'Cash on Delivery',card:'Credit / Debit Card',mobile_money:'Mobile Money',paypal:'PayPal'},
+  },
+  am: {
+    headerTitle:   'ትዕዛዝ ተቀብሏል!',
+    headerSub:     'ትዕዛዝዎ በኩሽና ተቀብሏል።',
+    confLabel:     'የማረጋገጫ ቁጥር',
+    autoRefresh:   'በየ30 ሴኮንድ ራስ-ሰር ይዘምናል',
+    refreshBtn:    'ሁኔታ አዘምን',
+    newOrderBtn:   'አዲስ ትዕዛዝ',
+    summaryTitle:  'የትዕዛዝ ማጠቃለያ',
+    paymentTitle:  'ክፍያ',
+    statusLabels: {
+      pending:          'በመጠባበቅ ላይ — ማረጋገጫ እየተጠበቀ',
+      confirmed:        'ተረጋግጧል — ኩሽና ተነግሯል',
+      cooking:          'እየተዘጋጀ ነው — ትንሽ ቀን!',
+      completed:        'ዝግጁ ነው — ምግቡን ይደሰቱ! 🎉',
+      verified:         'ክፍያ ተረጋግጧል',
+      rejected:         'ክፍያ ተቀባይነት አላገኘም',
+      cash_on_delivery: 'ተረጋግጧል — በደረሰ ጊዜ ይክፈሉ'
+    },
+    completedTitle: 'ምግብ ዝግጁ ነው!',
+    completedSub:   'ምግብዎ ዝግጁ ነው። ምግቡን ይደሰቱ!',
+    rejectedTitle:  'የክፍያ ችግር',
+    rejectedSub:    'እባኮትን ሠራተኞቻችንን ያነጋግሩ።',
+    stepLabels:     ['ትዕዛዝ ተሰጥቷል', 'ተረጋግጧል', 'እየተዘጋጀ', 'ዝግጁ'],
+    pLabels:        {cash:'በደረሰ ጊዜ ክፍያ',card:'ክሬዲት/ዴቢት ካርድ',mobile_money:'ሞባይል ሙኒ',paypal:'PayPal'},
+  }
+};
+
+function getSLang() {
+  const saved = localStorage.getItem('app_lang');
+  return (saved === 'en' || saved === 'am') ? saved : 'en';
+}
+
+function applySuccessLang() {
+  const L = LANG_SUCCESS[getSLang()];
+  const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setText('headerTitle',    L.headerTitle);
+  setText('headerSub',      L.headerSub);
+  setText('confLabel',      L.confLabel);
+  setText('autoRefreshTxt', L.autoRefresh);
+  setText('refreshBtnTxt',  L.refreshBtn);
+  setText('newOrderBtnTxt', L.newOrderBtn);
+  setText('summaryTitle',   L.summaryTitle);
+  setText('paymentTitle',   L.paymentTitle);
+  // Update step labels
+  L.stepLabels.forEach((lbl, i) => { setText(`stepLabel${i}`, lbl); });
+}
+
 /* ── LOAD ──────────────────────────────────── */
 function init() {
+  applySuccessLang();
   const urlP = new URLSearchParams(location.search);
   const enc  = urlP.get('order');
   const stored = sessionStorage.getItem('pending_order');
@@ -274,7 +349,7 @@ function init() {
 
   // Payment method
   const pIcons = {cash:'money-bill-wave',card:'credit-card',mobile_money:'mobile-alt',paypal:'fab fa-paypal'};
-  const pLabels = {cash:'Cash on Delivery',card:'Credit / Debit Card',mobile_money:'Mobile Money',paypal:'PayPal'};
+  const pLabels = LANG_SUCCESS[getSLang()].pLabels;
   const pm = orderData.payment_method || 'cash';
   document.getElementById('paymentDetail').innerHTML = `
     <i class="fas ${pIcons[pm]||'credit-card'}"></i>
@@ -321,7 +396,8 @@ function applyStatus(status, payStatus) {
   // Determine effective display status
   let effective = status; // default: use order status
 
-  if (payStatus === 'cash_on_delivery') {
+  if (payStatus === 'cash_on_delivery' && status === 'pending') {
+    // COD order is freshly placed — show as confirmed, kitchen is being notified
     effective = 'confirmed';
   } else if (payStatus === 'verified' && status === 'pending') {
     effective = 'verified';
@@ -330,19 +406,12 @@ function applyStatus(status, payStatus) {
   } else if (status === 'pending') {
     effective = 'pending';
   }
-  // for status = 'confirmed', 'cooking', 'completed' – keep as is
+  // for status = 'confirmed', 'cooking', 'completed', or COD that advanced past pending – keep as is
 
   // Pill label & style
   const pill = document.getElementById('statusPill');
-  const statusLabels = {
-    pending:   'Pending — Awaiting confirmation',
-    confirmed: 'Confirmed — Kitchen notified',
-    cooking:   'Cooking — Hang tight!',
-    completed: 'Ready — Enjoy your meal! 🎉',
-    verified:  'Payment Verified',
-    rejected:  'Payment Rejected',
-    cash_on_delivery: 'Confirmed — Pay on delivery'
-  };
+  const L = LANG_SUCCESS[getSLang()];
+  const statusLabels = L.statusLabels;
   pill.className = `status-pill ${effective}`;
   document.getElementById('statusText').textContent = statusLabels[effective] || cap(effective);
 
@@ -368,12 +437,12 @@ function applyStatus(status, payStatus) {
   // Header animation for special states
   if (effective === 'completed') {
     document.getElementById('headerAnim').textContent = '🎉';
-    document.getElementById('headerTitle').textContent = 'Order Ready!';
-    document.getElementById('headerSub').textContent = 'Your food is ready. Enjoy your meal!';
+    document.getElementById('headerTitle').textContent = L.completedTitle;
+    document.getElementById('headerSub').textContent = L.completedSub;
   } else if (effective === 'rejected') {
     document.getElementById('headerAnim').textContent = '❌';
-    document.getElementById('headerTitle').textContent = 'Payment Issue';
-    document.getElementById('headerSub').textContent = 'Please contact a staff member.';
+    document.getElementById('headerTitle').textContent = L.rejectedTitle;
+    document.getElementById('headerSub').textContent = L.rejectedSub;
   }
 }
 

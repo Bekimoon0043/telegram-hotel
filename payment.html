@@ -264,39 +264,39 @@
 <!-- HEADER -->
 <div class="pay-header">
   <div class="pay-icon">💳</div>
-  <div class="pay-title">Complete Your Order</div>
-  <div class="pay-sub">Choose how you'd like to pay</div>
+  <div class="pay-title" id="payTitle">Complete Your Order</div>
+  <div class="pay-sub" id="paySub">Choose how you'd like to pay</div>
 </div>
 
 <div class="page-wrap">
 
   <!-- ORDER SUMMARY -->
   <div class="card">
-    <div class="card-head"><i class="fas fa-receipt" style="color:var(--copper)"></i>Order Summary</div>
+    <div class="card-head"><i class="fas fa-receipt" style="color:var(--copper)"></i><span id="cardSummaryHead">Order Summary</span></div>
     <div class="summary-meta">
       <div class="meta-chip">
-        <div class="meta-label">Room / Table</div>
+        <div class="meta-label" id="labelRoom">Room / Table</div>
         <div class="meta-val" id="roomDisplay">—</div>
       </div>
       <div class="meta-chip">
-        <div class="meta-label">Confirmation</div>
+        <div class="meta-label" id="labelConf">Confirmation</div>
         <div class="meta-val" id="confDisplay" style="font-size:.78rem;letter-spacing:.03em;">—</div>
       </div>
       <div class="meta-chip">
-        <div class="meta-label">Time</div>
+        <div class="meta-label" id="labelTime">Time</div>
         <div class="meta-val" id="timeDisplay">—</div>
       </div>
     </div>
     <div id="orderItems"></div>
     <div class="total-row">
-      <span class="total-lbl">Total to Pay</span>
+      <span class="total-lbl" id="totalLbl">Total to Pay</span>
       <span class="total-amt" id="totalAmt">$0.00</span>
     </div>
   </div>
 
   <!-- PAYMENT METHODS -->
   <div class="card">
-    <div class="card-head"><i class="fas fa-wallet" style="color:var(--copper)"></i>Payment Method</div>
+    <div class="card-head"><i class="fas fa-wallet" style="color:var(--copper)"></i><span id="cardMethodHead">Payment Method</span></div>
     <div class="method-grid">
 
       <!-- TELEBIRR -->
@@ -305,21 +305,21 @@
           <div class="method-icon"><i class="fas fa-mobile-alt"></i></div>
           <div class="method-info">
             <div class="method-name">Telebirr</div>
-            <div class="method-desc">Mobile money transfer</div>
+            <div class="method-desc" id="telebirrDesc">Mobile money transfer</div>
           </div>
           <div class="method-radio"></div>
         </div>
         <div class="method-details">
           <div class="account-row">
             <div>
-              <div class="account-label">Send to number</div>
+              <div class="account-label" id="telebirrSendTo">Send to number</div>
               <div class="account-number">0975 643 221</div>
             </div>
             <button class="copy-btn" id="copy-telebirr" onclick="copyNum('0975643221','copy-telebirr',event)">
               <i class="fas fa-copy"></i> Copy
             </button>
           </div>
-          <p class="transfer-note">Send the exact amount and use your name as the reference. Screenshot your receipt before submitting.</p>
+          <p class="transfer-note" id="transferNote1">Send the exact amount and use your name as the reference. Screenshot your receipt before submitting.</p>
         </div>
       </div>
 
@@ -329,21 +329,21 @@
           <div class="method-icon"><i class="fas fa-university"></i></div>
           <div class="method-info">
             <div class="method-name">CBE Bank Transfer</div>
-            <div class="method-desc">Commercial Bank of Ethiopia</div>
+            <div class="method-desc" id="cbeDesc">Commercial Bank of Ethiopia</div>
           </div>
           <div class="method-radio"></div>
         </div>
         <div class="method-details">
           <div class="account-row">
             <div>
-              <div class="account-label">Account number</div>
+              <div class="account-label" id="cbeAccLabel">Account number</div>
               <div class="account-number">1000 3232 42425</div>
             </div>
             <button class="copy-btn" id="copy-cbe" onclick="copyNum('1000323242425','copy-cbe',event)">
               <i class="fas fa-copy"></i> Copy
             </button>
           </div>
-          <p class="transfer-note">Transfer the exact amount to this CBE account. Use your name as the transaction reference.</p>
+          <p class="transfer-note" id="transferNote2">Transfer the exact amount to this CBE account. Use your name as the transaction reference.</p>
         </div>
       </div>
 
@@ -352,15 +352,15 @@
         <div class="method-top">
           <div class="method-icon"><i class="fas fa-money-bill-wave"></i></div>
           <div class="method-info">
-            <div class="method-name">Cash on Delivery</div>
-            <div class="method-desc">Pay when your order arrives</div>
+            <div class="method-name" id="cashName">Cash on Delivery</div>
+            <div class="method-desc" id="cashDesc">Pay when your order arrives</div>
           </div>
           <div class="method-radio"></div>
         </div>
         <div class="method-details">
           <div class="cod-info">
             <i class="fas fa-info-circle"></i>
-            <p>No payment needed now. Our staff will collect payment when your order is delivered to your room. Please have the exact amount ready: <strong id="codTotal" style="color:var(--gold)">$0.00</strong></p>
+            <p><span id="cashInfoText">No payment needed now. Our staff will collect payment when your order is delivered to your room. Please have the exact amount ready:</span> <strong id="codTotal" style="color:var(--gold)">$0.00</strong></p>
           </div>
         </div>
       </div>
@@ -370,15 +370,15 @@
 
   <!-- SCREENSHOT UPLOAD (hidden for cash) -->
   <div class="card name-field" id="screenshotCard">
-    <div class="card-head"><i class="fas fa-camera" style="color:var(--copper)"></i>Payment Screenshot</div>
+    <div class="card-head"><i class="fas fa-camera" style="color:var(--copper)"></i><span id="screenshotTitle">Payment Screenshot</span></div>
 
     <!-- Drop zone -->
     <div class="upload-zone" id="uploadZone"
          ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
       <input type="file" id="screenshotInput" accept="image/*" onchange="handleFileSelect(this.files[0])">
       <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-      <div class="upload-title">Upload your payment receipt</div>
-      <div class="upload-hint">Tap to choose or drag &amp; drop · JPG, PNG, WEBP · max 10 MB</div>
+      <div class="upload-title" id="uploadTitle">Upload your payment receipt</div>
+      <div class="upload-hint" id="uploadHint">Tap to choose or drag &amp; drop · JPG, PNG, WEBP · max 10 MB</div>
     </div>
 
     <!-- Preview -->
@@ -389,21 +389,21 @@
           <div class="preview-name" id="previewName">screenshot.jpg</div>
           <div class="preview-size" id="previewSize">—</div>
         </div>
-        <div class="preview-ok"><i class="fas fa-check-circle"></i> Ready</div>
-        <button class="remove-btn" onclick="removeScreenshot()"><i class="fas fa-trash-alt"></i> Remove</button>
+        <div class="preview-ok"><i class="fas fa-check-circle"></i> <span id="previewOk">Ready</span></div>
+        <button class="remove-btn" onclick="removeScreenshot()"><i class="fas fa-trash-alt"></i> <span id="removeBtnLabel">Remove</span></button>
       </div>
     </div>
 
     <div class="upload-required" id="uploadRequired" style="display:none;">
-      <i class="fas fa-exclamation-circle"></i> Screenshot required for this payment method
+      <i class="fas fa-exclamation-circle"></i> <span id="uploadRequiredMsg">Screenshot required for this payment method</span>
     </div>
   </div>
 
   <!-- PAYER NAME (hidden for cash) -->
   <div class="card name-field" id="nameCard">
-    <div class="card-head"><i class="fas fa-user" style="color:var(--copper)"></i>Your Name</div>
+    <div class="card-head"><i class="fas fa-user" style="color:var(--copper)"></i><span id="nameTitle">Your Name</span></div>
     <div class="field">
-      <label for="payerName">Name used for the transfer</label>
+      <label for="payerName" id="nameLabel">Name used for the transfer</label>
       <input type="text" id="payerName" placeholder="e.g. Bekele Tadesse" autocomplete="name">
     </div>
   </div>
@@ -428,8 +428,148 @@ let screenshotFile = null;   // File object
 let screenshotB64  = null;   // base64 string (no data-URL prefix)
 let screenshotMime = 'image/jpeg';
 
+/* ── LANGUAGE ── */
+const LANG_PAY = {
+  en: {
+    pageTitle:      'Complete Your Order',
+    pageSub:        "Choose how you'd like to pay",
+    cardSummary:    'Order Summary',
+    labelRoom:      'Room / Table',
+    labelConf:      'Confirmation',
+    labelTime:      'Time',
+    totalToPay:     'Total to Pay',
+    cardMethod:     'Payment Method',
+    telebirrDesc:   'Mobile money transfer',
+    telebirrSendTo: 'Send to number',
+    cbeDesc:        'Commercial Bank of Ethiopia',
+    cbeAccLabel:    'Account number',
+    transferNote:   'Send the exact amount and use your name as the reference. Screenshot your receipt before submitting.',
+    transferNote2:  'Transfer the exact amount to this CBE account. Use your name as the transaction reference.',
+    cashName:       'Cash on Delivery',
+    cashDesc:       'Pay when your order arrives',
+    cashInfo:       'No payment needed now. Our staff will collect payment when your order is delivered to your room. Please have the exact amount ready:',
+    screenshotTitle:'Payment Screenshot',
+    uploadTitle:    'Upload your payment receipt',
+    uploadHint:     'Tap to choose or drag & drop · JPG, PNG, WEBP · max 10 MB',
+    previewOk:      'Ready',
+    removeBtn:      'Remove',
+    uploadRequired: 'Screenshot required for this payment method',
+    nameTitle:      'Your Name',
+    nameLabel:      'Name used for the transfer',
+    namePlaceholder:'e.g. Bekele Tadesse',
+    selectPrompt:   'Select a payment method',
+    btnTelebirr:    'Confirm Telebirr Payment',
+    btnCbe:         'Confirm Bank Transfer',
+    btnCash:        'Place Order — Pay on Delivery',
+    submitting:     'Submitting…',
+    sendingReceipt: 'Sending receipt to admin…',
+    placingOrder:   'Placing order…',
+    copyBtn:        'Copy',
+    copied:         'Copied',
+    toastCopied:    'Copied to clipboard!',
+    toastCopyFail:  'Could not copy — please copy manually',
+    toastScreenOk:  'Screenshot ready to send!',
+    toastImgOnly:   'Please upload an image file (JPG, PNG, WEBP)',
+    toastTooLarge:  'File too large — maximum 10 MB',
+    toastNoName:    'Please enter the name used for the transfer',
+    toastNoShot:    'Please upload your payment screenshot',
+    toastSubmitted: 'Order submitted! Redirecting…',
+    toastNoData:    'No order data found — please order again.',
+    toastFailed:    'Submission failed: ',
+  },
+  am: {
+    pageTitle:      'ትዕዛዝዎን ያጠናቅቁ',
+    pageSub:        'የክፍያ ዘዴ ይምረጡ',
+    cardSummary:    'የትዕዛዝ ማጠቃለያ',
+    labelRoom:      'ክፍል / ጠረጴዛ',
+    labelConf:      'የማረጋገጫ ቁጥር',
+    labelTime:      'ሰዓት',
+    totalToPay:     'ጠቅላላ ክፍያ',
+    cardMethod:     'የክፍያ ዘዴ',
+    telebirrDesc:   'ሞባይል ሙኒ ዝውውር',
+    telebirrSendTo: 'ወደዚህ ቁጥር ይላኩ',
+    cbeDesc:        'የኢትዮጵያ ንግድ ባንክ',
+    cbeAccLabel:    'የሂሳብ ቁጥር',
+    transferNote:   'ትክክለኛውን መጠን ይላኩ እና ስምዎን እንደ ማጣቀሻ ይጠቀሙ። ከማስገባትዎ በፊት ደረሰኝዎን ያስቀምጡ።',
+    transferNote2:  'ትክክለኛውን መጠን ወደዚህ CBE ሂሳብ ያስተላልፉ። ስምዎን እንደ ማጣቀሻ ይጠቀሙ።',
+    cashName:       'በደረሰ ጊዜ ክፍያ',
+    cashDesc:       'ትዕዛዙ ሲደርስ ይክፈሉ',
+    cashInfo:       'አሁን ክፍያ አያስፈልግም። ሠራተኞቻችን ትዕዛዙ ሲደርስ ይሰበስባሉ። ትክክለኛውን መጠን ያዘጋጁ:',
+    screenshotTitle:'የክፍያ ደረሰኝ',
+    uploadTitle:    'የክፍያ ደረሰኝዎን ያስቀምጡ',
+    uploadHint:     'ለመምረጥ ይጫኑ · JPG, PNG, WEBP · ከፍተኛ 10 MB',
+    previewOk:      'ዝግጁ',
+    removeBtn:      'አስወግድ',
+    uploadRequired: 'ለዚህ የክፍያ ዘዴ ደረሰኝ ያስፈልጋል',
+    nameTitle:      'ስምዎ',
+    nameLabel:      'ለዝውውሩ የተጠቀሙበት ስም',
+    namePlaceholder:'ለምሳሌ፡ በቀለ ታደሰ',
+    selectPrompt:   'የክፍያ ዘዴ ይምረጡ',
+    btnTelebirr:    'የቴሌብር ክፍያ አረጋግጥ',
+    btnCbe:         'የባንክ ዝውውር አረጋግጥ',
+    btnCash:        'ትዕዛዝ ስጥ — በደረሰ ጊዜ ክፈል',
+    submitting:     'በማስገባት ላይ…',
+    sendingReceipt: 'ደረሰኝ ለአስተዳዳሪ እየተላከ ነው…',
+    placingOrder:   'ትዕዛዝ እየቀረበ ነው…',
+    copyBtn:        'ቅዳ',
+    copied:         'ተቀድቷል',
+    toastCopied:    'ወደ ቅንጥብ ሰሌዳ ተቀድቷል!',
+    toastCopyFail:  'መቅዳት አልተቻለም — በእጅ ይቅዱ',
+    toastScreenOk:  'ደረሰኝ ዝግጁ ነው!',
+    toastImgOnly:   'እባኮትን የምስል ፋይል ያስቀምጡ (JPG, PNG, WEBP)',
+    toastTooLarge:  'ፋይሉ በጣም ትልቅ ነው — ከፍተኛ 10 MB',
+    toastNoName:    'እባኮትን ለዝውውሩ የተጠቀሙበት ስም ያስገቡ',
+    toastNoShot:    'እባኮትን የክፍያ ደረሰኝዎን ያስቀምጡ',
+    toastSubmitted: 'ትዕዛዝ ተቀብሏል! እየተዘዋወረ ነው…',
+    toastNoData:    'የትዕዛዝ መረጃ አልተገኘም — እንደገና ይዘዙ።',
+    toastFailed:    'ማስገባት አልተሳካም: ',
+  }
+};
+
+function getLang() {
+  const saved = localStorage.getItem('app_lang');
+  return (saved === 'en' || saved === 'am') ? saved : 'en';
+}
+
+function applyPayLang() {
+  const lang = getLang();
+  const L = LANG_PAY[lang];
+  const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  const setPlaceholder = (id, val) => { const el = document.getElementById(id); if (el) el.placeholder = val; };
+
+  setText('payTitle',        L.pageTitle);
+  setText('paySub',          L.pageSub);
+  setText('cardSummaryHead', L.cardSummary);
+  setText('labelRoom',       L.labelRoom);
+  setText('labelConf',       L.labelConf);
+  setText('labelTime',       L.labelTime);
+  setText('totalLbl',        L.totalToPay);
+  setText('cardMethodHead',  L.cardMethod);
+  setText('telebirrDesc',    L.telebirrDesc);
+  setText('telebirrSendTo',  L.telebirrSendTo);
+  setText('transferNote1',   L.transferNote);
+  setText('cbeDesc',         L.cbeDesc);
+  setText('cbeAccLabel',     L.cbeAccLabel);
+  setText('transferNote2',   L.transferNote2);
+  setText('cashName',        L.cashName);
+  setText('cashDesc',        L.cashDesc);
+  setText('cashInfoText',    L.cashInfo);
+  setText('screenshotTitle', L.screenshotTitle);
+  setText('uploadTitle',     L.uploadTitle);
+  setText('uploadHint',      L.uploadHint);
+  setText('previewOk',       L.previewOk);
+  setText('removeBtnLabel',  L.removeBtn);
+  setText('uploadRequiredMsg', L.uploadRequired);
+  setText('nameTitle',       L.nameTitle);
+  setText('nameLabel',       L.nameLabel);
+  setPlaceholder('payerName', L.namePlaceholder);
+  // Update submit button if already has a method selected
+  if (!selectedMethod) setText('submitLabel', L.selectPrompt);
+}
+
 /* ── INIT ── */
 function init() {
+  applyPayLang();
   const urlP = new URLSearchParams(location.search);
   const enc  = urlP.get('order');
   telegramChatId = urlP.get('telegram_chat_id') || '';
@@ -488,10 +628,11 @@ function selectMethod(method) {
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = false;
+  const L = LANG_PAY[getLang()];
   const labels = {
-    telebirr: 'Confirm Telebirr Payment',
-    cbe:      'Confirm Bank Transfer',
-    cash:     'Place Order — Pay on Delivery'
+    telebirr: L.btnTelebirr,
+    cbe:      L.btnCbe,
+    cash:     L.btnCash
   };
   document.getElementById('submitLabel').textContent = labels[method];
   document.getElementById('submitIcon').className    = isCash ? 'fas fa-truck' : 'fas fa-paper-plane';
@@ -514,12 +655,13 @@ function handleDrop(e) {
 
 function handleFileSelect(file) {
   if (!file) return;
+  const L = LANG_PAY[getLang()];
   if (!file.type.startsWith('image/')) {
-    showToast('error', 'Please upload an image file (JPG, PNG, WEBP)');
+    showToast('error', L.toastImgOnly);
     return;
   }
   if (file.size > 10 * 1024 * 1024) {
-    showToast('error', 'File too large — maximum 10 MB');
+    showToast('error', L.toastTooLarge);
     return;
   }
 
@@ -539,7 +681,7 @@ function handleFileSelect(file) {
     document.getElementById('uploadZone').style.display = 'none';
     document.getElementById('uploadPreview').classList.add('show');
     document.getElementById('uploadRequired').style.display = 'none';
-    showToast('success', 'Screenshot ready to send!');
+    showToast('success', L.toastScreenOk);
   };
   reader.readAsDataURL(file);
 }
@@ -562,16 +704,17 @@ function formatBytes(bytes) {
 /* ── COPY ── */
 function copyNum(num, btnId, e) {
   e.stopPropagation();
+  const L = LANG_PAY[getLang()];
   navigator.clipboard.writeText(num).then(() => {
     const btn = document.getElementById(btnId);
     btn.classList.add('copied');
-    btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+    btn.innerHTML = `<i class="fas fa-check"></i> ${L.copied}`;
     setTimeout(() => {
       btn.classList.remove('copied');
-      btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+      btn.innerHTML = `<i class="fas fa-copy"></i> ${L.copyBtn}`;
     }, 2500);
-    showToast('success','Copied to clipboard!');
-  }).catch(() => showToast('error','Could not copy — please copy manually'));
+    showToast('success', L.toastCopied);
+  }).catch(() => showToast('error', L.toastCopyFail));
 }
 
 /* ── SUBMIT ── */
@@ -580,16 +723,18 @@ async function submitPayment() {
 
   const payerName = document.getElementById('payerName').value.trim();
 
+  const L = LANG_PAY[getLang()];
+
   if (selectedMethod !== 'cash') {
     if (!payerName) {
-      showToast('error','Please enter the name used for the transfer');
+      showToast('error', L.toastNoName);
       document.getElementById('payerName').focus();
       return;
     }
     if (!screenshotB64) {
       document.getElementById('uploadRequired').style.display = 'flex';
       document.getElementById('uploadZone').style.borderColor = 'var(--error)';
-      showToast('error','Please upload your payment screenshot');
+      showToast('error', L.toastNoShot);
       document.getElementById('uploadZone').scrollIntoView({behavior:'smooth', block:'center'});
       return;
     }
@@ -597,7 +742,7 @@ async function submitPayment() {
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
-  document.getElementById('submitLabel').textContent = 'Submitting…';
+  document.getElementById('submitLabel').textContent = L.submitting;
   document.getElementById('submitIcon').className    = 'fas fa-spinner fa-spin';
 
   const methodMap = {
@@ -621,7 +766,7 @@ async function submitPayment() {
   try {
     // 1️⃣ Send screenshot + info to Telegram (non-cash only)
     if (selectedMethod !== 'cash' && screenshotB64) {
-      document.getElementById('submitLabel').textContent = 'Sending receipt to admin…';
+      document.getElementById('submitLabel').textContent = L.sendingReceipt;
       try {
         await fetch(`${API}/payment-screenshot`, {
           method: 'POST',
@@ -645,7 +790,7 @@ async function submitPayment() {
     }
 
     // 2️⃣ Submit the full order
-    document.getElementById('submitLabel').textContent = 'Placing order…';
+    document.getElementById('submitLabel').textContent = L.placingOrder;
     const resp = await fetch(`${API}/complete-order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -659,7 +804,7 @@ async function submitPayment() {
       localStorage.removeItem('pending_order_' + orderData.confirmation_number);
     }
 
-    showToast('success','Order submitted! Redirecting…');
+    showToast('success', L.toastSubmitted);
     setTimeout(() => {
       const enc = encodeURIComponent(JSON.stringify(completeOrder));
       window.location.href = `payment-success.html?order=${enc}`;
@@ -667,12 +812,12 @@ async function submitPayment() {
 
   } catch(err) {
     console.error(err);
-    showToast('error','Submission failed: ' + err.message);
+    showToast('error', L.toastFailed + err.message);
     btn.disabled = false;
     const labels = {
-      telebirr: 'Confirm Telebirr Payment',
-      cbe:      'Confirm Bank Transfer',
-      cash:     'Place Order — Pay on Delivery'
+      telebirr: L.btnTelebirr,
+      cbe:      L.btnCbe,
+      cash:     L.btnCash
     };
     document.getElementById('submitLabel').textContent = labels[selectedMethod];
     document.getElementById('submitIcon').className    = selectedMethod === 'cash' ? 'fas fa-truck' : 'fas fa-paper-plane';

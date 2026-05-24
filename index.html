@@ -587,7 +587,10 @@ let tgChatId    = urlParams.get('telegram_chat_id') || '';
 let menuItems    = [];
 let cart         = [];
 let pendingOrder = null;
-let currentLang  = 'en';
+let currentLang  = (() => {
+  const saved = localStorage.getItem('app_lang');
+  return (saved === 'en' || saved === 'am') ? saved : 'en';
+})();
 let feedbackRating = 0;
 let waiterCooldown = false;
 
@@ -673,6 +676,7 @@ function t(key, ...args) {
 
 function toggleLang() {
   currentLang = currentLang === 'en' ? 'am' : 'en';
+  localStorage.setItem('app_lang', currentLang);
   applyLang();
 }
 
@@ -1018,9 +1022,8 @@ function esc(s) { return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'
 
 /* ── INIT ──────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
-  // Set initial table badge
-  document.getElementById('tableBadge').textContent =
-    tableNum !== 'N/A' ? `Table ${tableNum}` : 'Walk-in';
+  // Apply saved/detected language first (updates badge + all UI strings)
+  applyLang();
   loadMenu();
 });
 </script>
