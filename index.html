@@ -38,9 +38,10 @@
       background: rgba(18,11,7,0.96);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(200,114,42,0.2);
-      padding: 0 20px;
+      padding: 0 16px;
       display: flex; align-items: center; justify-content: space-between;
       height: 64px;
+      gap: 8px;
     }
     .brand { display:flex; align-items:center; gap:10px; }
     .brand-icon { font-size:1.4rem; color:var(--copper); }
@@ -49,6 +50,7 @@
       font-size:1.25rem; font-weight:600; letter-spacing:.03em;
       color:var(--cream);
     }
+    .header-right { display:flex; align-items:center; gap:8px; }
     .table-badge {
       background: var(--bark);
       border: 1px solid var(--copper);
@@ -57,7 +59,24 @@
       font-size:.75rem; font-weight:600;
       color:var(--gold); letter-spacing:.08em;
       text-transform:uppercase;
+      white-space:nowrap;
     }
+
+    /* ── LANGUAGE TOGGLE ───────────────────────── */
+    .lang-btn {
+      background: var(--bark);
+      border: 1px solid rgba(200,114,42,0.3);
+      border-radius:20px;
+      padding: 5px 12px;
+      font-size:.72rem; font-weight:700;
+      color:var(--cream-dim);
+      cursor:pointer;
+      transition: all .2s ease;
+      white-space:nowrap;
+      letter-spacing:.04em;
+    }
+    .lang-btn:hover { border-color:var(--copper); color:var(--gold); }
+    .lang-btn.am { color:var(--gold); border-color:var(--copper); background:rgba(200,114,42,0.12); }
 
     /* ── HERO ──────────────────────────────────── */
     .hero {
@@ -113,13 +132,7 @@
     }
 
     /* ── MENU GRID ─────────────────────────────── */
-    .menu-section { padding: 20px 20px 120px; }
-    .section-label {
-      font-family:'Cormorant Garamond',serif;
-      font-size:1.1rem; font-weight:600; color:var(--sand);
-      letter-spacing:.12em; text-transform:uppercase;
-      margin-bottom:16px;
-    }
+    .menu-section { padding: 20px 20px 180px; }
     .menu-grid {
       display:grid;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -169,9 +182,7 @@
       overflow:hidden;
     }
     .card-footer { display:flex; align-items:center; justify-content:space-between; }
-    .card-price {
-      font-size:.95rem; font-weight:600; color:var(--gold);
-    }
+    .card-price { font-size:.95rem; font-weight:600; color:var(--gold); }
     .add-btn {
       width:30px; height:30px;
       background: var(--copper);
@@ -182,9 +193,7 @@
       line-height:1;
     }
     .add-btn:hover { background:var(--gold); transform:scale(1.12); }
-    .qty-control {
-      display:flex; align-items:center; gap:8px;
-    }
+    .qty-control { display:flex; align-items:center; gap:8px; }
     .qty-btn {
       width:26px; height:26px;
       background:transparent; border:1px solid var(--copper);
@@ -197,9 +206,7 @@
     .qty-num { font-size:.9rem; font-weight:600; color:var(--cream); min-width:18px; text-align:center; }
 
     /* ── LOADING/EMPTY ─────────────────────────── */
-    .state-wrap {
-      text-align:center; padding:60px 20px;
-    }
+    .state-wrap { text-align:center; padding:60px 20px; }
     .state-icon { font-size:3rem; color:var(--sand); margin-bottom:16px; }
     .state-title { font-family:'Cormorant Garamond',serif; font-size:1.5rem; color:var(--cream-dim); margin-bottom:8px; }
     .state-sub { font-size:.9rem; color:var(--sand); }
@@ -233,7 +240,37 @@
       font-size:.75rem; font-weight:700;
       display:flex; align-items:center; justify-content:center;
     }
-    .cart-fab .fab-total { font-size:.85rem; }
+
+    /* ── BOTTOM ACTION BUTTONS (Waiter + Feedback) ── */
+    .bottom-actions {
+      position:fixed; bottom:24px; left:20px; z-index:300;
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .action-btn {
+      display:flex; align-items:center; gap:8px;
+      padding:11px 16px;
+      border:none; border-radius:40px;
+      font-family:'DM Sans',sans-serif; font-size:.82rem; font-weight:600;
+      cursor:pointer; transition:all .25s ease;
+      box-shadow:0 4px 16px rgba(0,0,0,0.35);
+    }
+    .waiter-btn {
+      background: var(--bark);
+      border:1px solid var(--copper);
+      color:var(--gold);
+    }
+    .waiter-btn:hover { background:var(--copper); color:#fff; transform:translateY(-2px); }
+    .waiter-btn.calling {
+      background:var(--copper);color:#fff;
+      animation:pulseBtn 1s ease infinite;
+    }
+    @keyframes pulseBtn { 0%,100%{opacity:1;} 50%{opacity:.7;} }
+    .feedback-btn {
+      background: var(--card-bg);
+      border:1px solid rgba(200,114,42,0.25);
+      color:var(--cream-dim);
+    }
+    .feedback-btn:hover { border-color:var(--copper); color:var(--cream); transform:translateY(-2px); }
 
     /* ── CART DRAWER ───────────────────────────── */
     .drawer-overlay {
@@ -265,14 +302,8 @@
       padding:16px 20px 12px;
       border-bottom:1px solid rgba(255,255,255,0.08);
     }
-    .drawer-title {
-      font-family:'Cormorant Garamond',serif;
-      font-size:1.4rem; font-weight:600;
-    }
-    .drawer-close {
-      background:transparent; border:none; color:var(--cream-dim);
-      font-size:1.2rem; cursor:pointer; padding:4px;
-    }
+    .drawer-title { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:600; }
+    .drawer-close { background:transparent; border:none; color:var(--cream-dim); font-size:1.2rem; cursor:pointer; padding:4px; }
     .drawer-body { flex:1; overflow-y:auto; padding:16px 20px; }
     .cart-item-row {
       display:flex; align-items:center; gap:12px;
@@ -281,16 +312,11 @@
       animation:slideIn .25s ease;
     }
     @keyframes slideIn { from{opacity:0;transform:translateX(-10px);} to{opacity:1;transform:none;} }
-    .ci-thumb {
-      width:50px; height:50px; border-radius:8px;
-      object-fit:cover; flex-shrink:0;
-    }
+    .ci-thumb { width:50px; height:50px; border-radius:8px; object-fit:cover; flex-shrink:0; }
     .ci-info { flex:1; }
     .ci-name { font-size:.9rem; font-weight:600; color:var(--cream); }
     .ci-price { font-size:.8rem; color:var(--gold); margin-top:2px; }
-    .ci-qty {
-      display:flex; align-items:center; gap:8px;
-    }
+    .ci-qty { display:flex; align-items:center; gap:8px; }
     .ci-qty-btn {
       width:26px; height:26px;
       background:var(--espresso); border:1px solid rgba(200,114,42,0.3);
@@ -301,13 +327,9 @@
     }
     .ci-qty-btn:hover { border-color:var(--copper); color:var(--copper); }
     .ci-qty-num { font-size:.9rem; font-weight:600; min-width:20px; text-align:center; }
-    .cart-empty {
-      text-align:center; padding:48px 0;
-      color:var(--sand); font-size:.95rem;
-    }
-    .cart-empty-icon { font-size:2.5rem; margin-bottom:12px; color:var(--bark); }
+    .cart-empty { text-align:center; padding:48px 0; color:var(--sand); font-size:.95rem; }
+    .cart-empty-icon { font-size:2.5rem; margin-bottom:12px; }
 
-    /* customer name + notes */
     .drawer-fields { padding:0 20px 12px; }
     .field-group { margin-bottom:12px; }
     .field-label { font-size:.75rem; font-weight:600; color:var(--sand); letter-spacing:.08em; text-transform:uppercase; margin-bottom:6px; display:block; }
@@ -321,12 +343,8 @@
     .field-input:focus { outline:none; border-color:var(--copper); }
     .field-input::placeholder { color:var(--sand); }
 
-    /* drawer footer */
     .drawer-footer { padding:16px 20px; border-top:1px solid rgba(255,255,255,0.08); }
-    .drawer-total {
-      display:flex; justify-content:space-between; align-items:center;
-      margin-bottom:14px;
-    }
+    .drawer-total { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
     .drawer-total-label { font-size:.85rem; color:var(--cream-dim); }
     .drawer-total-amount { font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:700; color:var(--gold); }
     .order-btn {
@@ -352,58 +370,88 @@
       display:flex; align-items:center; gap:10px;
       animation:toastIn .3s ease;
       pointer-events:none;
+      max-width:90vw; text-align:center;
     }
     @keyframes toastIn { from{opacity:0;top:60px;} to{opacity:1;top:80px;} }
     .toast.success .toast-icon { color:var(--success); }
     .toast.warning .toast-icon { color:var(--warning); }
     .toast.error   .toast-icon { color:var(--error); }
 
-    /* ── ORDER MODAL ───────────────────────────── */
+    /* ── FEEDBACK MODAL ────────────────────────── */
     .modal-overlay {
       position:fixed; inset:0; z-index:700;
       background:var(--overlay);
-      display:flex; align-items:center; justify-content:center;
-      padding:20px;
+      display:flex; align-items:flex-end; justify-content:center;
       opacity:0; pointer-events:none; transition:opacity .3s;
     }
     .modal-overlay.open { opacity:1; pointer-events:all; }
-    .modal-box {
+    .modal-sheet {
       background:var(--bark);
-      border:1px solid rgba(200,114,42,0.3);
-      border-radius:20px;
-      padding:32px 28px;
-      max-width:420px; width:100%;
-      text-align:center;
-      transform:scale(.95); transition:transform .3s;
+      border:1px solid rgba(200,114,42,0.25);
+      border-radius:24px 24px 0 0;
+      border-top: 2px solid var(--copper);
+      padding:28px 24px 40px;
+      width:100%; max-width:520px;
+      transform:translateY(40px); transition:transform .35s cubic-bezier(.4,0,.2,1);
     }
-    .modal-overlay.open .modal-box { transform:scale(1); }
-    .modal-icon { font-size:3rem; margin-bottom:16px; }
-    .modal-title { font-family:'Cormorant Garamond',serif; font-size:1.8rem; font-weight:600; margin-bottom:8px; }
-    .modal-sub { color:var(--cream-dim); font-size:.9rem; margin-bottom:20px; }
-    .modal-conf {
-      background:var(--espresso); border-radius:12px; padding:18px;
-      margin-bottom:20px; border:1px solid rgba(200,114,42,0.2);
-    }
-    .conf-label { font-size:.72rem; color:var(--sand); letter-spacing:.1em; text-transform:uppercase; margin-bottom:6px; }
-    .conf-code {
+    .modal-overlay.open .modal-sheet { transform:translateY(0); }
+    .modal-handle { width:36px; height:4px; border-radius:2px; background:rgba(255,255,255,0.15); margin:0 auto 20px; }
+    .modal-title {
       font-family:'Cormorant Garamond',serif;
-      font-size:1.6rem; font-weight:700; color:var(--gold);
-      letter-spacing:.05em;
+      font-size:1.5rem; font-weight:700;
+      color:var(--cream); margin-bottom:4px; text-align:center;
     }
-    .modal-btn {
-      width:100%; padding:14px;
-      background:var(--copper); border:none; border-radius:12px;
-      color:#fff; font-family:'DM Sans',sans-serif;
-      font-size:.95rem; font-weight:600;
-      cursor:pointer; transition:background .2s;
+    .modal-sub { color:var(--sand); font-size:.85rem; text-align:center; margin-bottom:20px; }
+
+    /* Star rating */
+    .stars { display:flex; justify-content:center; gap:10px; margin-bottom:20px; }
+    .star-btn {
+      background:transparent; border:none;
+      font-size:2rem; cursor:pointer;
+      color:rgba(255,255,255,0.2);
+      transition:color .15s ease, transform .15s ease;
+      padding:0;
     }
-    .modal-btn:hover { background:var(--gold); }
+    .star-btn.lit { color:var(--gold); }
+    .star-btn:hover { transform:scale(1.2); }
+
+    .feedback-textarea {
+      width:100%;
+      background:var(--espresso); border:1px solid rgba(255,255,255,0.1);
+      border-radius:12px; color:var(--cream);
+      padding:12px 14px; font-family:'DM Sans',sans-serif; font-size:.9rem;
+      resize:none; height:90px;
+      transition:border-color .2s;
+      margin-bottom:16px;
+    }
+    .feedback-textarea:focus { outline:none; border-color:var(--copper); }
+    .feedback-textarea::placeholder { color:var(--sand); }
+
+    .modal-actions { display:flex; gap:10px; }
+    .modal-cancel {
+      flex:1; padding:13px;
+      background:transparent; border:1px solid rgba(255,255,255,0.1);
+      border-radius:12px; color:var(--sand);
+      font-family:'DM Sans',sans-serif; font-size:.9rem; font-weight:500;
+      cursor:pointer; transition:all .2s;
+    }
+    .modal-cancel:hover { border-color:var(--copper); color:var(--cream); }
+    .modal-submit {
+      flex:2; padding:13px;
+      background:linear-gradient(135deg,var(--copper),var(--gold));
+      border:none; border-radius:12px; color:#fff;
+      font-family:'DM Sans',sans-serif; font-size:.9rem; font-weight:600;
+      cursor:pointer; transition:opacity .2s;
+    }
+    .modal-submit:hover { opacity:.88; }
 
     /* ── RESPONSIVE ────────────────────────────── */
     @media(min-width:600px) {
       .menu-grid { grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); }
       .hero-tagline { font-size:2.8rem; }
       .cart-drawer { max-width:480px; left:auto; right:0; border-radius:20px 20px 0 0; }
+      .modal-overlay { align-items:center; }
+      .modal-sheet { border-radius:24px; max-width:440px; margin:20px; }
     }
   </style>
 </head>
@@ -415,19 +463,24 @@
     <i class="fas fa-mug-hot brand-icon"></i>
     <span class="brand-name">The Craft Café</span>
   </div>
-  <div class="table-badge" id="tableBadge">Table —</div>
+  <div class="header-right">
+    <button class="lang-btn" id="langBtn" onclick="toggleLang()" title="Switch language / ቋንቋ ቀይር">
+      🇪🇹 አማ
+    </button>
+    <div class="table-badge" id="tableBadge">Table —</div>
+  </div>
 </header>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-tagline">Made with love,<br><em>served with care.</em></div>
-  <div class="hero-sub">Browse our menu and order directly from your table.</div>
+  <div class="hero-tagline" id="heroTagline">Made with love,<br><em>served with care.</em></div>
+  <div class="hero-sub" id="heroSub">Browse our menu and order directly from your table.</div>
 </section>
 
 <!-- CATEGORIES -->
 <div class="categories-wrap">
   <div class="categories-scroll" id="catScroll">
-    <button class="cat-btn active" data-cat="all">All Items</button>
+    <button class="cat-btn active" data-cat="all" id="allCatBtn">All Items</button>
   </div>
 </div>
 
@@ -436,16 +489,28 @@
   <div class="menu-grid" id="menuGrid">
     <div class="state-wrap" style="grid-column:1/-1;">
       <div class="spinner"></div>
-      <div class="state-title">Loading menu…</div>
+      <div class="state-title" id="loadingText">Loading menu…</div>
     </div>
   </div>
 </section>
+
+<!-- BOTTOM ACTION BUTTONS -->
+<div class="bottom-actions">
+  <button class="action-btn waiter-btn" id="waiterBtn" onclick="callWaiter()">
+    <i class="fas fa-bell"></i>
+    <span id="waiterBtnLabel">Call Waiter</span>
+  </button>
+  <button class="action-btn feedback-btn" onclick="openFeedback()">
+    <i class="fas fa-star"></i>
+    <span id="feedbackBtnLabel">Feedback</span>
+  </button>
+</div>
 
 <!-- FLOATING CART -->
 <button class="cart-fab" id="cartFab" onclick="openCart()">
   <i class="fas fa-shopping-bag"></i>
   <span class="fab-count" id="fabCount">0</span>
-  <span class="fab-total" id="fabTotal">$0.00</span>
+  <span id="fabTotal">$0.00</span>
   <i class="fas fa-chevron-up" style="font-size:.7rem;opacity:.7;"></i>
 </button>
 
@@ -456,52 +521,191 @@
 <div class="cart-drawer" id="cartDrawer">
   <div class="drawer-handle"></div>
   <div class="drawer-header">
-    <div class="drawer-title"><i class="fas fa-shopping-bag" style="color:var(--copper);margin-right:8px;font-size:.9em;"></i>Your Order</div>
+    <div class="drawer-title"><i class="fas fa-shopping-bag" style="color:var(--copper);margin-right:8px;font-size:.9em;"></i><span id="drawerTitleText">Your Order</span></div>
     <button class="drawer-close" onclick="closeCart()"><i class="fas fa-times"></i></button>
   </div>
   <div class="drawer-body" id="drawerBody">
     <div class="cart-empty">
       <div class="cart-empty-icon">🛒</div>
-      Add items from the menu to get started
+      <span id="cartEmptyText">Add items from the menu to get started</span>
     </div>
   </div>
   <div class="drawer-fields">
     <div class="field-group">
-      <label class="field-label" for="customerName">Your Name</label>
+      <label class="field-label" for="customerName" id="nameLabel">Your Name</label>
       <input class="field-input" type="text" id="customerName" placeholder="e.g. Alex" maxlength="50">
     </div>
     <div class="field-group">
-      <label class="field-label" for="specialNotes">Special Instructions</label>
+      <label class="field-label" for="specialNotes" id="notesLabel">Special Instructions</label>
       <input class="field-input" type="text" id="specialNotes" placeholder="Allergies, preferences…" maxlength="200">
     </div>
   </div>
   <div class="drawer-footer">
     <div class="drawer-total">
-      <span class="drawer-total-label">Total</span>
+      <span class="drawer-total-label" id="totalLabel">Total</span>
       <span class="drawer-total-amount" id="drawerTotal">$0.00</span>
     </div>
     <button class="order-btn" id="orderBtn" onclick="placeOrder()">
-      <i class="fas fa-credit-card"></i> Choose Payment &amp; Order
+      <i class="fas fa-credit-card"></i> <span id="orderBtnText">Choose Payment &amp; Order</span>
     </button>
   </div>
 </div>
 
-<!-- Confirmation modal removed: users go directly to payment.html after clicking Place Order -->
+<!-- FEEDBACK MODAL -->
+<div class="modal-overlay" id="feedbackModal" onclick="closeFeedbackOnBg(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="fbTitle">How was your experience?</div>
+    <div class="modal-sub" id="fbSub">Your feedback helps us serve you better</div>
+    <div class="stars" id="starsRow">
+      <button class="star-btn" data-val="1" onclick="rateStar(1)">★</button>
+      <button class="star-btn" data-val="2" onclick="rateStar(2)">★</button>
+      <button class="star-btn" data-val="3" onclick="rateStar(3)">★</button>
+      <button class="star-btn" data-val="4" onclick="rateStar(4)">★</button>
+      <button class="star-btn" data-val="5" onclick="rateStar(5)">★</button>
+    </div>
+    <textarea class="feedback-textarea" id="feedbackText" placeholder="Tell us more..." maxlength="400"></textarea>
+    <div class="modal-actions">
+      <button class="modal-cancel" id="fbCancelBtn" onclick="closeFeedback()">Cancel</button>
+      <button class="modal-submit" id="fbSubmitBtn" onclick="submitFeedback()">
+        <i class="fas fa-paper-plane"></i> <span id="fbSubmitLabel">Send Feedback</span>
+      </button>
+    </div>
+  </div>
+</div>
 
 <script>
-const API   = 'https://n8n-n64x.onrender.com/webhook';
+const API    = 'https://n8n-n64x.onrender.com/webhook';
 const GITHUB = 'https://bekimoon0043.github.io/telegram-hotel';
 
 /* ── URL PARAMS ────────────────────────────── */
 const urlParams = new URLSearchParams(location.search);
 let tableNum    = urlParams.get('table') || urlParams.get('room') || 'N/A';
 let tgChatId    = urlParams.get('telegram_chat_id') || '';
-document.getElementById('tableBadge').textContent = tableNum !== 'N/A' ? `Table ${tableNum}` : 'Walk-in';
 
 /* ── STATE ─────────────────────────────────── */
-let menuItems = [];
-let cart      = [];
+let menuItems    = [];
+let cart         = [];
 let pendingOrder = null;
+let currentLang  = 'en';
+let feedbackRating = 0;
+let waiterCooldown = false;
+
+/* ── TRANSLATIONS ──────────────────────────── */
+const T = {
+  en: {
+    tableBadge: t => t !== 'N/A' ? `Table ${t}` : 'Walk-in',
+    langBtn: '🇪🇹 አማ',
+    heroTagline: 'Made with love,<br><em>served with care.</em>',
+    heroSub: 'Browse our menu and order directly from your table.',
+    allItems: 'All Items',
+    loading: 'Loading menu…',
+    menuUnavail: 'Menu unavailable',
+    menuUnavailSub: 'Please check your connection and try again.',
+    nothingHere: 'Nothing here yet',
+    unavail: 'Unavailable',
+    drawerTitle: 'Your Order',
+    cartEmpty: 'Add items from the menu to get started',
+    nameLabel: 'Your Name',
+    namePlaceholder: 'e.g. Alex',
+    notesLabel: 'Special Instructions',
+    notesPlaceholder: 'Allergies, preferences…',
+    totalLabel: 'Total',
+    orderBtn: 'Choose Payment &amp; Order',
+    waiterBtn: 'Call Waiter',
+    waiterCalling: 'Calling…',
+    feedbackBtn: 'Feedback',
+    fbTitle: 'How was your experience?',
+    fbSub: 'Your feedback helps us serve you better',
+    fbPlaceholder: 'Tell us more...',
+    fbCancel: 'Cancel',
+    fbSubmit: 'Send Feedback',
+    toastAddedTo: 'added to order',
+    toastWaiterCalled: 'Waiter has been notified!',
+    toastWaiterWait: 'Please wait before calling again.',
+    toastWaiterFail: 'Could not reach waiter. Please try again.',
+    toastFbSent: 'Thank you for your feedback! ❤️',
+    toastFbNoRating: 'Please select a star rating first.',
+    toastCartEmpty: 'Your cart is empty',
+  },
+  am: {
+    tableBadge: t => t !== 'N/A' ? `ጠረጴዛ ${t}` : 'ቀጥታ ደንበኛ',
+    langBtn: '🇬🇧 EN',
+    heroTagline: 'በፍቅር የተሰራ,<br><em>በእንክብካቤ የቀረበ።</em>',
+    heroSub: 'ምናሌያችንን ይፈልጉ እና ቀጥታ ከጠረጴዛዎ ይዘዙ።',
+    allItems: 'ሁሉም',
+    loading: 'ምናሌ በመጫን ላይ…',
+    menuUnavail: 'ምናሌ አልተገኘም',
+    menuUnavailSub: 'ግንኙነትዎን ያረጋግጡ እና እንደገና ይሞክሩ።',
+    nothingHere: 'ምንም ምግብ የለም',
+    unavail: 'አይገኝም',
+    drawerTitle: 'ትዕዛዝዎ',
+    cartEmpty: 'ለመጀመር ከምናሌ ምግቦች ያክሉ',
+    nameLabel: 'ስምዎ',
+    namePlaceholder: 'ለምሳሌ፡ አበበ',
+    notesLabel: 'ልዩ መመሪያ',
+    notesPlaceholder: 'አለርጂ፣ ምርጫዎች…',
+    totalLabel: 'ጠቅላላ',
+    orderBtn: 'ክፍያ ምረጡና ይዘዙ',
+    waiterBtn: 'አስተናጋጅ ጥሩ',
+    waiterCalling: 'በመደወል ላይ…',
+    feedbackBtn: 'አስተያየት',
+    fbTitle: 'ልምድዎ እንዴት ነበር?',
+    fbSub: 'አስተያየትዎ ሁሌም ያስፈልገናል',
+    fbPlaceholder: 'ተጨማሪ ይንገሩን...',
+    fbCancel: 'ይቅር',
+    fbSubmit: 'ላክ',
+    toastAddedTo: 'ወደ ትዕዛዝ ታክሏል',
+    toastWaiterCalled: 'አስተናጋጁ ተጠርቷል!',
+    toastWaiterWait: 'ትንሽ ቆይተው እንደገና ይሞክሩ።',
+    toastWaiterFail: 'አስተናጋጁ አልተደረሰም። ደግመው ይሞክሩ።',
+    toastFbSent: 'አስተያየትዎ ደረሰን! ❤️',
+    toastFbNoRating: 'እባኮትን ቅድሚያ ደረጃ ይስጡ።',
+    toastCartEmpty: 'ጋሪዎ ባዶ ነው',
+  }
+};
+
+/* ── LANGUAGE TOGGLE ───────────────────────── */
+function t(key, ...args) {
+  const val = T[currentLang][key];
+  return typeof val === 'function' ? val(...args) : val;
+}
+
+function toggleLang() {
+  currentLang = currentLang === 'en' ? 'am' : 'en';
+  applyLang();
+}
+
+function applyLang() {
+  const lang = T[currentLang];
+  document.getElementById('langBtn').textContent       = lang.langBtn;
+  document.getElementById('langBtn').classList.toggle('am', currentLang === 'am');
+  document.getElementById('tableBadge').textContent    = lang.tableBadge(tableNum);
+  document.getElementById('heroTagline').innerHTML     = lang.heroTagline;
+  document.getElementById('heroSub').textContent       = lang.heroSub;
+  document.getElementById('drawerTitleText').textContent = lang.drawerTitle;
+  document.getElementById('nameLabel').textContent     = lang.nameLabel;
+  document.getElementById('customerName').placeholder  = lang.namePlaceholder;
+  document.getElementById('notesLabel').textContent    = lang.notesLabel;
+  document.getElementById('specialNotes').placeholder  = lang.notesPlaceholder;
+  document.getElementById('totalLabel').textContent    = lang.totalLabel;
+  document.getElementById('orderBtnText').innerHTML    = lang.orderBtn;
+  document.getElementById('waiterBtnLabel').textContent = lang.waiterBtn;
+  document.getElementById('feedbackBtnLabel').textContent = lang.feedbackBtn;
+  document.getElementById('fbTitle').textContent       = lang.fbTitle;
+  document.getElementById('fbSub').textContent         = lang.fbSub;
+  document.getElementById('feedbackText').placeholder  = lang.fbPlaceholder;
+  document.getElementById('fbCancelBtn').textContent   = lang.fbCancel;
+  document.getElementById('fbSubmitLabel').textContent = lang.fbSubmit;
+  // Re-render categories and menu to update labels
+  buildCategories();
+  const activeBtn = document.querySelector('.cat-btn.active');
+  const cat = activeBtn ? activeBtn.dataset.cat : 'all';
+  renderMenu(cat === 'all' ? menuItems : menuItems.filter(i => i.category === cat));
+  // Update cart empty text
+  const cartEmptyEl = document.getElementById('cartEmptyText');
+  if (cartEmptyEl) cartEmptyEl.textContent = lang.cartEmpty;
+}
 
 /* ── MENU LOADING ──────────────────────────── */
 async function loadMenu() {
@@ -515,8 +719,8 @@ async function loadMenu() {
     document.getElementById('menuGrid').innerHTML = `
       <div class="state-wrap" style="grid-column:1/-1;">
         <div class="state-icon"><i class="fas fa-wifi-slash"></i></div>
-        <div class="state-title">Menu unavailable</div>
-        <div class="state-sub">Please check your connection and try again.</div>
+        <div class="state-title">${t('menuUnavail')}</div>
+        <div class="state-sub">${t('menuUnavailSub')}</div>
       </div>`;
   }
 }
@@ -526,7 +730,7 @@ function buildCategories() {
   const scroll = document.getElementById('catScroll');
   scroll.innerHTML = cats.map(c => `
     <button class="cat-btn ${c==='all'?'active':''}" data-cat="${c}" onclick="filterCat('${c}',this)">
-      ${c === 'all' ? 'All Items' : cap(c)}
+      ${c === 'all' ? t('allItems') : cap(c)}
     </button>`).join('');
 }
 
@@ -542,19 +746,19 @@ function renderMenu(items) {
   if(!items.length) {
     grid.innerHTML = `<div class="state-wrap" style="grid-column:1/-1;">
       <div class="state-icon"><i class="fas fa-utensils"></i></div>
-      <div class="state-title">Nothing here yet</div>
+      <div class="state-title">${t('nothingHere')}</div>
     </div>`;
     return;
   }
   grid.innerHTML = items.map(item => {
-    const inCart  = cart.find(c => c.id === item.id);
-    const qty     = inCart ? inCart.quantity : 0;
-    const imgSrc  = item.imageurl || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80';
+    const inCart = cart.find(c => c.id === item.id);
+    const qty    = inCart ? inCart.quantity : 0;
+    const imgSrc = item.imageurl || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80';
     return `
     <div class="menu-card" onclick="cardClick('${item.id}')">
       <div class="card-img-wrap">
         <img class="card-img" src="${imgSrc}" alt="${esc(item.name)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80'">
-        ${!item.available ? '<div class="card-unavail-overlay">Unavailable</div>' : ''}
+        ${!item.available ? `<div class="card-unavail-overlay">${t('unavail')}</div>` : ''}
       </div>
       <div class="card-body">
         <div class="card-name">${esc(item.name)}</div>
@@ -590,7 +794,7 @@ function addItem(id) {
   if(existing) existing.quantity++;
   else cart.push({...item, quantity:1});
   updateCartUI();
-  showToast('success', `${item.name} added to order`);
+  showToast('success', `${item.name} ${t('toastAddedTo')}`);
 }
 
 function changeQty(id, delta) {
@@ -610,17 +814,13 @@ function cartTotal() { return cart.reduce((s,i) => s + i.price * i.quantity, 0);
 
 function updateCartUI() {
   const count = cart.reduce((s,i) => s + i.quantity, 0);
-  const total  = cartTotal();
-  // FAB
-  const fab = document.getElementById('cartFab');
-  document.getElementById('fabCount').textContent  = count;
-  document.getElementById('fabTotal').textContent  = `$${total.toFixed(2)}`;
+  const total = cartTotal();
+  const fab   = document.getElementById('cartFab');
+  document.getElementById('fabCount').textContent = count;
+  document.getElementById('fabTotal').textContent = `$${total.toFixed(2)}`;
   fab.classList.toggle('visible', count > 0);
-  // Drawer body
   renderDrawer();
-  // Drawer total
   document.getElementById('drawerTotal').textContent = `$${total.toFixed(2)}`;
-  // Re-render menu cards for qty buttons
   const activeBtn = document.querySelector('.cat-btn.active');
   const cat = activeBtn ? activeBtn.dataset.cat : 'all';
   renderMenu(cat === 'all' ? menuItems : menuItems.filter(i => i.category === cat));
@@ -629,7 +829,7 @@ function updateCartUI() {
 function renderDrawer() {
   const body = document.getElementById('drawerBody');
   if(!cart.length) {
-    body.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">🛒</div>Add items from the menu to get started</div>';
+    body.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div><span id="cartEmptyText">${t('cartEmpty')}</span></div>`;
     return;
   }
   body.innerHTML = cart.map(item => `
@@ -661,11 +861,8 @@ function closeCart() {
 }
 
 /* ── ORDER PLACEMENT ───────────────────────── */
-// NOTE: The order is NOT sent to n8n here.
-// It is saved locally and sent to n8n only after the user
-// selects a payment method and submits in payment.html.
 function placeOrder() {
-  if(!cart.length) { showToast('warning','Your cart is empty'); return; }
+  if(!cart.length) { showToast('warning', t('toastCartEmpty')); return; }
 
   const confNum = genConfNum();
   const orderData = {
@@ -682,7 +879,6 @@ function placeOrder() {
     telegram_chat_id: tgChatId || null
   };
 
-  // Save locally only — sent to n8n after payment is chosen
   sessionStorage.setItem('pending_order', JSON.stringify(orderData));
   pendingOrder = orderData;
 
@@ -690,16 +886,117 @@ function placeOrder() {
   cart = [];
   updateCartUI();
 
-  // Go directly to payment page
   const enc = encodeURIComponent(JSON.stringify(orderData));
   window.location.href = `payment.html?order=${enc}`;
 }
 
 function genConfNum() {
-  const t   = Date.now().toString().slice(-4);
+  const t2  = Date.now().toString().slice(-4);
   const r   = Math.floor(Math.random()*1000).toString().padStart(3,'0');
   const tbl = String(tableNum).padStart(2,'0');
-  return `T${tbl}-${r}-${t}`;
+  return `T${tbl}-${r}-${t2}`;
+}
+
+/* ── CALL WAITER ───────────────────────────── */
+async function callWaiter() {
+  if(waiterCooldown) { showToast('warning', t('toastWaiterWait')); return; }
+
+  const btn = document.getElementById('waiterBtn');
+  const lbl = document.getElementById('waiterBtnLabel');
+  btn.classList.add('calling');
+  lbl.textContent = t('waiterCalling');
+
+  try {
+    await fetch(`${API}/call-waiter`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        table: tableNum,
+        room: tableNum,
+        telegram_chat_id: tgChatId || null,
+        timestamp: new Date().toISOString()
+      })
+    });
+  } catch(e) {
+    // Silent fail — still notify customer UI
+  }
+
+  showToast('success', t('toastWaiterCalled'));
+  waiterCooldown = true;
+
+  // Cooldown: 90 seconds
+  setTimeout(() => {
+    waiterCooldown = false;
+    btn.classList.remove('calling');
+    lbl.textContent = t('waiterBtn');
+  }, 90000);
+
+  // Visual: reset label after 3s but keep cooldown
+  setTimeout(() => {
+    lbl.textContent = t('waiterBtn');
+    btn.classList.remove('calling');
+  }, 3000);
+}
+
+/* ── FEEDBACK ──────────────────────────────── */
+function openFeedback() {
+  feedbackRating = 0;
+  document.getElementById('feedbackText').value = '';
+  updateStars(0);
+  document.getElementById('feedbackModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeFeedback() {
+  document.getElementById('feedbackModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeFeedbackOnBg(e) {
+  if(e.target === document.getElementById('feedbackModal')) closeFeedback();
+}
+
+function rateStar(val) {
+  feedbackRating = val;
+  updateStars(val);
+}
+
+function updateStars(val) {
+  document.querySelectorAll('.star-btn').forEach(btn => {
+    btn.classList.toggle('lit', parseInt(btn.dataset.val) <= val);
+  });
+}
+
+async function submitFeedback() {
+  if(!feedbackRating) { showToast('warning', t('toastFbNoRating')); return; }
+
+  const comment = document.getElementById('feedbackText').value.trim();
+  const submitBtn = document.getElementById('fbSubmitBtn');
+  submitBtn.disabled = true;
+  submitBtn.style.opacity = '0.6';
+
+  try {
+    await fetch(`${API}/customer-feedback`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        table: tableNum,
+        room: tableNum,
+        rating: feedbackRating,
+        comment: comment,
+        telegram_chat_id: tgChatId || null,
+        timestamp: new Date().toISOString()
+      })
+    });
+  } catch(e) {
+    // Silent fail — still thank customer
+  }
+
+  closeFeedback();
+  showToast('success', t('toastFbSent'));
+
+  submitBtn.disabled = false;
+  submitBtn.style.opacity = '1';
 }
 
 /* ── TOAST ─────────────────────────────────── */
@@ -707,12 +1004,12 @@ let toastTimer;
 function showToast(type, msg) {
   const icons = {success:'check-circle',warning:'exclamation-triangle',error:'times-circle'};
   clearTimeout(toastTimer);
-  document.querySelectorAll('.toast').forEach(t => t.remove());
-  const t = document.createElement('div');
-  t.className = `toast ${type}`;
-  t.innerHTML = `<i class="fas fa-${icons[type]||'info-circle'} toast-icon"></i><span>${msg}</span>`;
-  document.body.appendChild(t);
-  toastTimer = setTimeout(() => t.remove(), 2800);
+  document.querySelectorAll('.toast').forEach(t2 => t2.remove());
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<i class="fas fa-${icons[type]||'info-circle'} toast-icon"></i><span>${msg}</span>`;
+  document.body.appendChild(el);
+  toastTimer = setTimeout(() => el.remove(), 2800);
 }
 
 /* ── UTILS ─────────────────────────────────── */
@@ -720,7 +1017,12 @@ function cap(s) { return s ? s.charAt(0).toUpperCase()+s.slice(1) : s; }
 function esc(s) { return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
 /* ── INIT ──────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', loadMenu);
+document.addEventListener('DOMContentLoaded', () => {
+  // Set initial table badge
+  document.getElementById('tableBadge').textContent =
+    tableNum !== 'N/A' ? `Table ${tableNum}` : 'Walk-in';
+  loadMenu();
+});
 </script>
 </body>
 </html>
