@@ -570,7 +570,25 @@
   </div>
 
   <div class="sidebar-footer">
-    <a href="index.html" style="color:var(--muted);text-decoration:none;font-size:.75rem;">
+    <!-- Session info -->
+    <div style="padding:12px 16px 8px;border-top:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <div style="width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 5px var(--success);flex-shrink:0;"></div>
+        <div>
+          <div style="font-size:.75rem;font-weight:600;color:var(--cream);" id="sessionUser">Admin</div>
+          <div style="font-size:.65rem;color:var(--muted);" id="sessionExpiry">Session active</div>
+        </div>
+      </div>
+      <button onclick="doLogout()" style="
+        width:100%;padding:9px 12px;border-radius:8px;
+        background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);
+        color:#f87171;font-size:.8rem;font-weight:600;cursor:pointer;
+        font-family:'DM Sans',sans-serif;display:flex;align-items:center;
+        gap:8px;transition:background .2s;">
+        <i class="fas fa-sign-out-alt"></i> Sign Out
+      </button>
+    </div>
+    <a href="index.html" style="display:block;padding:10px 16px 14px;color:var(--muted);text-decoration:none;font-size:.75rem;">
       <i class="fas fa-external-link-alt"></i> View Customer Menu
     </a>
   </div>
@@ -880,6 +898,90 @@
 </div>
 
 <script>
+/* ════════════════════════════════════════════════════════
+   AUTH GUARD — runs before anything else
+   If no valid token → immediate redirect to login
+════════════════════════════════════════════════════════ */
+const STORAGE_KEY    = 'admin_auth';
+const SESSION_WARN   = 5 * 60 * 1000;   // warn 5 min before expiry
+
+let _authToken    = null;
+let _authExpiry   = 0;
+let _authUsername = '';
+let _warnTimer    = null;
+let _logoutTimer  = null;
+
+(function guardInit() {
+  const raw = sessionStorage.getItem(STORAGE_KEY) || localStorage.getItem(STORAGE_KEY);
+  if (!raw) { kickToLogin('No session found'); return; }
+  try {
+    const session = JSON.parse(raw);
+    if (!session.token || !session.expiresAt) { kickToLogin('Malformed session'); return; }
+    if (Date.now() >= session.expiresAt) { kickToLogin('Session expired'); return; }
+    _authToken    = session.token;
+    _authExpiry   = session.expiresAt;
+    _authUsername = session.username || 'Admin';
+    scheduleAutoLogout();
+  } catch { kickToLogin('Invalid session'); }
+})();
+
+function kickToLogin(reason) {
+  sessionStorage.removeItem(STORAGE_KEY);
+  // Don't wipe localStorage here — the lockout data lives there too
+  // Only wipe the auth entry
+  localStorage.removeItem(STORAGE_KEY);
+  window.location.replace('admin-login.html');
+}
+
+function getAuthHeaders() {
+  // Always provide the token; kick if it's gone or expired
+  if (!_authToken || Date.now() >= _authExpiry) { kickToLogin('Token expired'); return {}; }
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${_authToken}`
+  };
+}
+
+// Call after every fetch response to detect server-side token rejection
+function checkUnauthorized(response) {
+  if (response && response.status === 401) {
+    kickToLogin('Session rejected by server');
+    return true;
+  }
+  return false;
+}
+
+function scheduleAutoLogout() {
+  if (_logoutTimer) clearTimeout(_logoutTimer);
+  if (_warnTimer)   clearTimeout(_warnTimer);
+
+  const remaining = _authExpiry - Date.now();
+  if (remaining <= 0) { kickToLogin('Expired'); return; }
+
+  // Warn 5 min before expiry
+  const warnIn = remaining - SESSION_WARN;
+  if (warnIn > 0) {
+    _warnTimer = setTimeout(() => {
+      showToast('warning', '⚠️ Session expires in 5 minutes. Save your work.');
+    }, warnIn);
+  }
+
+  // Auto-logout at expiry
+  _logoutTimer = setTimeout(() => kickToLogin('Session expired'), remaining);
+}
+
+function doLogout() {
+  if (_warnTimer)   clearTimeout(_warnTimer);
+  if (_logoutTimer) clearTimeout(_logoutTimer);
+  sessionStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem('admin_storage');
+  window.location.replace('admin-login.html');
+}
+
+/* ════════════════════════════════════════════════════════
+   ORIGINAL SCRIPT CONTINUES BELOW
+════════════════════════════════════════════════════════ */
 const API    = 'https://n8n-n64x.onrender.com/webhook';
 const SITE   = 'https://bekimoon0043.github.io/telegram-hotel';
 
@@ -908,7 +1010,8 @@ async function loadOrders() {
   btn.classList.add('spinning');
 
   try {
-    const r = await fetch(`${API}/orders-admin`);
+    const r = await fetch(`${API}/orders-admin`, { headers: getAuthHeaders() });
+    if (checkUnauthorized(r)) return;
     const d = await r.json();
     allOrders = (d.orders || []).sort((a,b) => new Date(b.timestamp||0) - new Date(a.timestamp||0));
 
@@ -1024,7 +1127,7 @@ async function updateOrder(confNum, newStatus) {
     };
 
     const resp = await fetch(`${API}/update-order`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST', headers:getAuthHeaders(),
       body: JSON.stringify(payload)
     });
 
@@ -1033,7 +1136,7 @@ async function updateOrder(confNum, newStatus) {
     // Notify customer on Telegram
     if(order.telegram_chat_id && (newStatus==='confirmed'||newStatus==='completed')) {
       fetch(`${API}/notify-customer`, {
-        method:'POST', headers:{'Content-Type':'application/json'},
+        method:'POST', headers:getAuthHeaders(),
         body: JSON.stringify({
           orderId: confNum,
           telegramChatId: order.telegram_chat_id,
@@ -1074,7 +1177,7 @@ async function updatePayment(confNum, payStatus) {
     };
 
     const resp = await fetch(`${API}/update-order`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST', headers:getAuthHeaders(),
       body: JSON.stringify(payload)
     });
 
@@ -1160,7 +1263,7 @@ async function addMenuItem() {
 
   try {
     const r = await fetch(`${API}/add-menu-item`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST', headers:getAuthHeaders(),
       body: JSON.stringify(item)
     });
     // Read body only to extract error message if request failed
@@ -1193,7 +1296,7 @@ async function loadMenuItems() {
   try {
     // Always use the admin endpoint — it returns ALL items (available + hidden).
     // Never fall back to /menu which is the customer endpoint and strips hidden items.
-    const r = await fetch(`${API}/menu-admin`);
+    const r = await fetch(`${API}/menu-admin`, { headers: getAuthHeaders() });
     if (!r.ok) throw new Error(`Server returned ${r.status}`);
     const d = await r.json();
 
@@ -1282,7 +1385,7 @@ async function toggleItemAvailability(itemId, checkbox) {
   try {
     const r = await fetch(`${API}/update-menu-item`, {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers:getAuthHeaders(),
       body: JSON.stringify({ id: itemId, available: newAvail ? 'TRUE' : 'FALSE' })
     });
     if(!r.ok) throw new Error(`Server error ${r.status}`);
@@ -1361,7 +1464,7 @@ async function saveMenuEdit() {
 
   try {
     const r = await fetch(`${API}/update-menu-item`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST', headers:getAuthHeaders(),
       body: JSON.stringify(payload)
     });
     if(!r.ok) throw new Error(`Server error ${r.status}`);
@@ -1757,6 +1860,18 @@ document.addEventListener('click', function(e) {
 
 /* ── INIT ────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
+  // ── Session UI ──
+  document.getElementById('sessionUser').textContent = _authUsername;
+  function refreshExpiry() {
+    const left = Math.max(0, _authExpiry - Date.now());
+    const h = Math.floor(left / 3600000);
+    const m = Math.floor((left % 3600000) / 60000);
+    document.getElementById('sessionExpiry').textContent =
+      left > 0 ? `Expires in ${h > 0 ? h+'h ' : ''}${m}m` : 'Expired';
+  }
+  refreshExpiry();
+  setInterval(refreshExpiry, 60000);
+
   loadOrders();
   pollInterval = setInterval(loadOrders, 30000);
   document.getElementById('qrBase').value = location.origin+location.pathname.replace('admin.html','') || SITE;

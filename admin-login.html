@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{
+      --bg:#0D0F12; --surface:#161920; --surface2:#1E2330;
+      --border:rgba(255,255,255,0.07); --copper:#C8722A; --gold:#E8A44A;
+      --cream:#E8E2D9; --muted:#6B7280; --success:#22C55E;
+      --error:#EF4444; --info:#3B82F6;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--cream);}
+
+    /* ── BACKGROUND GRID ── */
+    body::before{
+      content:'';position:fixed;inset:0;
+      background-image:linear-gradient(rgba(200,114,42,.04) 1px,transparent 1px),
+                       linear-gradient(90deg,rgba(200,114,42,.04) 1px,transparent 1px);
+      background-size:40px 40px;pointer-events:none;
+    }
+
+    .page{
+      height:100%;display:flex;align-items:center;
+      justify-content:center;padding:20px;position:relative;
+    }
+
+    /* ── CARD ── */
+    .card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:20px;padding:44px 40px 40px;
+      width:100%;max-width:420px;
+      box-shadow:0 24px 80px rgba(0,0,0,.5);
+      position:relative;overflow:hidden;
+    }
+    .card::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,transparent,var(--copper),var(--gold),var(--copper),transparent);
+    }
+
+    /* ── LOGO ── */
+    .logo{text-align:center;margin-bottom:32px;}
+    .logo-icon{
+      width:64px;height:64px;border-radius:16px;
+      background:linear-gradient(135deg,var(--copper),var(--gold));
+      display:inline-flex;align-items:center;justify-content:center;
+      font-size:1.6rem;margin-bottom:14px;
+      box-shadow:0 8px 24px rgba(200,114,42,.35);
+    }
+    .logo-title{
+      font-family:'JetBrains Mono',monospace;
+      font-size:1.1rem;font-weight:600;color:var(--cream);
+    }
+    .logo-sub{font-size:.8rem;color:var(--muted);margin-top:4px;}
+
+    /* ── LOCKOUT BANNER ── */
+    .lockout-banner{
+      background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);
+      border-radius:10px;padding:14px 16px;margin-bottom:20px;
+      display:none;text-align:center;
+    }
+    .lockout-banner.show{display:block;}
+    .lockout-banner i{color:var(--error);margin-bottom:6px;display:block;font-size:1.2rem;}
+    .lockout-title{font-weight:600;color:var(--error);font-size:.9rem;}
+    .lockout-timer{color:var(--muted);font-size:.8rem;margin-top:4px;}
+    .lockout-timer span{color:var(--cream);font-weight:600;}
+
+    /* ── FORM ── */
+    .field{margin-bottom:18px;}
+    .field label{
+      display:block;font-size:.78rem;font-weight:600;
+      color:var(--muted);letter-spacing:.06em;text-transform:uppercase;
+      margin-bottom:8px;
+    }
+    .input-wrap{position:relative;}
+    .input-wrap i.prefix{
+      position:absolute;left:14px;top:50%;transform:translateY(-50%);
+      color:var(--muted);font-size:.85rem;pointer-events:none;
+    }
+    .input-wrap input{
+      width:100%;padding:13px 44px 13px 40px;
+      background:var(--surface2);border:1px solid var(--border);
+      border-radius:10px;color:var(--cream);font-size:.92rem;
+      font-family:'DM Sans',sans-serif;outline:none;
+      transition:border-color .2s,box-shadow .2s;
+    }
+    .input-wrap input:focus{
+      border-color:var(--copper);
+      box-shadow:0 0 0 3px rgba(200,114,42,.15);
+    }
+    .input-wrap input.error{border-color:var(--error);box-shadow:0 0 0 3px rgba(239,68,68,.15);}
+    .eye-btn{
+      position:absolute;right:14px;top:50%;transform:translateY(-50%);
+      background:none;border:none;cursor:pointer;
+      color:var(--muted);font-size:.85rem;padding:4px;
+    }
+    .eye-btn:hover{color:var(--cream);}
+
+    /* ── ATTEMPTS ── */
+    .attempts-row{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:20px;
+    }
+    .remember-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;}
+    .remember-wrap input[type=checkbox]{
+      width:16px;height:16px;accent-color:var(--copper);cursor:pointer;
+    }
+    .remember-wrap span{font-size:.82rem;color:var(--muted);}
+    .attempts-left{font-size:.75rem;color:var(--muted);}
+    .attempts-left span{color:var(--error);font-weight:600;}
+
+    /* ── SUBMIT ── */
+    .submit-btn{
+      width:100%;padding:14px;border:none;border-radius:12px;
+      background:linear-gradient(135deg,var(--copper),var(--gold));
+      color:#fff;font-size:.95rem;font-weight:600;
+      font-family:'DM Sans',sans-serif;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      transition:opacity .2s,transform .15s;
+    }
+    .submit-btn:hover:not(:disabled){opacity:.88;transform:translateY(-1px);}
+    .submit-btn:active:not(:disabled){transform:translateY(0);}
+    .submit-btn:disabled{opacity:.45;cursor:not-allowed;}
+
+    /* ── ERROR MSG ── */
+    .error-msg{
+      background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);
+      border-radius:8px;padding:11px 14px;margin-top:16px;
+      font-size:.82rem;color:var(--error);
+      display:none;align-items:center;gap:8px;
+    }
+    .error-msg.show{display:flex;}
+
+    /* ── SECURITY BADGE ── */
+    .security-badge{
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      margin-top:28px;color:var(--muted);font-size:.72rem;
+    }
+    .security-badge i{color:var(--success);}
+
+    /* ── SHAKE ── */
+    @keyframes shake{
+      0%,100%{transform:translateX(0);}
+      20%{transform:translateX(-8px);}
+      40%{transform:translateX(8px);}
+      60%{transform:translateX(-5px);}
+      80%{transform:translateX(5px);}
+    }
+    .shake{animation:shake .4s ease;}
+
+    /* ── DOTS SPINNER ── */
+    .dots{display:inline-flex;gap:5px;}
+    .dots span{
+      width:6px;height:6px;border-radius:50%;background:#fff;
+      animation:bounce .8s ease infinite;
+    }
+    .dots span:nth-child(2){animation-delay:.15s;}
+    .dots span:nth-child(3){animation-delay:.3s;}
+    @keyframes bounce{0%,80%,100%{transform:scale(0.6);}40%{transform:scale(1);}}
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="card" id="loginCard">
+
+    <div class="logo">
+      <div class="logo-icon">🏨</div>
+      <div class="logo-title">Craft Café Admin</div>
+      <div class="logo-sub">Secure administrator access</div>
+    </div>
+
+    <!-- Lockout banner -->
+    <div class="lockout-banner" id="lockoutBanner">
+      <i class="fas fa-shield-alt"></i>
+      <div class="lockout-title">Account temporarily locked</div>
+      <div class="lockout-timer">Try again in <span id="lockTimer">15:00</span></div>
+    </div>
+
+    <!-- Username -->
+    <div class="field">
+      <label>Username</label>
+      <div class="input-wrap">
+        <i class="fas fa-user prefix"></i>
+        <input type="text" id="username" placeholder="admin"
+               autocomplete="username" autocorrect="off" spellcheck="false">
+      </div>
+    </div>
+
+    <!-- Password -->
+    <div class="field">
+      <label>Password</label>
+      <div class="input-wrap">
+        <i class="fas fa-lock prefix"></i>
+        <input type="password" id="password" placeholder="••••••••"
+               autocomplete="current-password">
+        <button class="eye-btn" onclick="togglePwd()" type="button" id="eyeBtn">
+          <i class="fas fa-eye" id="eyeIcon"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Remember me + attempts left -->
+    <div class="attempts-row">
+      <label class="remember-wrap">
+        <input type="checkbox" id="rememberMe">
+        <span>Keep me logged in (24h)</span>
+      </label>
+      <div class="attempts-left" id="attemptsLeft"></div>
+    </div>
+
+    <!-- Submit -->
+    <button class="submit-btn" id="loginBtn" onclick="doLogin()">
+      <i class="fas fa-sign-in-alt" id="btnIcon"></i>
+      <span id="btnLabel">Sign In</span>
+    </button>
+
+    <!-- Error -->
+    <div class="error-msg" id="errorMsg">
+      <i class="fas fa-exclamation-circle"></i>
+      <span id="errorText">Invalid username or password</span>
+    </div>
+
+    <div class="security-badge">
+      <i class="fas fa-shield-alt"></i>
+      Session-secured · Token expires automatically
+    </div>
+  </div>
+</div>
+
+<script>
+/* ────────────────────────────────────────────────────────
+   CONSTANTS
+──────────────────────────────────────────────────────── */
+const API            = 'https://n8n-n64x.onrender.com/webhook';
+const MAX_ATTEMPTS   = 5;
+const LOCKOUT_MS     = 15 * 60 * 1000;  // 15 minutes
+const STORAGE_KEY    = 'admin_auth';
+const LOCKOUT_KEY    = 'admin_lockout';
+const ATTEMPT_KEY    = 'admin_attempts';
+
+/* ────────────────────────────────────────────────────────
+   LOCKOUT STATE
+──────────────────────────────────────────────────────── */
+let lockTimer = null;
+
+function getLockout() {
+  try { return JSON.parse(localStorage.getItem(LOCKOUT_KEY) || 'null'); } catch { return null; }
+}
+function setLockout() {
+  localStorage.setItem(LOCKOUT_KEY, JSON.stringify({ until: Date.now() + LOCKOUT_MS }));
+}
+function clearLockout() {
+  localStorage.removeItem(LOCKOUT_KEY);
+  localStorage.removeItem(ATTEMPT_KEY);
+}
+function getAttempts() { return parseInt(localStorage.getItem(ATTEMPT_KEY) || '0'); }
+function bumpAttempts() {
+  const n = getAttempts() + 1;
+  localStorage.setItem(ATTEMPT_KEY, String(n));
+  return n;
+}
+function isLockedOut() {
+  const l = getLockout();
+  if (!l) return false;
+  if (Date.now() >= l.until) { clearLockout(); return false; }
+  return true;
+}
+
+/* ────────────────────────────────────────────────────────
+   LOCKOUT COUNTDOWN UI
+──────────────────────────────────────────────────────── */
+function startLockoutCountdown() {
+  const banner = document.getElementById('lockoutBanner');
+  banner.classList.add('show');
+  setFormDisabled(true);
+
+  if (lockTimer) clearInterval(lockTimer);
+  lockTimer = setInterval(() => {
+    const l = getLockout();
+    if (!l || Date.now() >= l.until) {
+      clearInterval(lockTimer);
+      banner.classList.remove('show');
+      setFormDisabled(false);
+      updateAttemptsUI();
+      return;
+    }
+    const left = Math.ceil((l.until - Date.now()) / 1000);
+    const m = String(Math.floor(left / 60)).padStart(2,'0');
+    const s = String(left % 60).padStart(2,'0');
+    document.getElementById('lockTimer').textContent = `${m}:${s}`;
+  }, 1000);
+}
+
+function setFormDisabled(d) {
+  document.getElementById('username').disabled = d;
+  document.getElementById('password').disabled = d;
+  document.getElementById('loginBtn').disabled = d;
+}
+
+function updateAttemptsUI() {
+  const n = getAttempts();
+  const el = document.getElementById('attemptsLeft');
+  if (n > 0) {
+    const left = MAX_ATTEMPTS - n;
+    el.innerHTML = left <= 2
+      ? `<span>${left}</span> attempt${left!==1?'s':''} left`
+      : `${left} attempts left`;
+  } else {
+    el.textContent = '';
+  }
+}
+
+/* ────────────────────────────────────────────────────────
+   HONEYPOT (anti-bot hidden field – never filled by humans)
+──────────────────────────────────────────────────────── */
+// Injected as invisible field; bots fill it and get silently blocked
+const hpId = 'hp_' + Math.random().toString(36).slice(2,8);
+const hpEl = document.createElement('input');
+hpEl.type = 'text'; hpEl.name = 'email'; hpEl.id = hpId;
+hpEl.style.cssText = 'position:absolute;opacity:0;height:0;pointer-events:none;';
+hpEl.tabIndex = -1; hpEl.autocomplete = 'off';
+document.getElementById('loginCard').appendChild(hpEl);
+
+/* ────────────────────────────────────────────────────────
+   PASSWORD TOGGLE
+──────────────────────────────────────────────────────── */
+function togglePwd() {
+  const inp = document.getElementById('password');
+  const ico = document.getElementById('eyeIcon');
+  if (inp.type === 'password') { inp.type = 'text'; ico.className = 'fas fa-eye-slash'; }
+  else { inp.type = 'password'; ico.className = 'fas fa-eye'; }
+}
+
+/* ────────────────────────────────────────────────────────
+   SHOW ERROR
+──────────────────────────────────────────────────────── */
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  document.getElementById('errorText').textContent = msg;
+  el.classList.add('show');
+  document.getElementById('loginCard').classList.add('shake');
+  setTimeout(() => document.getElementById('loginCard').classList.remove('shake'), 500);
+  ['username','password'].forEach(id => document.getElementById(id).classList.add('error'));
+}
+function clearError() {
+  document.getElementById('errorMsg').classList.remove('show');
+  ['username','password'].forEach(id => document.getElementById(id).classList.remove('error'));
+}
+
+/* ────────────────────────────────────────────────────────
+   MAIN LOGIN
+──────────────────────────────────────────────────────── */
+async function doLogin() {
+  clearError();
+
+  // Honeypot check
+  if (document.getElementById(hpId).value) return;
+
+  if (isLockedOut()) { startLockoutCountdown(); return; }
+
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+
+  if (!username || !password) {
+    showError('Please enter your username and password.');
+    return;
+  }
+
+  // Button loading state
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+  document.getElementById('btnIcon').className = '';
+  document.getElementById('btnLabel').innerHTML = '<span class="dots"><span></span><span></span><span></span></span>';
+
+  try {
+    const resp = await fetch(`${API}/admin-auth`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await resp.json().catch(() => ({}));
+
+    if (resp.ok && data.success && data.token) {
+      // ✅ SUCCESS
+      clearLockout();
+      const remember = document.getElementById('rememberMe').checked;
+      const storage = remember ? localStorage : sessionStorage;
+      storage.setItem(STORAGE_KEY, JSON.stringify({
+        token: data.token,
+        expiresAt: data.expiresAt,
+        username: data.username || username,
+        remember
+      }));
+      // If remember-me, also note which storage was used
+      if (remember) localStorage.setItem('admin_storage', 'local');
+
+      // Success animation → redirect
+      btn.style.background = 'linear-gradient(135deg,#22C55E,#16A34A)';
+      document.getElementById('btnIcon').className = 'fas fa-check';
+      document.getElementById('btnLabel').textContent = 'Authenticated!';
+      setTimeout(() => { window.location.href = 'admin.html'; }, 700);
+
+    } else {
+      // ❌ FAILED
+      const attempts = bumpAttempts();
+      updateAttemptsUI();
+
+      if (attempts >= MAX_ATTEMPTS) {
+        setLockout();
+        startLockoutCountdown();
+        showError('Too many failed attempts. Account locked for 15 minutes.');
+      } else {
+        const left = MAX_ATTEMPTS - attempts;
+        showError(data.error || `Invalid credentials. ${left} attempt${left!==1?'s':''} remaining.`);
+      }
+
+      btn.disabled = false;
+      document.getElementById('btnIcon').className = 'fas fa-sign-in-alt';
+      document.getElementById('btnLabel').textContent = 'Sign In';
+    }
+
+  } catch (err) {
+    showError('Network error — check your connection and try again.');
+    btn.disabled = false;
+    document.getElementById('btnIcon').className = 'fas fa-sign-in-alt';
+    document.getElementById('btnLabel').textContent = 'Sign In';
+  }
+}
+
+/* ── Enter key ── */
+document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+/* ────────────────────────────────────────────────────────
+   INIT — redirect if already authenticated
+──────────────────────────────────────────────────────── */
+(function init() {
+  // If already logged in with valid token, skip login
+  const stored = sessionStorage.getItem('admin_auth') || localStorage.getItem('admin_auth');
+  if (stored) {
+    try {
+      const { token, expiresAt } = JSON.parse(stored);
+      if (token && Date.now() < expiresAt) {
+        window.location.href = 'admin.html';
+        return;
+      }
+    } catch {}
+  }
+
+  // Check lockout
+  if (isLockedOut()) { startLockoutCountdown(); }
+  updateAttemptsUI();
+})();
+</script>
+</body>
+</html>
