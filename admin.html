@@ -491,7 +491,7 @@
     .sidebar-backdrop{display:none;position:fixed;inset:0;z-index:199;background:rgba(0,0,0,.5);}
     .sidebar-backdrop.visible{display:block;}
 
-    /* Login Modal (full page overlay) */
+    /* Login Modal */
     .login-overlay {
       position: fixed;
       inset: 0;
@@ -614,7 +614,7 @@
   </div>
 </div>
 
-<!-- DASHBOARD (hidden until login) -->
+<!-- DASHBOARD -->
 <div id="dashboardWrapper" class="dashboard-wrapper hide">
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
@@ -710,7 +710,7 @@
               <tr><th>Order #</th><th>Table</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Order Status</th><th>Actions</th></tr>
             </thead>
             <tbody id="ordersBody"><tr><td colspan="8"><div class="empty-state"><div class="empty-icon"><i class="fas fa-spinner fa-spin"></i></div><div class="empty-text">Loading orders…</div></div></td></tr></tbody>
-          </table>
+          杉
         </div>
       </div>
 
@@ -906,7 +906,7 @@ function showLoginModalAndWait() {
   });
 }
 
-// ========== REST OF YOUR APPLICATION LOGIC (same as before) ==========
+// ========== APPLICATION LOGIC ==========
 let allOrders = [];
 let filteredStatus = 'all';
 let audioEnabled = true;
@@ -928,6 +928,14 @@ function showSection(name, el) {
   if(name==='menu') loadMenuItems();
 }
 
+// Fallback event listeners for nav items (ensures navigation works even if onclick attributes fail)
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const section = btn.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+    if (section) showSection(section, btn);
+  });
+});
+
 /* Orders */
 async function loadOrders() {
   const btn = document.getElementById('refreshBtn');
@@ -946,7 +954,7 @@ async function loadOrders() {
     document.getElementById('lastUpdate').textContent = 'Updated ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   } catch(e) {
     console.error(e);
-    document.getElementById('ordersBody').innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon"><i class="fas fa-wifi-slash"></i></div><div class="empty-text">Failed to load orders. ${e.message}</div></div></td></tr>`;
+    document.getElementById('ordersBody').innerHTML = `<td><td colspan="8"><div class="empty-state"><div class="empty-icon"><i class="fas fa-wifi-slash"></i></div><div class="empty-text">Failed to load orders. ${e.message}</div></div></td></tr>`;
   }
   btn.classList.remove('spinning');
 }
@@ -998,7 +1006,7 @@ function renderOrders() {
       <td><div style="font-size:.75rem;margin-bottom:4px;">${esc(pMethod)}</div><span class="pill ${pStatus}"><span class="pill-dot"></span>${cap(pStatus)}</span>${pStatus==='pending' && pMethod!=='cash' ? `<div style="display:flex;gap:4px;margin-top:6px;"><button class="act-btn pay-ok" data-id="${conf}" data-pay="verified"><i class="fas fa-check"></i> OK</button><button class="act-btn pay-no" data-id="${conf}" data-pay="rejected"><i class="fas fa-times"></i></button></div>` : ''}</td>
       <td><span class="pill ${status}"><span class="pill-dot"></span>${cap(status)}</span></td>
       <td><div class="action-group">${status==='pending' ? `<button class="act-btn confirm" data-id="${conf}" data-action="confirmed"><i class="fas fa-check"></i> Confirm</button>` : ''}${status==='confirmed' ? `<button class="act-btn cooking" data-id="${conf}" data-action="cooking"><i class="fas fa-fire"></i> Kitchen</button>` : ''}${status==='cooking' ? `<button class="act-btn complete" data-id="${conf}" data-action="completed"><i class="fas fa-check-double"></i> Done</button>` : ''}${status!=='completed' ? `<button class="act-btn reject" data-id="${conf}" data-action="cancelled"><i class="fas fa-ban"></i></button>` : '<span style="color:var(--success);font-size:.75rem;"><i class="fas fa-check-double"></i> Complete</span>'}</div></td>
-     </tr>`;
+    </tr>`;
   }).join('');
 }
 
@@ -1225,7 +1233,7 @@ function showEditResult(type, msg) {
   el.style.display = 'block';
 }
 
-/* Analytics (simplified versions – will work with existing functions) */
+/* Analytics */
 function refreshAnalytics() { if(!allOrders.length) { loadOrders().then(calcAnalytics); return; } calcAnalytics(); }
 function calcAnalytics() {
   const revenue = allOrders.reduce((s,o) => s+parseFloat(o.total_amount||o.total||0),0);
@@ -1240,7 +1248,7 @@ function calcAnalytics() {
   drawRevenueChart(); drawStatusDonut(); drawPaymentMethod(); drawHourlyChart(); drawPopularItems(); drawPopularByRevenue();
 }
 function orderDate(o) { try { return new Date(o.timestamp||0); } catch(e){ return new Date(0); } }
-function drawRevenueChart() { /* full implementation as before – omitted for brevity but you can copy from your old version */ const canvas = document.getElementById('revenueChart'); if(!canvas) return; const ctx = canvas.getContext('2d'); const W = canvas.offsetWidth||600; canvas.width = W*devicePixelRatio; canvas.height = 160*devicePixelRatio; ctx.scale(devicePixelRatio,devicePixelRatio); const H=160; const days=[]; const now=new Date(); for(let i=6;i>=0;i--) { const d=new Date(now); d.setDate(now.getDate()-i); days.push({ label: d.toLocaleDateString([],{weekday:'short'}), date: d.toDateString(), rev:0 }); } allOrders.forEach(o=>{ const ds = orderDate(o).toDateString(); const bucket = days.find(d=>d.date===ds); if(bucket) bucket.rev += parseFloat(o.total_amount||o.total||0); }); const maxRev = Math.max(...days.map(d=>d.rev),1); const padL=40,padR=16,padT=16,padB=36; const barArea = W-padL-padR; const barW = Math.floor(barArea/days.length); const gap = Math.max(4, barW*0.2); const bw = barW-gap; const chartH = H-padT-padB; ctx.clearRect(0,0,W,H); ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1; [0,0.25,0.5,0.75,1].forEach(t=>{ const y=padT+chartH*(1-t); ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(W-padR,y); ctx.stroke(); if(t>0){ ctx.fillStyle='rgba(107,114,128,0.7)'; ctx.font=`${10*devicePixelRatio/devicePixelRatio}px JetBrains Mono, monospace`; ctx.textAlign='right'; ctx.fillText('$'+(maxRev*t).toFixed(0), padL-6, y+4); } }); days.forEach((d,i)=>{ const x=padL+i*barW+gap/2; const bh=(d.rev/maxRev)*chartH; const y=padT+chartH-bh; const grad=ctx.createLinearGradient(0,y,0,y+bh); grad.addColorStop(0,d.rev>0?'#E8A44A':'rgba(107,114,128,0.2)'); grad.addColorStop(1,d.rev>0?'#C8722A':'rgba(107,114,128,0.1)'); ctx.fillStyle=grad; ctx.beginPath(); ctx.roundRect(x,y,bw,bh,[4,4,0,0]); ctx.fill(); if(d.rev>0){ ctx.fillStyle='#E8A44A'; ctx.font='bold 10px DM Sans, sans-serif'; ctx.textAlign='center'; ctx.fillText('$'+d.rev.toFixed(0), x+bw/2, y-5); } ctx.fillStyle='rgba(107,114,128,0.9)'; ctx.font='10px DM Sans, sans-serif'; ctx.textAlign='center'; ctx.fillText(d.label, x+bw/2, H-padB+16); }); }
+function drawRevenueChart() { /* full implementation omitted for brevity – same as before, kept in your original file */ const canvas = document.getElementById('revenueChart'); if(!canvas) return; const ctx = canvas.getContext('2d'); const W = canvas.offsetWidth||600; canvas.width = W*devicePixelRatio; canvas.height = 160*devicePixelRatio; ctx.scale(devicePixelRatio,devicePixelRatio); const H=160; const days=[]; const now=new Date(); for(let i=6;i>=0;i--) { const d=new Date(now); d.setDate(now.getDate()-i); days.push({ label: d.toLocaleDateString([],{weekday:'short'}), date: d.toDateString(), rev:0 }); } allOrders.forEach(o=>{ const ds = orderDate(o).toDateString(); const bucket = days.find(d=>d.date===ds); if(bucket) bucket.rev += parseFloat(o.total_amount||o.total||0); }); const maxRev = Math.max(...days.map(d=>d.rev),1); const padL=40,padR=16,padT=16,padB=36; const barArea = W-padL-padR; const barW = Math.floor(barArea/days.length); const gap = Math.max(4, barW*0.2); const bw = barW-gap; const chartH = H-padT-padB; ctx.clearRect(0,0,W,H); ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1; [0,0.25,0.5,0.75,1].forEach(t=>{ const y=padT+chartH*(1-t); ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(W-padR,y); ctx.stroke(); if(t>0){ ctx.fillStyle='rgba(107,114,128,0.7)'; ctx.font=`${10*devicePixelRatio/devicePixelRatio}px JetBrains Mono, monospace`; ctx.textAlign='right'; ctx.fillText('$'+(maxRev*t).toFixed(0), padL-6, y+4); } }); days.forEach((d,i)=>{ const x=padL+i*barW+gap/2; const bh=(d.rev/maxRev)*chartH; const y=padT+chartH-bh; const grad=ctx.createLinearGradient(0,y,0,y+bh); grad.addColorStop(0,d.rev>0?'#E8A44A':'rgba(107,114,128,0.2)'); grad.addColorStop(1,d.rev>0?'#C8722A':'rgba(107,114,128,0.1)'); ctx.fillStyle=grad; ctx.beginPath(); ctx.roundRect(x,y,bw,bh,[4,4,0,0]); ctx.fill(); if(d.rev>0){ ctx.fillStyle='#E8A44A'; ctx.font='bold 10px DM Sans, sans-serif'; ctx.textAlign='center'; ctx.fillText('$'+d.rev.toFixed(0), x+bw/2, y-5); } ctx.fillStyle='rgba(107,114,128,0.9)'; ctx.font='10px DM Sans, sans-serif'; ctx.textAlign='center'; ctx.fillText(d.label, x+bw/2, H-padB+16); }); }
 function drawStatusDonut() { const canvas = document.getElementById('statusDonut'); if(!canvas) return; const ctx = canvas.getContext('2d'); canvas.width=140*devicePixelRatio; canvas.height=140*devicePixelRatio; ctx.scale(devicePixelRatio,devicePixelRatio); const statuses=['pending','confirmed','cooking','completed','cancelled']; const colors=['#F59E0B','#3B82F6','#C8722A','#22C55E','#EF4444']; const counts = statuses.map(s=>allOrders.filter(o=>o.status===s).length); const total = counts.reduce((a,b)=>a+b,0)||1; const cx=70,cy=70,ro=60,ri=38; let angle = -Math.PI/2; counts.forEach((c,i)=>{ if(!c) return; const slice = (c/total)*Math.PI*2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,ro,angle,angle+slice); ctx.closePath(); ctx.fillStyle=colors[i]; ctx.fill(); angle+=slice; }); ctx.beginPath(); ctx.arc(cx,cy,ri,0,Math.PI*2); ctx.fillStyle='#161920'; ctx.fill(); ctx.fillStyle='#E8E2D9'; ctx.font='bold 18px JetBrains Mono, monospace'; ctx.textAlign='center'; ctx.fillText(total,cx,cy+4); ctx.fillStyle='rgba(107,114,128,0.8)'; ctx.font='9px DM Sans, sans-serif'; ctx.fillText('orders',cx,cy+16); const legend=document.getElementById('statusLegend'); legend.innerHTML=statuses.map((s,i)=>`<div class="legend-item"><div class="legend-dot" style="background:${colors[i]};"></div><div class="legend-label">${s.charAt(0).toUpperCase()+s.slice(1)}</div><div class="legend-val">${counts[i]}</div></div>`).join(''); }
 function drawPaymentMethod() { const el = document.getElementById('payMethodChart'); if(!el) return; const methods={}; allOrders.forEach(o=>{ const m=(o.payment_method||'unknown').trim(); methods[m]=(methods[m]||0)+1; }); const sorted=Object.entries(methods).sort((a,b)=>b[1]-a[1]); const max=sorted[0]?.[1]||1; const colors=['#3B82F6','#C8722A','#22C55E','#F59E0B','#E8A44A']; el.innerHTML=sorted.map(([m,c],i)=>`<div class="bar-row"><div class="bar-name" title="${esc(m)}">${esc(m)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/max*100)}%;background:${colors[i%colors.length]};"></div></div><div class="bar-count">${c}</div></div>`).join('')||'<div style="color:var(--muted);font-size:.8rem;padding:12px 0;">No data yet</div>'; }
 function drawHourlyChart() { const canvas = document.getElementById('hourlyChart'); if(!canvas) return; const ctx = canvas.getContext('2d'); const W = canvas.offsetWidth||400; canvas.width=W*devicePixelRatio; canvas.height=130*devicePixelRatio; ctx.scale(devicePixelRatio,devicePixelRatio); const H=130; const hours = new Array(24).fill(0); allOrders.forEach(o=>{ const h=orderDate(o).getHours(); if(h>=0&&h<24) hours[h]++; }); const shown = hours.slice(6); const labels=[...Array(18)].map((_,i)=>`${i+6}h`); const maxH = Math.max(...shown,1); const padL=8,padR=8,padT=10,padB=24; const barW = (W-padL-padR)/shown.length; const chartH = H-padT-padB; ctx.clearRect(0,0,W,H); shown.forEach((c,i)=>{ const x=padL+i*barW; const bh=(c/maxH)*chartH; const y=padT+chartH-bh; const alpha=0.15+0.85*(c/maxH); ctx.fillStyle=`rgba(200,114,42,${alpha})`; ctx.beginPath(); ctx.roundRect(x+2,y,barW-4,bh,[3,3,0,0]); ctx.fill(); if(c>0){ ctx.fillStyle='rgba(232,164,74,0.9)'; ctx.font='bold 9px DM Sans'; ctx.textAlign='center'; ctx.fillText(c,x+barW/2,y-3); } if(i%3===0){ ctx.fillStyle='rgba(107,114,128,0.8)'; ctx.font='9px DM Sans'; ctx.textAlign='center'; ctx.fillText(labels[i],x+barW/2,H-padB+14); } }); }
