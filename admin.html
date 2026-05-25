@@ -987,7 +987,7 @@ function updateStats() {
   document.getElementById('st-pending').textContent = pending;
   document.getElementById('st-cooking').textContent = cooking;
   document.getElementById('st-completed').textContent = completed;
-  document.getElementById('st-revenue').textContent = `$${revenue.toFixed(2)}`;
+  document.getElementById('st-revenue').textContent = `ETB ${revenue.toFixed(2)}`;
   document.getElementById('pendingCount').textContent = pending;
   document.getElementById('pendingCount').style.display = pending > 0 ? '' : 'none';
 }
@@ -1010,7 +1010,7 @@ function renderOrders() {
     const table = o.room_number || o.table_number || '?';
     const name = o.customer_name || o.customerName || 'Guest';
     const items = o.order_items || '—';
-    const total = `$${parseFloat(o.total_amount||o.total||0).toFixed(2)}`;
+    const total = `ETB ${parseFloat(o.total_amount||o.total||0).toFixed(2)}`;
     const status = o.status || 'pending';
     const pStatus = (o['payment_status '] || o.payment_status || 'pending').trim();
     const pMethod = o.payment_method || 'cash';
@@ -1124,7 +1124,7 @@ async function addMenuItem() {
     let d = null;
     try { d = await r.json(); } catch(e) {}
     if(r.ok) {
-      showResult('ok', `✓ "${esc(name)}" added to menu at $${price.toFixed(2)}`);
+      showResult('ok', `✓ "${esc(name)}" added to menu at ETB ${price.toFixed(2)}`);
       ['iName','iDesc','iPrice','iImg'].forEach(id => document.getElementById(id).value = '');
       setTimeout(loadMenuItems, 600);
     } else { showResult('err', d?.error || d?.message || `Server error ${r.status}`); }
@@ -1171,7 +1171,7 @@ function renderMenuItems() {
       <button class="mic-edit-btn" onclick="openEditModal('${esc(item.id)}')"><i class="fas fa-pen" style="margin-right:4px;"></i>Edit</button>
       ${imgTag}
       <div class="mic-body">
-        <div class="mic-top"><div class="mic-name">${esc(item.name)}</div><div class="mic-price">$${parseFloat(item.price||0).toFixed(2)}</div></div>
+        <div class="mic-top"><div class="mic-name">${esc(item.name)}</div><div class="mic-price">ETB ${parseFloat(item.price||0).toFixed(2)}</div></div>
         <div class="mic-desc" title="${esc(item.description||'')}">${item.description ? esc(item.description) : '<span style="opacity:.4">No description</span>'}</div>
         <div class="mic-footer"><span class="mic-cat">${esc(item.category||'other')}</span><div class="toggle-wrap"><span class="toggle-label">${avail ? 'Visible' : 'Hidden'}</span><label class="toggle" title="${avail ? 'Click to hide' : 'Click to show'}"><input type="checkbox" ${avail ? 'checked' : ''} onchange="toggleItemAvailability('${esc(item.id)}', this)"><span class="toggle-slider"></span></label></div></div>
       </div>
@@ -1259,9 +1259,9 @@ function calcAnalytics() {
   const completed = allOrders.filter(o=>o.status==='completed').length;
   const avg = total ? revenue/total : 0;
   const rate = total ? Math.round(completed/total*100) : 0;
-  document.getElementById('an-revenue').textContent = `$${revenue.toFixed(2)}`;
+  document.getElementById('an-revenue').textContent = `ETB ${revenue.toFixed(2)}`;
   document.getElementById('an-total').textContent = total;
-  document.getElementById('an-avg').textContent = `$${avg.toFixed(2)}`;
+  document.getElementById('an-avg').textContent = `ETB ${avg.toFixed(2)}`;
   document.getElementById('an-rate').textContent = `${rate}%`;
   drawRevenueChart(); drawStatusDonut(); drawPaymentMethod(); drawHourlyChart(); drawPopularItems(); drawPopularByRevenue();
 }
@@ -1271,11 +1271,11 @@ function drawStatusDonut() { const canvas = document.getElementById('statusDonut
 function drawPaymentMethod() { const el = document.getElementById('payMethodChart'); if(!el) return; const methods={}; allOrders.forEach(o=>{ const m=(o.payment_method||'unknown').trim(); methods[m]=(methods[m]||0)+1; }); const sorted=Object.entries(methods).sort((a,b)=>b[1]-a[1]); const max=sorted[0]?.[1]||1; const colors=['#3B82F6','#C8722A','#22C55E','#F59E0B','#E8A44A']; el.innerHTML=sorted.map(([m,c],i)=>`<div class="bar-row"><div class="bar-name" title="${esc(m)}">${esc(m)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/max*100)}%;background:${colors[i%colors.length]};"></div></div><div class="bar-count">${c}</div></div>`).join('')||'<div style="color:var(--muted);font-size:.8rem;padding:12px 0;">No data yet</div>'; }
 function drawHourlyChart() { const canvas = document.getElementById('hourlyChart'); if(!canvas) return; const ctx = canvas.getContext('2d'); const W = canvas.offsetWidth||400; canvas.width=W*devicePixelRatio; canvas.height=130*devicePixelRatio; ctx.scale(devicePixelRatio,devicePixelRatio); const H=130; const hours = new Array(24).fill(0); allOrders.forEach(o=>{ const h=orderDate(o).getHours(); if(h>=0&&h<24) hours[h]++; }); const shown = hours.slice(6); const labels=[...Array(18)].map((_,i)=>`${i+6}h`); const maxH = Math.max(...shown,1); const padL=8,padR=8,padT=10,padB=24; const barW = (W-padL-padR)/shown.length; const chartH = H-padT-padB; ctx.clearRect(0,0,W,H); shown.forEach((c,i)=>{ const x=padL+i*barW; const bh=(c/maxH)*chartH; const y=padT+chartH-bh; const alpha=0.15+0.85*(c/maxH); ctx.fillStyle=`rgba(200,114,42,${alpha})`; ctx.beginPath(); ctx.roundRect(x+2,y,barW-4,bh,[3,3,0,0]); ctx.fill(); if(c>0){ ctx.fillStyle='rgba(232,164,74,0.9)'; ctx.font='bold 9px DM Sans'; ctx.textAlign='center'; ctx.fillText(c,x+barW/2,y-3); } if(i%3===0){ ctx.fillStyle='rgba(107,114,128,0.8)'; ctx.font='9px DM Sans'; ctx.textAlign='center'; ctx.fillText(labels[i],x+barW/2,H-padB+14); } }); }
 function drawPopularItems() { const itemMap={}; allOrders.forEach(o=>{ (o.order_items||'').split(',').forEach(chunk=>{ const m=chunk.trim().match(/^(\d+)x\s+(.+)$/); if(m){ const [,qty,name]=m; itemMap[name]=(itemMap[name]||0)+parseInt(qty); } }); }); const sorted=Object.entries(itemMap).sort((a,b)=>b[1]-a[1]).slice(0,8); const max=sorted[0]?.[1]||1; const colors=['#E8A44A','#C8722A','#3B82F6','#22C55E','#F59E0B','#EF4444','#8B5CF6','#06B6D4']; document.getElementById('popularItems').innerHTML=sorted.length?sorted.map(([name,count],i)=>`<div class="bar-row"><div class="bar-name" title="${esc(name)}">${esc(name)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(count/max*100)}%;background:${colors[i%colors.length]};"></div></div><div class="bar-count">${count}</div></div>`).join(''):'<div class="empty-state" style="padding:24px 0;"><div class="empty-text">No data yet</div></div>'; }
-function drawPopularByRevenue() { const revMap={}; allOrders.forEach(o=>{ (o.order_items||'').split(',').forEach(chunk=>{ const m=chunk.trim().match(/^(\d+)x\s+(.+)$/); if(m){ const [,qty,name]=m; const menuItem = allMenuItems.find(mi=>mi.name===name.trim()); const priceEach=menuItem?parseFloat(menuItem.price||0):0; if(priceEach) revMap[name]=(revMap[name]||0)+priceEach*parseInt(qty); } }); }); const sorted=Object.entries(revMap).sort((a,b)=>b[1]-a[1]).slice(0,6); const max=sorted[0]?.[1]||1; document.getElementById('popularItemsRevenue').innerHTML=sorted.length?sorted.map(([name,rev])=>`<div class="bar-row"><div class="bar-name" title="${esc(name)}">${esc(name)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(rev/max*100)}%;background:var(--gold);"></div></div><div class="bar-count" style="color:var(--gold);">$${rev.toFixed(0)}</div></div>`).join(''):'<div style="color:var(--muted);font-size:.8rem;padding:8px 0;">Match menu items to see revenue data</div>'; }
+function drawPopularByRevenue() { const revMap={}; allOrders.forEach(o=>{ (o.order_items||'').split(',').forEach(chunk=>{ const m=chunk.trim().match(/^(\d+)x\s+(.+)$/); if(m){ const [,qty,name]=m; const menuItem = allMenuItems.find(mi=>mi.name===name.trim()); const priceEach=menuItem?parseFloat(menuItem.price||0):0; if(priceEach) revMap[name]=(revMap[name]||0)+priceEach*parseInt(qty); } }); }); const sorted=Object.entries(revMap).sort((a,b)=>b[1]-a[1]).slice(0,6); const max=sorted[0]?.[1]||1; document.getElementById('popularItemsRevenue').innerHTML=sorted.length?sorted.map(([name,rev])=>`<div class="bar-row"><div class="bar-name" title="${esc(name)}">${esc(name)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(rev/max*100)}%;background:var(--gold);"></div></div><div class="bar-count" style="color:var(--gold);">ETB ${rev.toFixed(0)}</div></div>`).join(''):'<div style="color:var(--muted);font-size:.8rem;padding:8px 0;">Match menu items to see revenue data</div>'; }
 
 /* Audio & Alerts */
 function playChime() { try { const ctx = new (window.AudioContext||window.webkitAudioContext)(); [523,659,784].forEach((freq,i)=>{ const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.frequency.value = freq; osc.type = 'sine'; gain.gain.setValueAtTime(0,.1+i*.18); gain.gain.linearRampToValueAtTime(.25,.12+i*.18); gain.gain.linearRampToValueAtTime(0,.5+i*.18); osc.start(.1+i*.18); osc.stop(.6+i*.18); }); } catch(e){} }
-function showNewOrderAlert(order) { document.querySelectorAll('.new-order-alert').forEach(e=>e.remove()); const el = document.createElement('div'); el.className = 'new-order-alert'; el.innerHTML = `<span class="noa-icon">🔔</span><div class="noa-text"><b>New Order!</b><br>Table ${order.room_number||order.table_number||'?'} · $${parseFloat(order.total_amount||0).toFixed(2)}</div><button class="noa-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`; document.body.appendChild(el); setTimeout(()=>el.remove(),8000); }
+function showNewOrderAlert(order) { document.querySelectorAll('.new-order-alert').forEach(e=>e.remove()); const el = document.createElement('div'); el.className = 'new-order-alert'; el.innerHTML = `<span class="noa-icon">🔔</span><div class="noa-text"><b>New Order!</b><br>Table ${order.room_number||order.table_number||'?'} · ETB ${parseFloat(order.total_amount||0).toFixed(2)}</div><button class="noa-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`; document.body.appendChild(el); setTimeout(()=>el.remove(),8000); }
 function toggleAudio() { audioEnabled = !audioEnabled; const btn = document.getElementById('audioToggle'); btn.classList.toggle('active', audioEnabled); btn.innerHTML = `<i class="fas fa-volume-${audioEnabled?'up':'mute'}"></i>`; }
 
 /* Sidebar mobile */

@@ -510,7 +510,7 @@
 <button class="cart-fab" id="cartFab" onclick="openCart()">
   <i class="fas fa-shopping-bag"></i>
   <span class="fab-count" id="fabCount">0</span>
-  <span id="fabTotal">$0.00</span>
+  <span id="fabTotal">ETB 0.00</span>
   <i class="fas fa-chevron-up" style="font-size:.7rem;opacity:.7;"></i>
 </button>
 
@@ -543,7 +543,7 @@
   <div class="drawer-footer">
     <div class="drawer-total">
       <span class="drawer-total-label" id="totalLabel">Total</span>
-      <span class="drawer-total-amount" id="drawerTotal">$0.00</span>
+      <span class="drawer-total-amount" id="drawerTotal">ETB 0.00</span>
     </div>
     <button class="order-btn" id="orderBtn" onclick="placeOrder()">
       <i class="fas fa-credit-card"></i> <span id="orderBtnText">Choose Payment &amp; Order</span>
@@ -768,7 +768,7 @@ function renderMenu(items) {
         <div class="card-name">${esc(item.name)}</div>
         ${item.description ? `<div class="card-desc">${esc(item.description)}</div>` : ''}
         <div class="card-footer">
-          <span class="card-price">$${parseFloat(item.price).toFixed(2)}</span>
+          <span class="card-price">ETB ${parseFloat(item.price).toFixed(2)}</span>
           ${item.available
             ? (qty > 0
               ? `<div class="qty-control" onclick="event.stopPropagation()">
@@ -821,10 +821,10 @@ function updateCartUI() {
   const total = cartTotal();
   const fab   = document.getElementById('cartFab');
   document.getElementById('fabCount').textContent = count;
-  document.getElementById('fabTotal').textContent = `$${total.toFixed(2)}`;
+  document.getElementById('fabTotal').textContent = `ETB ${total.toFixed(2)}`;
   fab.classList.toggle('visible', count > 0);
   renderDrawer();
-  document.getElementById('drawerTotal').textContent = `$${total.toFixed(2)}`;
+  document.getElementById('drawerTotal').textContent = `ETB ${total.toFixed(2)}`;
   const activeBtn = document.querySelector('.cat-btn.active');
   const cat = activeBtn ? activeBtn.dataset.cat : 'all';
   renderMenu(cat === 'all' ? menuItems : menuItems.filter(i => i.category === cat));
@@ -842,7 +842,7 @@ function renderDrawer() {
            alt="${esc(item.name)}" onerror="this.src='https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=100&q=60'">
       <div class="ci-info">
         <div class="ci-name">${esc(item.name)}</div>
-        <div class="ci-price">$${(item.price * item.quantity).toFixed(2)}</div>
+        <div class="ci-price">ETB ${(item.price * item.quantity).toFixed(2)}</div>
       </div>
       <div class="ci-qty">
         <button class="ci-qty-btn" onclick="changeQty('${item.id}',-1)">−</button>

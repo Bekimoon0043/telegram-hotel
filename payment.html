@@ -290,7 +290,7 @@
     <div id="orderItems"></div>
     <div class="total-row">
       <span class="total-lbl" id="totalLbl">Total to Pay</span>
-      <span class="total-amt" id="totalAmt">$0.00</span>
+      <span class="total-amt" id="totalAmt">ETB 0.00</span>
     </div>
   </div>
 
@@ -360,7 +360,7 @@
         <div class="method-details">
           <div class="cod-info">
             <i class="fas fa-info-circle"></i>
-            <p><span id="cashInfoText">No payment needed now. Our staff will collect payment when your order is delivered to your room. Please have the exact amount ready:</span> <strong id="codTotal" style="color:var(--gold)">$0.00</strong></p>
+            <p><span id="cashInfoText">No payment needed now. Our staff will collect payment when your order is delivered to your room. Please have the exact amount ready:</span> <strong id="codTotal" style="color:var(--gold)">ETB 0.00</strong></p>
           </div>
         </div>
       </div>
@@ -602,12 +602,12 @@ function init() {
   document.getElementById('orderItems').innerHTML = items.map(i => `
     <div class="sum-row">
       <span class="sum-label">${esc(i.name)} × ${i.quantity}</span>
-      <span class="sum-val">$${(i.price * i.quantity).toFixed(2)}</span>
+      <span class="sum-val">ETB ${(i.price * i.quantity).toFixed(2)}</span>
     </div>`).join('') || '<div class="sum-row"><span class="sum-label">—</span></div>';
 
   const total = parseFloat(orderData.total || 0).toFixed(2);
-  document.getElementById('totalAmt').textContent = `$${total}`;
-  document.getElementById('codTotal').textContent = `$${total}`;
+  document.getElementById('totalAmt').textContent = `ETB ${total}`;
+  document.getElementById('codTotal').textContent = `ETB ${total}`;
 }
 
 /* ── SELECT METHOD ── */

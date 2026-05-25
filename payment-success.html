@@ -214,7 +214,7 @@
     <div id="orderItems"></div>
     <div class="total-row">
       <span class="total-lbl">Total</span>
-      <span class="total-amt" id="totalAmt">$0.00</span>
+      <span class="total-amt" id="totalAmt">ETB 0.00</span>
     </div>
   </div>
 
@@ -342,10 +342,10 @@ function init() {
   document.getElementById('orderItems').innerHTML = items.map(i => `
     <div class="sum-row">
       <span class="sum-label">${esc(i.name)} × ${i.quantity}</span>
-      <span class="sum-val">$${(i.price*i.quantity).toFixed(2)}</span>
+      <span class="sum-val">ETB ${(i.price*i.quantity).toFixed(2)}</span>
     </div>`).join('') || '<div class="sum-row"><span class="sum-label">—</span></div>';
 
-  document.getElementById('totalAmt').textContent = `$${parseFloat(orderData.total||0).toFixed(2)}`;
+  document.getElementById('totalAmt').textContent = `ETB ${parseFloat(orderData.total||0).toFixed(2)}`;
 
   // Payment method
   const pIcons = {cash:'money-bill-wave',card:'credit-card',mobile_money:'mobile-alt',paypal:'fab fa-paypal'};
