@@ -570,25 +570,7 @@
   </div>
 
   <div class="sidebar-footer">
-    <!-- Session info -->
-    <div style="padding:12px 16px 8px;border-top:1px solid var(--border);">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-        <div style="width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 5px var(--success);flex-shrink:0;"></div>
-        <div>
-          <div style="font-size:.75rem;font-weight:600;color:var(--cream);" id="sessionUser">Admin</div>
-          <div style="font-size:.65rem;color:var(--muted);" id="sessionExpiry">Session active</div>
-        </div>
-      </div>
-      <button onclick="doLogout()" style="
-        width:100%;padding:9px 12px;border-radius:8px;
-        background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);
-        color:#f87171;font-size:.8rem;font-weight:600;cursor:pointer;
-        font-family:'DM Sans',sans-serif;display:flex;align-items:center;
-        gap:8px;transition:background .2s;">
-        <i class="fas fa-sign-out-alt"></i> Sign Out
-      </button>
-    </div>
-    <a href="index.html" style="display:block;padding:10px 16px 14px;color:var(--muted);text-decoration:none;font-size:.75rem;">
+    <a href="index.html" style="color:var(--muted);text-decoration:none;font-size:.75rem;">
       <i class="fas fa-external-link-alt"></i> View Customer Menu
     </a>
   </div>
@@ -898,98 +880,84 @@
 </div>
 
 <script>
-/* ════════════════════════════════════════════════════════
-   AUTH GUARD — runs before anything else
-   If no valid token → immediate redirect to login
-════════════════════════════════════════════════════════ */
-const STORAGE_KEY    = 'admin_auth';
-const SESSION_WARN   = 5 * 60 * 1000;   // warn 5 min before expiry
-
-let _authToken    = null;
-let _authExpiry   = 0;
-let _authUsername = '';
-let _warnTimer    = null;
-let _logoutTimer  = null;
-
-(function guardInit() {
-  const raw = sessionStorage.getItem(STORAGE_KEY) || localStorage.getItem(STORAGE_KEY);
-  if (!raw) { kickToLogin('No session found'); return; }
-  try {
-    const session = JSON.parse(raw);
-    if (!session.token || !session.expiresAt) { kickToLogin('Malformed session'); return; }
-    if (Date.now() >= session.expiresAt) { kickToLogin('Session expired'); return; }
-    _authToken    = session.token;
-    _authExpiry   = session.expiresAt;
-    _authUsername = session.username || 'Admin';
-    scheduleAutoLogout();
-  } catch { kickToLogin('Invalid session'); }
-})();
-
-function kickToLogin(reason) {
-  sessionStorage.removeItem(STORAGE_KEY);
-  // Don't wipe localStorage here — the lockout data lives there too
-  // Only wipe the auth entry
-  localStorage.removeItem(STORAGE_KEY);
-  window.location.replace('admin-login.html');
-}
-
-function getAuthHeaders() {
-  // Always provide the token; kick if it's gone or expired
-  if (!_authToken || Date.now() >= _authExpiry) { kickToLogin('Token expired'); return {}; }
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${_authToken}`
-  };
-}
-
-// Call after every fetch response to detect server-side token rejection
-function checkUnauthorized(response) {
-  if (response && response.status === 401) {
-    kickToLogin('Session rejected by server');
-    return true;
-  }
-  return false;
-}
-
-function scheduleAutoLogout() {
-  if (_logoutTimer) clearTimeout(_logoutTimer);
-  if (_warnTimer)   clearTimeout(_warnTimer);
-
-  const remaining = _authExpiry - Date.now();
-  if (remaining <= 0) { kickToLogin('Expired'); return; }
-
-  // Warn 5 min before expiry
-  const warnIn = remaining - SESSION_WARN;
-  if (warnIn > 0) {
-    _warnTimer = setTimeout(() => {
-      showToast('warning', '⚠️ Session expires in 5 minutes. Save your work.');
-    }, warnIn);
-  }
-
-  // Auto-logout at expiry
-  _logoutTimer = setTimeout(() => kickToLogin('Session expired'), remaining);
-}
-
-function doLogout() {
-  if (_warnTimer)   clearTimeout(_warnTimer);
-  if (_logoutTimer) clearTimeout(_logoutTimer);
-  sessionStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem('admin_storage');
-  window.location.replace('admin-login.html');
-}
-
-/* ════════════════════════════════════════════════════════
-   ORIGINAL SCRIPT CONTINUES BELOW
-════════════════════════════════════════════════════════ */
 const API    = 'https://n8n-n64x.onrender.com/webhook';
 const SITE   = 'https://bekimoon0043.github.io/telegram-hotel';
+
+// Token management
+let adminToken = localStorage.getItem('admin_token');
+let tokenExpiry = localStorage.getItem('admin_expiry');
+
+function isTokenValid() {
+  if (!adminToken) return false;
+  if (tokenExpiry && Date.now() > parseInt(tokenExpiry)) return false;
+  return true;
+}
+
+function setToken(token, expiresAt) {
+  adminToken = token;
+  tokenExpiry = expiresAt;
+  localStorage.setItem('admin_token', token);
+  localStorage.setItem('admin_expiry', expiresAt);
+}
+
+function clearToken() {
+  adminToken = null;
+  tokenExpiry = null;
+  localStorage.removeItem('admin_token');
+  localStorage.removeItem('admin_expiry');
+}
+
+async function authFetch(url, options = {}) {
+  if (!isTokenValid()) {
+    const loggedIn = await promptLogin();
+    if (!loggedIn) throw new Error('Not authenticated');
+  }
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${adminToken}`,
+    ...options.headers
+  };
+  const response = await fetch(url, { ...options, headers });
+  if (response.status === 401) {
+    clearToken();
+    throw new Error('Session expired. Please login again.');
+  }
+  return response;
+}
+
+async function promptLogin() {
+  const username = prompt('Admin Username:');
+  if (!username) return false;
+  const password = prompt('Password:');
+  if (!password) return false;
+  try {
+    const res = await fetch(`${API}/admin-auth`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (data.success) {
+      setToken(data.token, data.expiresAt);
+      return true;
+    } else {
+      alert('Invalid credentials');
+      return false;
+    }
+  } catch(e) {
+    alert('Login error: ' + e.message);
+    return false;
+  }
+}
 
 let allOrders     = [];
 let filteredStatus = 'all';
 let audioEnabled   = true;
 let prevOrderCount = 0;
 let pollInterval;
+
+let allMenuItems = [];
+let menuFilter   = 'all';
 
 /* ── NAV ─────────────────────────────────── */
 function showSection(name, el) {
@@ -1010,8 +978,7 @@ async function loadOrders() {
   btn.classList.add('spinning');
 
   try {
-    const r = await fetch(`${API}/orders-admin`, { headers: getAuthHeaders() });
-    if (checkUnauthorized(r)) return;
+    const r = await authFetch(`${API}/orders-admin`);
     const d = await r.json();
     allOrders = (d.orders || []).sort((a,b) => new Date(b.timestamp||0) - new Date(a.timestamp||0));
 
@@ -1026,7 +993,8 @@ async function loadOrders() {
     renderOrders();
     document.getElementById('lastUpdate').textContent = 'Updated ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   } catch(e) {
-    document.getElementById('ordersBody').innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon"><i class="fas fa-wifi-slash"></i></div><div class="empty-text">Failed to load orders. Check your n8n connection.</div></div></td></tr>`;
+    console.error(e);
+    document.getElementById('ordersBody').innerHTML = `<td><td colspan="8"><div class="empty-state"><div class="empty-icon"><i class="fas fa-wifi-slash"></i></div><div class="empty-text">Failed to load orders. ${e.message}</div></div></td></tr>`;
   }
   btn.classList.remove('spinning');
 }
@@ -1091,7 +1059,7 @@ function renderOrders() {
           <button class="act-btn pay-ok" data-id="${conf}" data-pay="verified"><i class="fas fa-check"></i> OK</button>
           <button class="act-btn pay-no" data-id="${conf}" data-pay="rejected"><i class="fas fa-times"></i></button>
         </div>` : ''}
-      </td>
+       </td>
       <td><span class="pill ${status}"><span class="pill-dot"></span>${cap(status)}</span></td>
       <td>
         <div class="action-group">
@@ -1100,8 +1068,8 @@ function renderOrders() {
           ${status==='cooking'   ? `<button class="act-btn complete" data-id="${conf}" data-action="completed"><i class="fas fa-check-double"></i> Done</button>` : ''}
           ${status!=='completed' ? `<button class="act-btn reject"   data-id="${conf}" data-action="cancelled"><i class="fas fa-ban"></i></button>` : '<span style="color:var(--success);font-size:.75rem;"><i class="fas fa-check-double"></i> Complete</span>'}
         </div>
-      </td>
-    </tr>`;
+       </td>
+     </tr>`;
   }).join('');
 }
 
@@ -1110,14 +1078,13 @@ async function updateOrder(confNum, newStatus) {
   const order = allOrders.find(o => o.confirmation_number===confNum || o.id===confNum);
   if(!order) { alert('Order not found'); return; }
 
-  // Optimistic UI — update table instantly so admin sees feedback
+  // Optimistic UI
   const idx = allOrders.findIndex(o => o.confirmation_number===confNum || o.id===confNum);
   if(idx > -1) { allOrders[idx] = {...allOrders[idx], status: newStatus}; renderOrders(); updateStats(); }
 
   const currentPayStatus = ((order['payment_status '] || order.payment_status || 'pending') + '').trim();
 
   try {
-    // Spread full order + override status — same approach as the working admin
     const payload = {
       ...order,
       confirmation_number: confNum,
@@ -1126,8 +1093,8 @@ async function updateOrder(confNum, newStatus) {
       updatedAt: new Date().toISOString()
     };
 
-    const resp = await fetch(`${API}/update-order`, {
-      method:'POST', headers:getAuthHeaders(),
+    const resp = await authFetch(`${API}/update-order`, {
+      method:'POST',
       body: JSON.stringify(payload)
     });
 
@@ -1136,7 +1103,7 @@ async function updateOrder(confNum, newStatus) {
     // Notify customer on Telegram
     if(order.telegram_chat_id && (newStatus==='confirmed'||newStatus==='completed')) {
       fetch(`${API}/notify-customer`, {
-        method:'POST', headers:getAuthHeaders(),
+        method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
           orderId: confNum,
           telegramChatId: order.telegram_chat_id,
@@ -1176,8 +1143,8 @@ async function updatePayment(confNum, payStatus) {
       updatedAt: new Date().toISOString()
     };
 
-    const resp = await fetch(`${API}/update-order`, {
-      method:'POST', headers:getAuthHeaders(),
+    const resp = await authFetch(`${API}/update-order`, {
+      method:'POST',
       body: JSON.stringify(payload)
     });
 
@@ -1238,9 +1205,6 @@ function downloadQR(tableNum) {
 }
 
 /* ── MENU MANAGEMENT ─────────────────────── */
-let allMenuItems = [];
-let menuFilter   = 'all';
-
 async function addMenuItem() {
   const btn = document.getElementById('addItemBtn');
   const name  = document.getElementById('iName').value.trim();
@@ -1262,21 +1226,16 @@ async function addMenuItem() {
   };
 
   try {
-    const r = await fetch(`${API}/add-menu-item`, {
-      method:'POST', headers:getAuthHeaders(),
+    const r = await authFetch(`${API}/add-menu-item`, {
+      method:'POST',
       body: JSON.stringify(item)
     });
-    // Read body only to extract error message if request failed
     let d = null;
-    try { d = await r.json(); } catch(e) { /* body may not be JSON on error */ }
+    try { d = await r.json(); } catch(e) { /* ignore */ }
 
-    // SUCCESS: HTTP 200 means Supabase created the row — no need to inspect body shape.
-    // (Supabase node can return the row as an object, array, or n8n-wrapped envelope;
-    //  checking r.ok is the only reliable signal across all n8n/Supabase versions.)
     if(r.ok) {
       showResult('ok', `✓ "${esc(name)}" added to menu at $${price.toFixed(2)}`);
       ['iName','iDesc','iPrice','iImg'].forEach(id => document.getElementById(id).value = '');
-      // Refresh the menu items list so the new item appears immediately
       setTimeout(loadMenuItems, 600);
     } else {
       showResult('err', d?.error || d?.message || `Server error ${r.status}`);
@@ -1294,21 +1253,12 @@ async function loadMenuItems() {
   document.getElementById('menuItemsGrid').innerHTML =
     '<div class="menu-empty"><i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Loading…</div>';
   try {
-    // Always use the admin endpoint — it returns ALL items (available + hidden).
-    // Never fall back to /menu which is the customer endpoint and strips hidden items.
-    const r = await fetch(`${API}/menu-admin`, { headers: getAuthHeaders() });
-    if (!r.ok) throw new Error(`Server returned ${r.status}`);
+    const r = await authFetch(`${API}/menu-admin`);
     const d = await r.json();
-
-    // Normalise availability: the menu-admin workflow returns a boolean,
-    // but guard against string values ("TRUE"/"FALSE") coming from older data.
     allMenuItems = (d.menu || []).map(item => ({
       ...item,
-      available: typeof item.available === 'boolean'
-        ? item.available
-        : String(item.available).toUpperCase() === 'TRUE'
+      available: typeof item.available === 'boolean' ? item.available : String(item.available).toUpperCase() === 'TRUE'
     }));
-
     renderMenuItems();
   } catch(e) {
     document.getElementById('menuItemsGrid').innerHTML =
@@ -1375,7 +1325,7 @@ async function toggleItemAvailability(itemId, checkbox) {
   const newAvail = checkbox.checked;
   checkbox.disabled = true;
 
-  // Optimistic UI update
+  // Optimistic UI
   const idx = allMenuItems.findIndex(i => i.id == itemId);
   if(idx > -1) {
     allMenuItems[idx] = {...allMenuItems[idx], available: newAvail};
@@ -1383,16 +1333,13 @@ async function toggleItemAvailability(itemId, checkbox) {
   }
 
   try {
-    const r = await fetch(`${API}/update-menu-item`, {
+    const r = await authFetch(`${API}/update-menu-item`, {
       method: 'POST',
-      headers:getAuthHeaders(),
       body: JSON.stringify({ id: itemId, available: newAvail ? 'TRUE' : 'FALSE' })
     });
     if(!r.ok) throw new Error(`Server error ${r.status}`);
-    // Re-render to reflect label change
     renderMenuItems();
   } catch(e) {
-    // Revert on failure
     if(idx > -1) {
       allMenuItems[idx] = {...allMenuItems[idx], available: !newAvail};
       renderMenuItems();
@@ -1463,13 +1410,12 @@ async function saveMenuEdit() {
   };
 
   try {
-    const r = await fetch(`${API}/update-menu-item`, {
-      method:'POST', headers:getAuthHeaders(),
+    const r = await authFetch(`${API}/update-menu-item`, {
+      method:'POST',
       body: JSON.stringify(payload)
     });
     if(!r.ok) throw new Error(`Server error ${r.status}`);
 
-    // Update local cache optimistically
     const idx = allMenuItems.findIndex(i => String(i.id) === String(id));
     if(idx > -1) {
       allMenuItems[idx] = {
@@ -1520,7 +1466,6 @@ function calcAnalytics() {
   drawPopularByRevenue();
 }
 
-/* helper: parse order date safely */
 function orderDate(o) { try { return new Date(o.timestamp||0); } catch(e){ return new Date(0); } }
 
 /* ── REVENUE BAR CHART (last 7 days) ─────── */
@@ -1534,7 +1479,6 @@ function drawRevenueChart() {
   ctx.scale(devicePixelRatio, devicePixelRatio);
   const H = 160;
 
-  // Build 7-day buckets
   const days = [];
   const now  = new Date();
   for(let i=6; i>=0; i--) {
@@ -1558,7 +1502,6 @@ function drawRevenueChart() {
 
   ctx.clearRect(0, 0, W, H);
 
-  // Grid lines
   ctx.strokeStyle = 'rgba(255,255,255,0.06)';
   ctx.lineWidth = 1;
   [0,0.25,0.5,0.75,1].forEach(t => {
@@ -1572,13 +1515,11 @@ function drawRevenueChart() {
     }
   });
 
-  // Bars + labels
   days.forEach((d, i) => {
     const x  = padL + i * barW + gap/2;
     const bh = (d.rev / maxRev) * chartH;
     const y  = padT + chartH - bh;
 
-    // Bar gradient
     const grad = ctx.createLinearGradient(0, y, 0, y+bh);
     grad.addColorStop(0, d.rev > 0 ? '#E8A44A' : 'rgba(107,114,128,0.2)');
     grad.addColorStop(1, d.rev > 0 ? '#C8722A' : 'rgba(107,114,128,0.1)');
@@ -1587,7 +1528,6 @@ function drawRevenueChart() {
     ctx.roundRect(x, y, bw, bh, [4,4,0,0]);
     ctx.fill();
 
-    // Value label on top
     if(d.rev > 0) {
       ctx.fillStyle = '#E8A44A';
       ctx.font = `bold 10px DM Sans, sans-serif`;
@@ -1595,7 +1535,6 @@ function drawRevenueChart() {
       ctx.fillText('$'+d.rev.toFixed(0), x+bw/2, y-5);
     }
 
-    // Day label
     ctx.fillStyle = 'rgba(107,114,128,0.9)';
     ctx.font = `10px DM Sans, sans-serif`;
     ctx.textAlign = 'center';
@@ -1632,13 +1571,11 @@ function drawStatusDonut() {
     angle += slice;
   });
 
-  // Hole
   ctx.beginPath();
   ctx.arc(cx, cy, ri, 0, Math.PI*2);
   ctx.fillStyle = '#161920';
   ctx.fill();
 
-  // Center text
   ctx.fillStyle = '#E8E2D9';
   ctx.font = `bold 18px JetBrains Mono, monospace`;
   ctx.textAlign = 'center';
@@ -1647,7 +1584,6 @@ function drawStatusDonut() {
   ctx.font = `9px DM Sans, sans-serif`;
   ctx.fillText('orders', cx, cy+16);
 
-  // Legend
   const legend = document.getElementById('statusLegend');
   legend.innerHTML = statuses.map((s,i) => `
     <div class="legend-item">
@@ -1695,7 +1631,6 @@ function drawHourlyChart() {
     const h = orderDate(o).getHours();
     if(h >= 0 && h < 24) hours[h]++;
   });
-  // Show hours 6-23 for readability
   const shown = hours.slice(6);
   const labels= [...Array(18)].map((_,i)=>`${i+6}h`);
   const maxH  = Math.max(...shown, 1);
@@ -1717,7 +1652,6 @@ function drawHourlyChart() {
     ctx.roundRect(x+2, y, barW-4, bh, [3,3,0,0]);
     ctx.fill();
 
-    // Count badge
     if(c > 0) {
       ctx.fillStyle = 'rgba(232,164,74,0.9)';
       ctx.font = `bold 9px DM Sans`;
@@ -1725,7 +1659,6 @@ function drawHourlyChart() {
       ctx.fillText(c, x+barW/2, y-3);
     }
 
-    // Hour label every 3
     if(i % 3 === 0) {
       ctx.fillStyle = 'rgba(107,114,128,0.8)';
       ctx.font = `9px DM Sans`;
@@ -1767,7 +1700,6 @@ function drawPopularByRevenue() {
       const m = chunk.trim().match(/^(\d+)x\s+(.+)$/);
       if(m) {
         const [,qty,name] = m;
-        // Try to match against menu for price; fallback to proportional order total
         const menuItem = allMenuItems.find(mi => mi.name === name.trim());
         const priceEach = menuItem ? parseFloat(menuItem.price||0) : 0;
         if(priceEach) revMap[name] = (revMap[name]||0) + priceEach * parseInt(qty);
@@ -1788,7 +1720,7 @@ function drawPopularByRevenue() {
     : '<div style="color:var(--muted);font-size:.8rem;padding:8px 0;">Match menu items to see revenue data</div>';
 }
 
-/* ── MODAL — kept for UI but no longer used for action gating ── */
+/* ── MODAL ────────────────────────────────── */
 function closeModal() {
   document.getElementById('confirmModal').classList.remove('open');
 }
@@ -1847,9 +1779,6 @@ function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):'';}
 function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 
 /* ── DELEGATED CLICK HANDLER ─────────────── */
-// All order/payment buttons use data-id + data-action/data-pay
-// This avoids any issues with special characters in confirmation numbers
-// being mangled by HTML attribute encoding (esc() + onclick = broken)
 document.addEventListener('click', function(e) {
   const btn = e.target.closest('[data-id]');
   if(!btn) return;
@@ -1859,29 +1788,23 @@ document.addEventListener('click', function(e) {
 });
 
 /* ── INIT ────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', () => {
-  // ── Session UI ──
-  document.getElementById('sessionUser').textContent = _authUsername;
-  function refreshExpiry() {
-    const left = Math.max(0, _authExpiry - Date.now());
-    const h = Math.floor(left / 3600000);
-    const m = Math.floor((left % 3600000) / 60000);
-    document.getElementById('sessionExpiry').textContent =
-      left > 0 ? `Expires in ${h > 0 ? h+'h ' : ''}${m}m` : 'Expired';
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!isTokenValid()) {
+    const ok = await promptLogin();
+    if (!ok) {
+      alert('Access denied');
+      return;
+    }
   }
-  refreshExpiry();
-  setInterval(refreshExpiry, 60000);
-
   loadOrders();
+  loadMenuItems();
   pollInterval = setInterval(loadOrders, 30000);
   document.getElementById('qrBase').value = location.origin+location.pathname.replace('admin.html','') || SITE;
 
-  // Close edit modal on backdrop click
   document.getElementById('editMenuModal').addEventListener('click', function(e) {
     if(e.target === this) closeEditModal();
   });
 
-  // Redraw canvas charts on resize
   window.addEventListener('resize', () => {
     if(document.getElementById('sec-analytics').style.display !== 'none') {
       drawRevenueChart();
@@ -1889,6 +1812,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+// Helper for roundRect
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    this.moveTo(x+r, y);
+    this.lineTo(x+w-r, y);
+    this.quadraticCurveTo(x+w, y, x+w, y+r);
+    this.lineTo(x+w, y+h-r);
+    this.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+    this.lineTo(x+r, y+h);
+    this.quadraticCurveTo(x, y+h, x, y+h-r);
+    this.lineTo(x, y+r);
+    this.quadraticCurveTo(x, y, x+r, y);
+    return this;
+  };
+}
 </script>
 </body>
 </html>
